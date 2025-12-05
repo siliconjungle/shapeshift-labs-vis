@@ -1,0 +1,80 @@
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  --font-display: 'Syne', system-ui, -apple-system, BlinkMacSystemFont, 'Inter', 'Helvetica Neue',
+    Arial, sans-serif;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  background-color: #000;
+  color: #fff;
+}
+
+#page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+  height: 100vh;
+}
+
+#model-wrapper {
+  position: relative;
+  width: 95vmin;
+  height: 95vmin;
+  transform: translateY(-4vh);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#container {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 1.5s ease;
+}
+
+#container.loaded {
+  opacity: 1;
+}
+
+.title-text {
+  position: absolute;
+  color: #ffffff;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 3.6rem;
+  z-index: 20;
+  letter-spacing: 0.08em;
+  text-transform: none;
+  line-height: 1;
+}
+
+#title-shape {
+  bottom: -2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: block;
+}
+
+#title-shift {
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  line-height: 0.95;
+}

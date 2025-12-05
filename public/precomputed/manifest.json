@@ -1,0 +1,45 @@
+{
+  "vertexCount": 19678,
+  "models": [
+    {
+      "name": "face",
+      "bin": "face.bin",
+      "meta": "face.json"
+    },
+    {
+      "name": "face2",
+      "bin": "face2.bin",
+      "meta": "face2.json"
+    },
+    {
+      "name": "goddess",
+      "bin": "goddess.bin",
+      "meta": "goddess.json"
+    },
+    {
+      "name": "person-face",
+      "bin": "person-face.bin",
+      "meta": "person-face.json"
+    },
+    {
+      "name": "person-face2",
+      "bin": "person-face2.bin",
+      "meta": "person-face2.json"
+    },
+    {
+      "name": "person-face3",
+      "bin": "person-face3.bin",
+      "meta": "person-face3.json"
+    },
+    {
+      "name": "person-face4",
+      "bin": "person-face4.bin",
+      "meta": "person-face4.json"
+    },
+    {
+      "name": "tree",
+      "bin": "tree.bin",
+      "meta": "tree.json"
+    }
+  ]
+}
