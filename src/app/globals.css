@@ -5,6 +5,7 @@
 :root {
   --font-display: 'Syne', system-ui, -apple-system, BlinkMacSystemFont, 'Inter', 'Helvetica Neue',
     Arial, sans-serif;
+  --ink: #e6e6e6;
 }
 
 html,
@@ -16,7 +17,7 @@ body {
   overflow: hidden;
   font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
   background-color: #000;
-  color: #fff;
+  color: var(--ink);
 }
 
 #page {
@@ -35,6 +36,22 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+  /* diagram variables */
+  --diagram-phase: 0;
+  --mouse-x: 0.5;
+  --mouse-y: 0.5;
+  --label-a-anchor-x: 0px;
+  --label-a-anchor-y: 0px;
+  --label-a-len: 0px;
+  --label-a-angle: 0deg;
+  --label-b-anchor-x: 0px;
+  --label-b-anchor-y: 0px;
+  --label-b-len: 0px;
+  --label-b-angle: 0deg;
+  --label-c-anchor-x: 0px;
+  --label-c-anchor-y: 0px;
+  --label-c-len: 0px;
+  --label-c-angle: 0deg;
 }
 
 #container {
@@ -49,9 +66,222 @@ body {
   opacity: 1;
 }
 
+.diagram-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 15;
+  background: none;
+}
+
+.diagram-grid {
+  position: absolute;
+  inset: 8%;
+  border-radius: 0;
+  opacity: 0.6;
+  mix-blend-mode: screen;
+  border: none;
+  background-image:
+    linear-gradient(to right, rgba(235, 235, 235, 0.22) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(235, 235, 235, 0.22) 1px, transparent 1px),
+    linear-gradient(to right, rgba(235, 235, 235, 0.1) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(235, 235, 235, 0.1) 1px, transparent 1px);
+  background-size:
+    36px 36px,
+    36px 36px,
+    18px 18px,
+    18px 18px;
+  -webkit-mask-image: radial-gradient(
+    circle at center,
+    rgba(255, 255, 255, 1) 0%,
+    rgba(255, 255, 255, 1) 55%,
+    rgba(255, 255, 255, 0) 85%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  mask-image: radial-gradient(
+    circle at center,
+    rgba(255, 255, 255, 1) 0%,
+    rgba(255, 255, 255, 1) 55%,
+    rgba(255, 255, 255, 0) 85%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transition: opacity 400ms ease;
+  transform: translate(0, 0);
+}
+
+.diagram-label-group {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink);
+  opacity: 0;
+  white-space: nowrap;
+  transition: opacity 0.35s ease;
+}
+
+.diagram-label-group--a {
+  left: 10%;
+  top: 18%;
+}
+
+.diagram-label-group--b {
+  right: 8%;
+  top: 32%;
+  flex-direction: row-reverse;
+}
+
+.diagram-label-group--c {
+  left: 14%;
+  bottom: 18%;
+}
+
+.diagram-node {
+  display: none; /* anchor dot is rendered via connector ::after */
+}
+
+.diagram-label {
+  opacity: 0.85;
+  color: var(--ink);
+}
+
+.diagram-connector {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 0 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.diagram-connector::before {
+  content: '';
+  display: block;
+  height: 1px;
+  width: 100%;
+  background: linear-gradient(
+    to right,
+    rgba(220, 220, 220, 0.55),
+    rgba(220, 220, 220, 0.18)
+  );
+}
+
+.diagram-connector::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: radial-gradient(
+    circle,
+    var(--ink) 0%,
+    rgba(230, 230, 230, 0.45) 40%,
+    transparent 70%
+  );
+  box-shadow: 0 0 6px rgba(230, 230, 230, 0.4);
+  transform: translate(-50%, -50%);
+}
+
+.diagram-connector--a {
+  width: var(--label-a-len);
+  transform: translate(var(--label-a-anchor-x), var(--label-a-anchor-y))
+    rotate(var(--label-a-angle));
+}
+
+.diagram-connector--b {
+  width: var(--label-b-len);
+  transform: translate(var(--label-b-anchor-x), var(--label-b-anchor-y))
+    rotate(var(--label-b-angle));
+}
+
+.diagram-connector--c {
+  width: var(--label-c-len);
+  transform: translate(var(--label-c-anchor-x), var(--label-c-anchor-y))
+    rotate(var(--label-c-angle));
+}
+
+/* --- Mesh annotation nodes/lines --- */
+.mesh-node {
+  position: absolute;
+  pointer-events: none;
+  border: 1px solid #e4e4e4;
+  box-shadow: none;
+  z-index: 16;
+}
+
+.mesh-node--filled {
+  background: #e4e4e4;
+}
+
+.mesh-node--outline {
+  background: transparent;
+  border-width: 2px;
+}
+
+.mesh-label {
+  position: absolute;
+  pointer-events: none;
+  font-family: var(--font-display);
+  font-size: 0.55rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #e4e4e4;
+  opacity: 1;
+  background: #101010;
+  padding: 2px 6px;
+  border-radius: 0;
+  z-index: 16;
+}
+
+.mesh-line {
+  position: absolute;
+  height: 2px;
+  pointer-events: none;
+  background: linear-gradient(to right, #e4e4e4, #e4e4e4);
+  transform-origin: 0 50%;
+  opacity: 1;
+  z-index: 16;
+}
+
+.diagram-label-group--visible {
+  opacity: 0.85;
+}
+
+.diagram-connector--visible {
+  opacity: 0.85;
+}
+
+@keyframes diagramLabelFlash {
+  0% {
+    opacity: 0;
+    filter: blur(1px);
+    letter-spacing: 0.3em;
+  }
+  30% {
+    opacity: 1;
+    filter: blur(0);
+  }
+  100% {
+    opacity: 0.85;
+    filter: blur(0);
+    letter-spacing: 0.2em;
+  }
+}
+
+.diagram-label--flash {
+  animation: diagramLabelFlash 420ms ease-out;
+}
+
 .title-text {
   position: absolute;
-  color: #ffffff;
+  color: var(--ink);
   font-family: var(--font-display);
   font-weight: 900;
   font-size: 3.6rem;
@@ -62,15 +292,18 @@ body {
 }
 
 #title-shape {
-  bottom: -2rem;
+  bottom: -3.3rem;
   left: 50%;
   transform: translateX(-50%);
   display: block;
+  padding: 0.14rem 0.44rem;
+  background-color: #c8c8c8;
+  color: #000000;
 }
 
 #title-shift {
-  right: 0.5rem;
-  top: 50%;
+  left: calc(100% - 1rem);
+  top: 47%;
   transform: translateY(-50%);
   display: flex;
   flex-direction: column;
