@@ -123,11 +123,20 @@ export default function Page() {
 
     const resize = () => {
       if (!renderer || !camera) return;
-      const width = wrapper.clientWidth || 1;
-      const height = wrapper.clientHeight || 1;
-      camera.aspect = width / height;
+      const wrapperWidth = wrapper.clientWidth || 1;
+      const wrapperHeight = wrapper.clientHeight || 1;
+      const fullWidth = window.innerWidth || wrapperWidth;
+
+      camera.aspect = fullWidth / wrapperHeight;
       camera.updateProjectionMatrix();
-      renderer.setSize(width, height);
+      renderer.setSize(fullWidth, wrapperHeight);
+
+      // make the canvas span full viewport width but keep it centered
+      const canvas = renderer.domElement;
+      canvas.style.position = 'absolute';
+      canvas.style.top = '0';
+      canvas.style.left = '50%';
+      canvas.style.transform = 'translateX(-50%)';
     };
 
     const clearOverlayNodes = () => {
