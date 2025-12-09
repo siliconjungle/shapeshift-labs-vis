@@ -92,13 +92,16 @@ export default function Page() {
     let morphTime = 0;
     let lastTimestamp: number | null = null;
     let animationId: number | null = null;
-    let targetRotX = 0;
-    let targetRotY = 0;
     let currentRotX = 0;
     let currentRotY = 0;
     let audioStarted = false;
     let totalTime = 0;
     let jitterSeeds: Float32Array | null = null;
+    let scatterVelocities: Float32Array | null = null;
+
+    const raycaster = new THREE.Raycaster();
+    const pointer = new THREE.Vector2();
+    let pointerWorldPos: THREE.Vector3 | null = null;
 
     const audioCtxRef = { current: null as AudioContext | null };
     const analyserRef = { current: null as AnalyserNode | null };
@@ -279,6 +282,22 @@ export default function Page() {
       }
     };
 
+    const applyScatter = (array: Float32Array) => {
+      if (!scatterVelocities) return;
+      if (scatterVelocities.length !== array.length) return;
+      const vertCount = array.length / 3;
+      const damping = 0.8;
+      for (let i = 0; i < vertCount; i++) {
+        const idx3 = i * 3;
+        array[idx3] += scatterVelocities[idx3];
+        array[idx3 + 1] += scatterVelocities[idx3 + 1];
+        array[idx3 + 2] += scatterVelocities[idx3 + 2];
+        scatterVelocities[idx3] *= damping;
+        scatterVelocities[idx3 + 1] *= damping;
+        scatterVelocities[idx3 + 2] *= damping;
+      }
+    };
+
     const updateOverlayPositions = () => {
       if (!mesh || !diagram || nodeEntries.length === 0) return;
 
@@ -344,6 +363,7 @@ export default function Page() {
       array.set(positions);
       basePositionsRef.current = array.slice();
       applyJitter(array, basePositionsRef.current, jitterSeeds, audioLevelRef.current);
+      applyScatter(array);
       currentPositionAttribute.needsUpdate = true;
     };
 
@@ -396,6 +416,7 @@ export default function Page() {
 
       basePositionsRef.current = array.slice();
       applyJitter(array, basePositionsRef.current, jitterSeeds, audioLevel);
+      applyScatter(array);
       currentPositionAttribute.needsUpdate = true;
 
       if (stepped) {
@@ -408,6 +429,7 @@ export default function Page() {
       const delta = timestamp - lastTimestamp;
       lastTimestamp = timestamp;
       const cappedDelta = Math.min(delta, 100);
+      const deltaSeconds = cappedDelta / 1000;
 
       if (mesh) {
         totalTime += cappedDelta;
@@ -425,15 +447,87 @@ export default function Page() {
         const speedFactor = 1 - Math.min(0.4, level * 0.5); // faster with louder beats
         const effectiveDuration = morphDurationBase * speedFactor;
 
+        // ensure we always have some avoidance point (center if mouse never moved)
+        if (!pointerWorldPos && renderer) {
+          pointer.set(0, 0);
+          raycaster.setFromCamera(pointer, camera);
+          const origin = raycaster.ray.origin;
+          const dir = raycaster.ray.direction;
+          const t = 2.5;
+          pointerWorldPos = new THREE.Vector3(
+            origin.x + dir.x * t,
+            origin.y + dir.y * t,
+            origin.z + dir.z * t
+          );
+        }
+
+        // continuous pointer avoidance field as a cylinder around the mouse ray
+        if (scatterVelocities) {
+          const positionAttr = mesh.geometry.getAttribute(
+            'position'
+          ) as THREE.BufferAttribute;
+          const vertexCount = positionAttr.count;
+          const radius = 0.9;
+          const radiusSq = radius * radius;
+          const baseStrength = (1.2 + level * 1.3) * deltaSeconds;
+
+          mesh.updateMatrixWorld();
+
+          const rayOrigin = raycaster.ray.origin.clone();
+          const rayDir = raycaster.ray.direction.clone().normalize();
+
+          for (let i = 0; i < vertexCount; i++) {
+            const idx3 = i * 3;
+            tempLocal.set(
+              positionAttr.array[idx3],
+              positionAttr.array[idx3 + 1],
+              positionAttr.array[idx3 + 2]
+            );
+            tempWorld.copy(tempLocal).applyMatrix4(mesh.matrixWorld);
+
+            // distance from vertex to mouse ray (cylindrical region)
+            const vx = tempWorld.x - rayOrigin.x;
+            const vy = tempWorld.y - rayOrigin.y;
+            const vz = tempWorld.z - rayOrigin.z;
+
+            const proj = vx * rayDir.x + vy * rayDir.y + vz * rayDir.z;
+            const cx = rayOrigin.x + rayDir.x * proj;
+            const cy = rayOrigin.y + rayDir.y * proj;
+            const cz = rayOrigin.z + rayDir.z * proj;
+
+            const dx = tempWorld.x - cx;
+            const dy = tempWorld.y - cy;
+            const dz = tempWorld.z - cz;
+            const distSq = dx * dx + dy * dy + dz * dz;
+            if (distSq > radiusSq || distSq === 0) continue;
+
+            const dist = Math.sqrt(distSq);
+            const falloff = 1 - dist / radius;
+            const strength =
+              baseStrength * (0.4 + 0.6 * falloff) * (1 / (0.15 + dist));
+
+            const invDist = 1 / dist;
+            const rx = dx * invDist;
+            const ry = dy * invDist;
+            const rz = dz * invDist;
+
+            scatterVelocities[idx3] += rx * strength;
+            scatterVelocities[idx3 + 1] += ry * strength;
+            scatterVelocities[idx3 + 2] += rz * strength;
+          }
+        }
+
         if (morphTargets.length > 1) {
           updateMorphing(cappedDelta, effectiveDuration, level);
         } else if (morphTargets.length === 1) {
           updateSingleTarget();
         }
 
-        const lerpFactor = 0.08;
-        currentRotX += (targetRotX - currentRotX) * lerpFactor;
-        currentRotY += (targetRotY - currentRotY) * lerpFactor;
+        const baseRotX = Math.sin(totalTime * 0.0004) * 0.35;
+        const baseRotY = Math.cos(totalTime * 0.0005) * 0.45;
+        const audioTwist = level * 0.4;
+        currentRotX = baseRotX + audioTwist * 0.25 * Math.sin(totalTime * 0.0012);
+        currentRotY = baseRotY + audioTwist * 0.35 * Math.cos(totalTime * 0.0015);
         mesh.rotation.x = currentRotX;
         mesh.rotation.y = currentRotY;
         mesh.rotation.z =
@@ -547,6 +641,7 @@ export default function Page() {
         for (let i = 0; i < vertexCount; i++) {
           jitterSeeds[i] = Math.random() * Math.PI * 2;
         }
+        scatterVelocities = new Float32Array(vertexCount * 3);
         basePositionsRef.current = new Float32Array(morphTargets[0]);
         buildOverlayNodes();
 
@@ -564,8 +659,36 @@ export default function Page() {
       const y = (event.clientY - rect.top) / rect.height;
       wrapper.style.setProperty('--mouse-x', x.toFixed(3));
       wrapper.style.setProperty('--mouse-y', y.toFixed(3));
-      targetRotY = (x - 0.5) * 0.6;
-      targetRotX = (y - 0.5) * 0.6;
+
+      if (!renderer || !camera || !mesh) return;
+      const canvasRect = renderer.domElement.getBoundingClientRect();
+      if (!canvasRect.width || !canvasRect.height) return;
+
+      const nx =
+        ((event.clientX - canvasRect.left) / canvasRect.width) * 2 - 1;
+      const ny =
+        -(((event.clientY - canvasRect.top) / canvasRect.height) * 2 - 1);
+
+      pointer.set(nx, ny);
+      raycaster.setFromCamera(pointer, camera);
+      raycaster.params.Points = raycaster.params.Points || {};
+      raycaster.params.Points.threshold = 0.06;
+
+      const intersects = raycaster.intersectObject(mesh);
+      if (intersects.length) {
+        const hit = intersects[0];
+        pointerWorldPos = hit.point.clone();
+      } else {
+        // fall back to a point along the view ray near the mesh
+        const origin = raycaster.ray.origin;
+        const dir = raycaster.ray.direction;
+        const t = 2.5; // roughly around the particle cloud depth
+        pointerWorldPos = new THREE.Vector3(
+          origin.x + dir.x * t,
+          origin.y + dir.y * t,
+          origin.z + dir.z * t
+        );
+      }
     };
 
     wrapper.addEventListener('pointermove', handlePointerMove);
@@ -595,6 +718,7 @@ export default function Page() {
       audioDataRef.current = null;
       audioSourceRef.current = null;
       audioStarted = false;
+      scatterVelocities = null;
 
       if (mesh) {
         mesh.geometry.dispose();
