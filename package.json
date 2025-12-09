@@ -7,9 +7,13 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "precompute-models": "node scripts/precompute-models.mjs"
+    "precompute-models": "node scripts/precompute-models.mjs",
+    "generate-palettes": "node scripts/generate-palettes.mjs"
   },
   "dependencies": {
+    "color-thief-browser": "^2.0.2",
+    "colorthief": "^2.6.0",
+    "munkres-js": "^1.2.2",
     "next": "16.0.7",
     "react": "19.2.0",
     "react-dom": "19.2.0"

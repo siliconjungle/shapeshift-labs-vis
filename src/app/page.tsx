@@ -1,7 +1,9 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
+import ColorChart from '../components/ColorChart';
+import { RGB, interpolatePalette } from '../lib/colors';
 
 const morphDurationBase = 4500; // ms per transition
 const minNodes = 2;
@@ -48,6 +50,77 @@ const shuffle = <T,>(arr: T[]) => {
 const randomInt = (minInclusive: number, maxExclusive: number) =>
   minInclusive + Math.floor(Math.random() * (maxExclusive - minInclusive));
 
+const doubleVertices = (targets: Float32Array[]) =>
+  targets.map((src) => {
+    const vertCount = src.length / 3;
+    const dst = new Float32Array(src.length * 2);
+    dst.set(src, 0);
+    // duplicate each vertex; scatter/jitter will separate them later
+    for (let i = 0; i < vertCount; i++) {
+      const srcIdx = i * 3;
+      const dstIdx = (vertCount + i) * 3;
+      dst[dstIdx] = src[srcIdx];
+      dst[dstIdx + 1] = src[srcIdx + 1];
+      dst[dstIdx + 2] = src[srcIdx + 2];
+    }
+    return dst;
+  });
+
+const boostSaturationAndBrightness = (r: number, g: number, b: number) => {
+  const rn = r;
+  const gn = g;
+  const bn = b;
+
+  const max = Math.max(rn, gn, bn);
+  const min = Math.min(rn, gn, bn);
+  let h = 0;
+  let s = 0;
+  let l = (max + min) / 2;
+
+  if (max !== min) {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case rn:
+        h = (gn - bn) / d + (gn < bn ? 6 : 0);
+        break;
+      case gn:
+        h = (bn - rn) / d + 2;
+        break;
+      default:
+        h = (rn - gn) / d + 4;
+        break;
+    }
+    h /= 6;
+  }
+
+  // boost saturation and brightness more for dark background
+  s = Math.min(1, s * 1.9 + 0.05);
+  l = Math.min(1, l * 1.1 + 0.02);
+
+  if (s === 0) {
+    return { r: l, g: l, b: l };
+  }
+
+  const hue2rgb = (p: number, q: number, t: number) => {
+    if (t < 0) t += 1;
+    if (t > 1) t -= 1;
+    if (t < 1 / 6) return p + (q - p) * 6 * t;
+    if (t < 1 / 2) return q;
+    if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+    return p;
+  };
+
+  const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+  const p = 2 * l - q;
+
+  const rr = hue2rgb(p, q, h + 1 / 3);
+  const gg = hue2rgb(p, q, h);
+  const bb = hue2rgb(p, q, h - 1 / 3);
+
+  return { r: rr, g: gg, b: bb };
+};
+
 const randomTag = () => {
   const digitsCount = Math.random() < 0.5 ? 2 : 3;
   let tag = '';
@@ -71,6 +144,10 @@ export default function Page() {
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const diagramRef = useRef<HTMLDivElement | null>(null);
   const basePositionsRef = useRef<Float32Array | null>(null);
+  const paletteRef = useRef<RGB[]>([]);
+
+  const [palette, setPalette] = useState<RGB[]>([]);
+  const [palettes, setPalettes] = useState<RGB[][]>([]);
 
   useEffect(() => {
     if (!containerRef.current || !wrapperRef.current) return;
@@ -520,6 +597,90 @@ export default function Page() {
           updateSingleTarget();
         }
 
+        // Re-color particles each frame based on current positions and palette
+        const activePalette = paletteRef.current;
+        if (activePalette.length) {
+          const positionAttr = mesh.geometry.getAttribute(
+            'position'
+          ) as THREE.BufferAttribute;
+          const vertexCount = positionAttr.count;
+
+          let colorAttr = mesh.geometry.getAttribute(
+            'color'
+          ) as THREE.BufferAttribute | undefined;
+
+          if (!colorAttr || colorAttr.count !== vertexCount) {
+            const colors = new Float32Array(vertexCount * 3);
+            mesh.geometry.setAttribute(
+              'color',
+              new THREE.BufferAttribute(colors, 3)
+            );
+            colorAttr = mesh.geometry.getAttribute(
+              'color'
+            ) as THREE.BufferAttribute;
+          }
+
+          const colorsArray = colorAttr.array as Float32Array;
+
+          let minX = Infinity;
+          let maxX = -Infinity;
+          let minZ = Infinity;
+          let maxZ = -Infinity;
+
+          for (let i = 0; i < vertexCount; i++) {
+            const idx3 = i * 3;
+            const x = positionAttr.array[idx3];
+            const z = positionAttr.array[idx3 + 2];
+            if (x < minX) minX = x;
+            if (x > maxX) maxX = x;
+            if (z < minZ) minZ = z;
+            if (z > maxZ) maxZ = z;
+          }
+
+          const spanX = maxX - minX || 1;
+          const spanZ = maxZ - minZ || 1;
+
+          for (let i = 0; i < vertexCount; i++) {
+            const idx3 = i * 3;
+            const x = positionAttr.array[idx3];
+            const z = positionAttr.array[idx3 + 2];
+
+            const nx = (x - minX) / spanX;
+            const nz = (z - minZ) / spanZ;
+
+            const t = Math.min(1, Math.max(0, nx * 0.7 + nz * 0.3));
+
+            const scaled = t * (activePalette.length - 1);
+            const i0 = Math.floor(scaled);
+            const i1 = Math.min(activePalette.length - 1, i0 + 1);
+            const localT = scaled - i0;
+
+            const c0 = activePalette[i0];
+            const c1 = activePalette[i1];
+
+            const rBase = (c0.r + (c1.r - c0.r) * localT) / 255;
+            const gBase = (c0.g + (c1.g - c0.g) * localT) / 255;
+            const bBase = (c0.b + (c1.b - c0.b) * localT) / 255;
+
+            const boosted = boostSaturationAndBrightness(rBase, gBase, bBase);
+            // convert boosted color to a light grey/white tone
+            const luminance =
+              0.299 * boosted.r + 0.587 * boosted.g + 0.114 * boosted.b;
+            const grey = Math.min(1, 0.75 + luminance * 0.25);
+
+            colorsArray[idx3] = grey;
+            colorsArray[idx3 + 1] = grey;
+            colorsArray[idx3 + 2] = grey;
+          }
+
+          colorAttr.needsUpdate = true;
+          const pointsMat = mesh.material as THREE.PointsMaterial;
+          if (!pointsMat.vertexColors) {
+            pointsMat.vertexColors = true;
+            pointsMat.needsUpdate = true;
+          }
+        }
+
         const baseRotX = Math.sin(totalTime * 0.0004) * 0.35;
         const baseRotY = Math.cos(totalTime * 0.0005) * 0.45;
         const audioTwist = level * 0.4;
@@ -559,10 +720,72 @@ export default function Page() {
     const initMesh = () => {
       const initialPositions = morphTargets[0];
       const geometry = new THREE.BufferGeometry();
-      geometry.setAttribute('position', new THREE.BufferAttribute(initialPositions, 3));
+      geometry.setAttribute(
+        'position',
+        new THREE.BufferAttribute(initialPositions, 3)
+      );
+
+      const activePalette = paletteRef.current;
+      if (activePalette.length) {
+        const vertexCount = initialPositions.length / 3;
+        const colors = new Float32Array(vertexCount * 3);
+
+        let minX = Infinity;
+        let maxX = -Infinity;
+        let minZ = Infinity;
+        let maxZ = -Infinity;
+
+        for (let i = 0; i < initialPositions.length; i += 3) {
+          const x = initialPositions[i];
+          const z = initialPositions[i + 2];
+          if (x < minX) minX = x;
+          if (x > maxX) maxX = x;
+          if (z < minZ) minZ = z;
+          if (z > maxZ) maxZ = z;
+        }
+
+        const spanX = maxX - minX || 1;
+        const spanZ = maxZ - minZ || 1;
+
+        for (let i = 0; i < vertexCount; i++) {
+          const idx3 = i * 3;
+          const x = initialPositions[idx3];
+          const z = initialPositions[idx3 + 2];
+
+          const nx = (x - minX) / spanX;
+          const nz = (z - minZ) / spanZ;
+
+          const t = Math.min(1, Math.max(0, nx * 0.7 + nz * 0.3));
+
+          const scaled = t * (activePalette.length - 1);
+          const i0 = Math.floor(scaled);
+          const i1 = Math.min(activePalette.length - 1, i0 + 1);
+          const localT = scaled - i0;
+
+          const c0 = activePalette[i0];
+          const c1 = activePalette[i1];
+
+          const rBase = (c0.r + (c1.r - c0.r) * localT) / 255;
+          const gBase = (c0.g + (c1.g - c0.g) * localT) / 255;
+          const bBase = (c0.b + (c1.b - c0.b) * localT) / 255;
+
+          const boosted = boostSaturationAndBrightness(rBase, gBase, bBase);
+          // convert boosted color to a light grey/white tone
+          const luminance =
+            0.299 * boosted.r + 0.587 * boosted.g + 0.114 * boosted.b;
+          const grey = Math.min(1, 0.75 + luminance * 0.25);
+
+          colors[idx3] = grey;
+          colors[idx3 + 1] = grey;
+          colors[idx3 + 2] = grey;
+        }
+
+        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+      }
 
       const material = new THREE.PointsMaterial({
-        color: 0xcccccc,
+        vertexColors: paletteRef.current.length ? true : false,
+        color: paletteRef.current.length ? undefined : 0xcccccc,
         size: 0.018,
         sizeAttenuation: true,
         transparent: true,
@@ -609,6 +832,7 @@ export default function Page() {
         if (!valid.length) return;
 
         morphTargets = alignBottoms(valid);
+        morphTargets = doubleVertices(morphTargets);
 
         if (morphTargets.length > 1) {
           const ref = morphTargets[0];
@@ -727,6 +951,65 @@ export default function Page() {
     };
   }, []);
 
+  useEffect(() => {
+    const loadPalettes = async () => {
+      try {
+        const res = await fetch('/palettes.json');
+        if (!res.ok) {
+          console.warn('No palettes.json found at /palettes.json');
+          return;
+        }
+        const data = await res.json();
+        const values = Object.values(data) as RGB[][];
+        if (!values.length) return;
+        // randomize palette order for cycling
+        setPalettes(shuffle(values.slice()));
+      } catch (err) {
+        console.error('Failed to load palettes.json:', err);
+      }
+    };
+    loadPalettes();
+  }, []);
+
+  useEffect(() => {
+    if (!palettes.length) return;
+
+    let frameId: number;
+    let startTime: number | null = null;
+    const duration = 10000; // ms per palette morph
+
+    const loop = (timestamp: number) => {
+      if (startTime === null) startTime = timestamp;
+      const elapsed = timestamp - startTime;
+      const total = palettes.length;
+      const cycle = elapsed / duration;
+      const baseIndex = Math.floor(cycle) % total;
+      const nextIndex = (baseIndex + 1) % total;
+      const phase = cycle - Math.floor(cycle);
+
+      const p1 = palettes[baseIndex];
+      const p2 = palettes[nextIndex];
+
+      if (p1 && p2 && p1.length && p2.length) {
+        const blended = interpolatePalette(p1, p2, phase);
+        setPalette(blended);
+        paletteRef.current = blended;
+      }
+
+      frameId = requestAnimationFrame(loop);
+    };
+
+    frameId = requestAnimationFrame(loop);
+
+    return () => {
+      if (frameId) cancelAnimationFrame(frameId);
+    };
+  }, [palettes]);
+
+  useEffect(() => {
+    paletteRef.current = palette;
+  }, [palette]);
+
   return (
     <div id="page">
       <div id="model-wrapper" ref={wrapperRef}>
@@ -745,6 +1028,30 @@ export default function Page() {
           <span>T</span>
         </h1>
         <div id="container" ref={containerRef} />
+        <div
+          style={{
+            position: 'absolute',
+            left: 24,
+            bottom: 24,
+            width: 140,
+            height: 140,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            pointerEvents: 'none',
+          }}
+        >
+          <div
+            style={{
+              position: 'relative',
+              width: '100%',
+              height: '100%',
+              pointerEvents: 'auto',
+            }}
+          >
+            <ColorChart palette={palette} size={140} />
+          </div>
+        </div>
       </div>
     </div>
   );
