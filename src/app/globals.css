@@ -46,8 +46,9 @@ body {
   align-items: center;
   /* diagram variables */
   --diagram-phase: 0;
-  --mouse-x: 0.5;
-  --mouse-y: 0.5;
+  /* start with mouse "outside" the canvas so steering waits for first move */
+  --mouse-x: -0.2;
+  --mouse-y: -0.2;
   --label-a-anchor-x: 0px;
   --label-a-anchor-y: 0px;
   --label-a-len: 0px;

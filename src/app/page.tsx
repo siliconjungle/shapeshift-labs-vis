@@ -80,8 +80,9 @@ export default function Page() {
     const diagram = diagramRef.current;
 
     wrapper.style.setProperty('--diagram-phase', '0');
-    wrapper.style.setProperty('--mouse-x', '0.5');
-    wrapper.style.setProperty('--mouse-y', '0.5');
+    // start with mouse "outside" the canvas so steering waits for first move
+    wrapper.style.setProperty('--mouse-x', '-0.2');
+    wrapper.style.setProperty('--mouse-y', '-0.2');
 
     let scene: THREE.Scene;
     let camera: THREE.PerspectiveCamera;
@@ -456,29 +457,16 @@ export default function Page() {
         const speedFactor = 1 - Math.min(0.4, level * 0.5); // faster with louder beats
         const effectiveDuration = morphDurationBase * speedFactor;
 
-        // ensure we always have some avoidance point (center if mouse never moved)
-        if (!pointerWorldPos && renderer) {
-          pointer.set(0, 0);
-          raycaster.setFromCamera(pointer, camera);
-          const origin = raycaster.ray.origin;
-          const dir = raycaster.ray.direction;
-          const t = 2.5;
-          pointerWorldPos = new THREE.Vector3(
-            origin.x + dir.x * t,
-            origin.y + dir.y * t,
-            origin.z + dir.z * t
-          );
-        }
-
         // continuous pointer avoidance field as a cylinder around the mouse ray
-        if (scatterVelocities) {
+        // only becomes active after the pointer has moved at least once
+        if (scatterVelocities && pointerWorldPos) {
           const positionAttr = mesh.geometry.getAttribute(
             'position'
           ) as THREE.BufferAttribute;
           const vertexCount = positionAttr.count;
-          const radius = 0.9;
+          const radius = 0.9 + level * 2.4;
           const radiusSq = radius * radius;
-          const baseStrength = (1.2 + level * 1.3) * deltaSeconds;
+          const baseStrength = (1.8 + level * 2.2) * deltaSeconds;
 
           mesh.updateMatrixWorld();
 
@@ -511,9 +499,9 @@ export default function Page() {
             if (distSq > radiusSq || distSq === 0) continue;
 
             const dist = Math.sqrt(distSq);
-            const falloff = 1 - dist / radius;
-            const strength =
-              baseStrength * (0.4 + 0.6 * falloff) * (1 / (0.15 + dist));
+            const r = dist / radius;
+            const falloff = 1 - r * r;
+            const strength = baseStrength * Math.max(0, falloff);
 
             const invDist = 1 / dist;
             const rx = dx * invDist;
