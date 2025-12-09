@@ -614,7 +614,7 @@ export default function Page() {
         </div>
 
         <h1 id="title-shape" className="title-text">
-          SHAPE
+          <span className="title-shape-text">SHAPE</span>
         </h1>
         <h1 id="title-shift" className="title-text">
           <span>S</span>
