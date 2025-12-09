@@ -161,6 +161,57 @@ export default function Page() {
     wrapper.style.setProperty('--mouse-x', '-0.2');
     wrapper.style.setProperty('--mouse-y', '-0.2');
 
+    let grainFrameId: number | null = null;
+    let lastGrainUpdate = 0;
+
+    const updateFilmGrain = () => {
+      try {
+        const createLayer = (size: number, contrast: number) => {
+          const canvas = document.createElement('canvas');
+          canvas.width = size;
+          canvas.height = size;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) return '';
+
+          const imageData = ctx.createImageData(size, size);
+          const data = imageData.data;
+          for (let i = 0; i < data.length; i += 4) {
+            const base = 132;
+            const jitter = (Math.random() - 0.5) * 36 * contrast;
+            const v = Math.max(100, Math.min(165, base + jitter));
+            data[i] = v;
+            data[i + 1] = v;
+            data[i + 2] = v;
+            data[i + 3] = 255;
+          }
+          ctx.putImageData(imageData, 0, 0);
+          return `url(${canvas.toDataURL('image/png')})`;
+        };
+
+        const fine = createLayer(96, 0.7);
+        const coarse = createLayer(192, 1.1);
+        const rootStyle = document.documentElement.style;
+        if (fine) {
+          rootStyle.setProperty('--grain-texture-fine', fine);
+        }
+        if (coarse) {
+          rootStyle.setProperty('--grain-texture-coarse', coarse);
+        }
+      } catch {
+        // fall through on failure
+      }
+    };
+
+    const grainLoop = () => {
+      const now = performance.now();
+      if (now - lastGrainUpdate > 190) {
+        lastGrainUpdate = now;
+        updateFilmGrain();
+      }
+      grainFrameId = requestAnimationFrame(grainLoop);
+    };
+    grainLoop();
+
     let scene: THREE.Scene;
     let camera: THREE.PerspectiveCamera;
     let renderer: THREE.WebGLRenderer | undefined;
@@ -919,6 +970,7 @@ export default function Page() {
 
     return () => {
       if (animationId) cancelAnimationFrame(animationId);
+      if (grainFrameId) cancelAnimationFrame(grainFrameId);
       wrapper.removeEventListener('pointermove', handlePointerMove);
       wrapper.removeEventListener('pointerdown', startAudio);
       window.removeEventListener('resize', resize);
@@ -1027,7 +1079,9 @@ export default function Page() {
           <span>F</span>
           <span>T</span>
         </h1>
+
         <div id="container" ref={containerRef} />
+
         <div
           style={{
             position: 'absolute',
@@ -1053,6 +1107,7 @@ export default function Page() {
           </div>
         </div>
       </div>
+      <div className="film-grain-overlay" aria-hidden="true" />
     </div>
   );
 }
