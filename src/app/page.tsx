@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { IoVolumeHigh, IoVolumeMute } from 'react-icons/io5';
 import * as THREE from 'three';
 import ColorChart from '../components/ColorChart';
 import { RGB, interpolatePalette } from '../lib/colors';
@@ -148,6 +149,8 @@ export default function Page() {
 
   const [palette, setPalette] = useState<RGB[]>([]);
   const [palettes, setPalettes] = useState<RGB[][]>([]);
+  const [isMuted, setIsMuted] = useState(false);
+  const gainRef = useRef<GainNode | null>(null);
 
   useEffect(() => {
     if (!containerRef.current || !wrapperRef.current) return;
@@ -315,13 +318,18 @@ export default function Page() {
         analyser.fftSize = 2048;
         const data = new Uint8Array(analyser.frequencyBinCount);
 
+        const gain = ctx.createGain();
+        gain.gain.value = isMuted ? 0 : 1;
+
         source.connect(analyser);
-        analyser.connect(ctx.destination);
+        analyser.connect(gain);
+        gain.connect(ctx.destination);
         source.start();
 
         analyserRef.current = analyser;
         audioDataRef.current = data;
         audioSourceRef.current = source;
+        gainRef.current = gain;
       } catch (err) {
         console.error('Audio start failed:', err);
       }
@@ -1148,6 +1156,15 @@ export default function Page() {
     paletteRef.current = palette;
   }, [palette]);
 
+  const toggleMute = () => {
+    const next = !isMuted;
+    setIsMuted(next);
+    const gain = gainRef.current;
+    if (gain) {
+      gain.gain.value = next ? 0 : 1;
+    }
+  };
+
   return (
     <>
       <div className="bg-diagonal" aria-hidden="true" />
@@ -1220,6 +1237,15 @@ export default function Page() {
           rewriting the underlying motion grammar.
         </p>
       </section>
+
+      <button
+        type="button"
+        className="audio-toggle"
+        onClick={toggleMute}
+        aria-label={isMuted ? 'Unmute audio' : 'Mute audio'}
+      >
+        {isMuted ? <IoVolumeMute size={26} /> : <IoVolumeHigh size={26} />}
+      </button>
 
       <div className="film-grain-overlay" aria-hidden="true" />
     </>
