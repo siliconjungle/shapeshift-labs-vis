@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { IoVolumeHigh, IoVolumeMute } from 'react-icons/io5';
 import * as THREE from 'three';
 import ColorChart from '../components/ColorChart';
-import { RGB, interpolatePalette } from '../lib/colors';
+import { interpolatePalette } from '../lib/colors';
 
 const morphDurationBase = 4500; // ms per transition
 const minNodes = 2;
@@ -17,7 +17,7 @@ const windDir = (() => {
   return { x: x / len, y: y / len, z: z / len };
 })();
 
-const alignBottoms = (targets: Float32Array[]) => {
+const alignBottoms = (targets) => {
   if (!targets.length) return targets;
   const mins = targets.map((t) => {
     let minY = Infinity;
@@ -40,7 +40,7 @@ const alignBottoms = (targets: Float32Array[]) => {
   });
 };
 
-const shuffle = <T,>(arr: T[]) => {
+const shuffle = (arr) => {
   for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [arr[i], arr[j]] = [arr[j], arr[i]];
@@ -48,10 +48,10 @@ const shuffle = <T,>(arr: T[]) => {
   return arr;
 };
 
-const randomInt = (minInclusive: number, maxExclusive: number) =>
+const randomInt = (minInclusive, maxExclusive) =>
   minInclusive + Math.floor(Math.random() * (maxExclusive - minInclusive));
 
-const doubleVertices = (targets: Float32Array[]) =>
+const doubleVertices = (targets) =>
   targets.map((src) => {
     const vertCount = src.length / 3;
     const extraVerts = Math.floor(vertCount / 3); // add ~1/3 more points
@@ -69,7 +69,7 @@ const doubleVertices = (targets: Float32Array[]) =>
     return dst;
   });
 
-const boostSaturationAndBrightness = (r: number, g: number, b: number) => {
+const boostSaturationAndBrightness = (r, g, b) => {
   const rn = r;
   const gn = g;
   const bn = b;
@@ -105,7 +105,7 @@ const boostSaturationAndBrightness = (r: number, g: number, b: number) => {
     return { r: l, g: l, b: l };
   }
 
-  const hue2rgb = (p: number, q: number, t: number) => {
+  const hue2rgb = (p, q, t) => {
     if (t < 0) t += 1;
     if (t > 1) t -= 1;
     if (t < 1 / 6) return p + (q - p) * 6 * t;
@@ -143,16 +143,16 @@ const randomTag = () => {
 };
 
 export default function Page() {
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  const wrapperRef = useRef<HTMLDivElement | null>(null);
-  const diagramRef = useRef<HTMLDivElement | null>(null);
-  const basePositionsRef = useRef<Float32Array | null>(null);
-  const paletteRef = useRef<RGB[]>([]);
+  const containerRef = useRef(null);
+  const wrapperRef = useRef(null);
+  const diagramRef = useRef(null);
+  const basePositionsRef = useRef(null);
+  const paletteRef = useRef([]);
 
-  const [palette, setPalette] = useState<RGB[]>([]);
-  const [palettes, setPalettes] = useState<RGB[][]>([]);
+  const [palette, setPalette] = useState([]);
+  const [palettes, setPalettes] = useState([]);
   const [isMuted, setIsMuted] = useState(false);
-  const gainRef = useRef<GainNode | null>(null);
+  const gainRef = useRef(null);
 
   useEffect(() => {
     if (!containerRef.current || !wrapperRef.current) return;
@@ -169,7 +169,7 @@ export default function Page() {
 
     const updateFilmGrain = () => {
       try {
-        const createLayer = (size: number, contrast: number) => {
+        const createLayer = (size, contrast) => {
           const canvas = document.createElement('canvas');
           canvas.width = size;
           canvas.height = size;
@@ -224,21 +224,21 @@ export default function Page() {
 
     updateFilmGrain();
 
-    let scene: THREE.Scene;
-    let camera: THREE.OrthographicCamera;
-    let renderer: THREE.WebGLRenderer | undefined;
-    let mesh: THREE.Points | undefined;
-    let morphTargets: Float32Array[] = [];
+    let scene;
+    let camera;
+    let renderer;
+    let mesh;
+    let morphTargets = [];
     let currentTargetIndex = 0;
     let morphTime = 0;
-    let lastTimestamp: number | null = null;
-    let animationId: number | null = null;
+    let lastTimestamp = null;
+    let animationId = null;
     let currentRotX = 0;
     let currentRotY = 0;
     let audioStarted = false;
     let totalTime = 0;
-    let jitterSeeds: Float32Array | null = null;
-    let scatterVelocities: Float32Array | null = null;
+    let jitterSeeds = null;
+    let scatterVelocities = null;
 
     // --- subtle glitch control (softer) ---
     let glitchAmount = 0; // 0..1
@@ -248,21 +248,16 @@ export default function Page() {
 
     const raycaster = new THREE.Raycaster();
     const pointer = new THREE.Vector2();
-    let pointerWorldPos: THREE.Vector3 | null = null;
+    let pointerWorldPos = null;
 
-    const audioCtxRef = { current: null as AudioContext | null };
-    const analyserRef = { current: null as AnalyserNode | null };
-    const audioDataRef = { current: null as Uint8Array | null };
+    const audioCtxRef = { current: null };
+    const analyserRef = { current: null };
+    const audioDataRef = { current: null };
     const audioLevelRef = { current: 0 };
-    const audioSourceRef = { current: null as AudioBufferSourceNode | null };
+    const audioSourceRef = { current: null };
 
-    type NodeEntry = {
-      index: number;
-      square: HTMLElement;
-      label: HTMLElement;
-    };
-    const nodeEntries: NodeEntry[] = [];
-    const lineEntries: HTMLElement[] = [];
+    const nodeEntries = [];
+    const lineEntries = [];
 
     const tempLocal = new THREE.Vector3();
     const tempWorld = new THREE.Vector3();
@@ -341,12 +336,12 @@ export default function Page() {
       if (!diagram || !mesh) return;
       clearOverlayNodes();
 
-      const vertexCount =
-        (mesh.geometry.getAttribute('position') as THREE.BufferAttribute)?.count ?? 0;
+      const positionAttr = mesh.geometry.getAttribute('position');
+      const vertexCount = positionAttr ? positionAttr.count : 0;
       if (!vertexCount) return;
 
       const count = randomInt(minNodes, maxNodes + 1);
-      const used = new Set<number>();
+      const used = new Set();
 
       for (let i = 0; i < count; i++) {
         const idx = (() => {
@@ -393,10 +388,10 @@ export default function Page() {
     };
 
     const applyJitter = (
-      array: Float32Array,
-      basePositions: Float32Array | null,
-      seeds: Float32Array | null,
-      level: number
+      array,
+      basePositions,
+      seeds,
+      level
     ) => {
       if (!seeds || !basePositions) return;
       const vertCount = array.length / 3;
@@ -446,7 +441,7 @@ export default function Page() {
       }
     };
 
-    const applyScatter = (array: Float32Array) => {
+    const applyScatter = (array) => {
       if (!scatterVelocities) return;
       if (scatterVelocities.length !== array.length) return;
       const vertCount = array.length / 3;
@@ -463,7 +458,7 @@ export default function Page() {
     };
 
     // softer banded glitch displacement, uses base positions so it feels structural
-    const applyGlitchStripes = (array: Float32Array, amount: number) => {
+    const applyGlitchStripes = (array, amount) => {
       if (amount <= 0 || !basePositionsRef.current) return;
       const base = basePositionsRef.current;
       const vertCount = array.length / 3;
@@ -496,13 +491,11 @@ export default function Page() {
 
       const width = wrapper.clientWidth;
       const height = wrapper.clientHeight || 1;
-      const positionAttr = mesh.geometry.getAttribute(
-        'position'
-      ) as THREE.BufferAttribute;
-      const positions = positionAttr.array as Float32Array;
+      const positionAttr = mesh.geometry.getAttribute('position');
+      const positions = positionAttr.array;
       const vertexCount = positionAttr.count;
 
-      const screenPositions: { x: number; y: number }[] = [];
+      const screenPositions = [];
       mesh.updateMatrixWorld();
 
       nodeEntries.forEach((entry, i) => {
@@ -549,10 +542,8 @@ export default function Page() {
     const updateSingleTarget = () => {
       if (!mesh || morphTargets.length === 0) return;
       const positions = morphTargets[0];
-      const currentPositionAttribute = mesh.geometry.getAttribute(
-        'position'
-      ) as THREE.BufferAttribute;
-      const array = currentPositionAttribute.array as Float32Array;
+      const currentPositionAttribute = mesh.geometry.getAttribute('position');
+      const array = currentPositionAttribute.array;
       array.set(positions);
       basePositionsRef.current = array.slice();
       applyJitter(array, basePositionsRef.current, jitterSeeds, audioLevelRef.current);
@@ -562,9 +553,9 @@ export default function Page() {
     };
 
     const updateMorphing = (
-      deltaMs: number,
-      effectiveDuration: number,
-      audioLevel: number
+      deltaMs,
+      effectiveDuration,
+      audioLevel
     ) => {
       const numTargets = morphTargets.length;
       if (numTargets < 2 || !mesh) return;
@@ -590,10 +581,8 @@ export default function Page() {
       const targetIndex = (currentTargetIndex + 1) % numTargets;
       const sourcePositions = morphTargets[sourceIndex];
       const targetPositions = morphTargets[targetIndex];
-      const currentPositionAttribute = mesh.geometry.getAttribute(
-        'position'
-      ) as THREE.BufferAttribute;
-      const array = currentPositionAttribute.array as Float32Array;
+      const currentPositionAttribute = mesh.geometry.getAttribute('position');
+      const array = currentPositionAttribute.array;
 
       for (let i = 0; i < array.length; i += 3) {
         const sx = sourcePositions[i];
@@ -619,7 +608,7 @@ export default function Page() {
       }
     };
 
-    const animate = (timestamp: number) => {
+    const animate = (timestamp) => {
       if (lastTimestamp === null) lastTimestamp = timestamp;
       const delta = timestamp - lastTimestamp;
       lastTimestamp = timestamp;
@@ -672,7 +661,7 @@ export default function Page() {
         if (scatterVelocities && pointerWorldPos) {
           const positionAttr = mesh.geometry.getAttribute(
             'position'
-          ) as THREE.BufferAttribute;
+          );
           const vertexCount = positionAttr.count;
           const radius = 0.9 + level * 2.4;
           const radiusSq = radius * radius;
@@ -735,12 +724,12 @@ export default function Page() {
         if (activePalette.length) {
           const positionAttr = mesh.geometry.getAttribute(
             'position'
-          ) as THREE.BufferAttribute;
+          )
           const vertexCount = positionAttr.count;
 
           let colorAttr = mesh.geometry.getAttribute(
             'color'
-          ) as THREE.BufferAttribute | undefined;
+          );
 
           if (!colorAttr || colorAttr.count !== vertexCount) {
             const colors = new Float32Array(vertexCount * 3);
@@ -750,10 +739,10 @@ export default function Page() {
             );
             colorAttr = mesh.geometry.getAttribute(
               'color'
-            ) as THREE.BufferAttribute;
+            );
           }
 
-          const colorsArray = colorAttr.array as Float32Array;
+          const colorsArray = colorAttr.array;
 
           let minX = Infinity;
           let maxX = -Infinity;
@@ -806,7 +795,7 @@ export default function Page() {
           }
 
           colorAttr.needsUpdate = true;
-          const pointsMat = mesh.material as THREE.PointsMaterial;
+          const pointsMat = mesh.material;
           if (!pointsMat.vertexColors) {
             pointsMat.vertexColors = true;
             pointsMat.needsUpdate = true;
@@ -950,7 +939,7 @@ export default function Page() {
           return;
         }
         const data = await resp.json();
-        const models: { name: string; bin: string }[] = Array.isArray(
+        const models = Array.isArray(
           data.models
         )
           ? data.models
@@ -974,7 +963,7 @@ export default function Page() {
           })
         );
 
-        const valid = results.filter((p): p is Float32Array => !!p);
+        const valid = results.filter((p) => !!p);
         if (!valid.length) return;
 
         morphTargets = alignBottoms(valid);
@@ -1002,7 +991,7 @@ export default function Page() {
           mesh.geometry = geometry;
         }
 
-        mesh!.updateMatrixWorld(true);
+        mesh.updateMatrixWorld(true);
         const vertexCount = morphTargets[0].length / 3;
         jitterSeeds = new Float32Array(vertexCount);
         for (let i = 0; i < vertexCount; i++) {
@@ -1020,7 +1009,7 @@ export default function Page() {
 
     initScene();
 
-    const handlePointerMove = (event: PointerEvent) => {
+    const handlePointerMove = (event) => {
       const rect = wrapper.getBoundingClientRect();
       const x = (event.clientX - rect.left) / rect.width;
       const y = (event.clientY - rect.top) / rect.height;
@@ -1091,7 +1080,7 @@ export default function Page() {
 
       if (mesh) {
         mesh.geometry.dispose();
-        (mesh.material as THREE.Material).dispose();
+        mesh.material.dispose();
       }
       if (container && renderer?.domElement?.parentElement === container) {
         container.removeChild(renderer.domElement);
@@ -1108,7 +1097,7 @@ export default function Page() {
           return;
         }
         const data = await res.json();
-        const values = Object.values(data) as RGB[][];
+        const values = Object.values(data);
         if (!values.length) return;
         // randomize palette order for cycling
         setPalettes(shuffle(values.slice()));
@@ -1122,11 +1111,11 @@ export default function Page() {
   useEffect(() => {
     if (!palettes.length) return;
 
-    let frameId: number;
-    let startTime: number | null = null;
+    let frameId;
+    let startTime = null;
     const duration = 10000; // ms per palette morph
 
-    const loop = (timestamp: number) => {
+    const loop = (timestamp) => {
       if (startTime === null) startTime = timestamp;
       const elapsed = timestamp - startTime;
       const total = palettes.length;

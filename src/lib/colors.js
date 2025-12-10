@@ -1,10 +1,7 @@
 import ColorThief from 'colorthief';
 import munkres from 'munkres-js';
 
-export type RGB = { r: number; g: number; b: number };
-export type Lab = { l: number; a: number; b: number };
-
-export const findClosestColorIndex = (labColor: Lab, paletteLab: Lab[]) => {
+export const findClosestColorIndex = (labColor, paletteLab) => {
   let closestIndex = 0;
   let smallestDistance = Number.MAX_VALUE;
 
@@ -24,7 +21,7 @@ export const findClosestColorIndex = (labColor: Lab, paletteLab: Lab[]) => {
   return closestIndex;
 };
 
-export const findClosestColorIndexAB = (labColor: Lab, paletteLab: Lab[]) => {
+export const findClosestColorIndexAB = (labColor, paletteLab) => {
   let closestIndex = 0;
   let smallestDistance = Number.MAX_VALUE;
 
@@ -52,7 +49,7 @@ export const findClosestColorIndexAB = (labColor: Lab, paletteLab: Lab[]) => {
   return closestIndex;
 };
 
-export const findClosestColorIndexL = (labColor: Lab, paletteLab: Lab[]) => {
+export const findClosestColorIndexL = (labColor, paletteLab) => {
   let closestIndex = 0;
   let smallestDistance = Number.MAX_VALUE;
 
@@ -78,15 +75,15 @@ const t1 = 6 / 29;
 const t2 = 3 * t1 * t1;
 const t3 = t1 * t1 * t1;
 
-export const rgb2lrgb = (x: number) => {
+export const rgb2lrgb = (x) => {
   const x2 = x / 255;
   return x2 <= 0.04045 ? x2 / 12.92 : Math.pow((x2 + 0.055) / 1.055, 2.4);
 };
 
-export const xyz2lab = (t: number) =>
+export const xyz2lab = (t) =>
   t > t3 ? Math.pow(t, 1 / 3) : t / t2 + 4 / 29;
 
-export const rgbToLab = (color: RGB): Lab => {
+export const rgbToLab = (color) => {
   const r = rgb2lrgb(color.r);
   const g = rgb2lrgb(color.g);
   const b = rgb2lrgb(color.b);
@@ -108,7 +105,7 @@ export const rgbToLab = (color: RGB): Lab => {
   };
 };
 
-export const lrgb2rgb = (x: number) =>
+export const lrgb2rgb = (x) =>
   Math.round(
     255 *
       (x <= 0.0031308
@@ -116,10 +113,10 @@ export const lrgb2rgb = (x: number) =>
         : 1.055 * Math.pow(x, 1 / 2.4) - 0.055)
   ) || 0;
 
-export const lab2xyz = (t: number) =>
+export const lab2xyz = (t) =>
   t > t1 ? t * t * t : t2 * (t - 4 / 29);
 
-export const labToRgb = ({ l, a, b }: Lab): RGB => {
+export const labToRgb = ({ l, a, b }) => {
   const baseY = (l + 16) / 116;
   const x = 0.96422 * lab2xyz(baseY + a / 500);
   const y = lab2xyz(baseY);
@@ -132,7 +129,7 @@ export const labToRgb = ({ l, a, b }: Lab): RGB => {
   };
 };
 
-export const colorDistance = (color1: RGB, color2: RGB) => {
+export const colorDistance = (color1, color2) => {
   const lab1 = rgbToLab(color1);
   const lab2 = rgbToLab(color2);
   const deltaL = lab1.l - lab2.l;
@@ -141,8 +138,8 @@ export const colorDistance = (color1: RGB, color2: RGB) => {
   return Math.sqrt(deltaL ** 2 + deltaA ** 2 + deltaB ** 2);
 };
 
-export const createDistanceMatrix = (colors1: RGB[], colors2: RGB[]) => {
-  const distanceMatrix: number[][] = [];
+export const createDistanceMatrix = (colors1, colors2) => {
+  const distanceMatrix = [];
 
   for (let i = 0; i < colors1.length; i++) {
     distanceMatrix[i] = [];
@@ -154,16 +151,16 @@ export const createDistanceMatrix = (colors1: RGB[], colors2: RGB[]) => {
   return distanceMatrix;
 };
 
-export const sortColorsByPairing = (colors1: RGB[], colors2: RGB[]) => {
+export const sortColorsByPairing = (colors1, colors2) => {
   const distanceMatrix = createDistanceMatrix(colors1, colors2);
-  const results = munkres(distanceMatrix) as [number, number][];
+  const results = munkres(distanceMatrix);
   return results.map((result) => colors2[result[1]]);
 };
 
 export const interpolatePalette = (
-  palette1: RGB[],
-  palette2: RGB[],
-  i: number
+  palette1,
+  palette2,
+  i
 ) => {
   const newPalette = palette1.map((color1, index) => {
     const color2 = palette2[index];
@@ -176,15 +173,15 @@ export const interpolatePalette = (
   return newPalette;
 };
 
-export const hslToRgb = ({ h, s, l }: { h: number; s: number; l: number }) => {
-  let r: number;
-  let g: number;
-  let b: number;
+export const hslToRgb = ({ h, s, l }) => {
+  let r;
+  let g;
+  let b;
 
   if (s === 0) {
     r = g = b = l; // achromatic
   } else {
-    const hue2rgb = (p: number, q: number, t: number) => {
+    const hue2rgb = (p, q, t) => {
       if (t < 0) t += 1;
       if (t > 1) t -= 1;
       if (t < 1 / 6) return p + (q - p) * 6 * t;
@@ -205,23 +202,23 @@ export const hslToRgb = ({ h, s, l }: { h: number; s: number; l: number }) => {
 };
 
 export const polarToHsl = (
-  radius: number,
-  angle: number,
-  maxRadius: number
+  radius,
+  angle,
+  maxRadius
 ) => {
   const luminosity = radius / maxRadius;
   return { h: angle, s: 0.5, l: luminosity };
 };
 
 export const polarToLab = (
-  radius: number,
-  angle: number,
-  maxRadius: number
-): Lab => {
+  radius,
+  angle,
+  maxRadius
+) => {
   const luminosity = radius / maxRadius;
   const hslColor = polarToHsl(radius, angle, maxRadius);
   const rgbColor = hslToRgb(hslColor);
-  const labColor = rgbToLab(rgbColor as RGB);
+  const labColor = rgbToLab(rgbColor);
 
   // Using polar coordinates directly for a/b, fixed scaling
   return {
@@ -232,10 +229,10 @@ export const polarToLab = (
 };
 
 export const extractPalette = async (
-  imagePath: string,
-  colorCount: number
-): Promise<RGB[]> => {
-  return new Promise<RGB[]>((resolve, reject) => {
+  imagePath,
+  colorCount
+) => {
+  return new Promise((resolve, reject) => {
     const sourceImage = new Image();
     sourceImage.crossOrigin = 'Anonymous';
     sourceImage.src = imagePath;
@@ -243,13 +240,13 @@ export const extractPalette = async (
     sourceImage.onload = () => {
       try {
         // Instantiate ColorThief – getPalette is an instance method
-        const colorThief = new (ColorThief as any)();
+        const colorThief = new ColorThief();
         const palette = colorThief.getPalette(
-          sourceImage as HTMLImageElement,
+          sourceImage,
           colorCount
-        ) as number[][];
+        );
 
-        const formattedPalette: RGB[] = (palette || []).map((color) => ({
+        const formattedPalette = (palette || []).map((color) => ({
           r: color[0],
           g: color[1],
           b: color[2],
@@ -266,3 +263,4 @@ export const extractPalette = async (
     };
   });
 };
+

@@ -1,13 +1,8 @@
 import { useRef, useEffect } from 'react';
-import { findClosestColorIndexL, rgbToLab, polarToLab, labToRgb, RGB } from '../lib/colors';
+import { findClosestColorIndexL, rgbToLab, polarToLab, labToRgb } from '../lib/colors';
 
-type Props = {
-  palette: RGB[];
-  size: number;
-};
-
-const ColorChart = ({ palette, size }: Props) => {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+const ColorChart = ({ palette, size }) => {
+  const canvasRef = useRef(null);
 
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -71,4 +66,3 @@ const ColorChart = ({ palette, size }: Props) => {
 };
 
 export default ColorChart;
-
