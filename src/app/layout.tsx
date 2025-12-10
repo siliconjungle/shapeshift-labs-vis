@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SHAPESHIFT MORPHING",
+  title: "SHAPESHIFT LABS",
   description: "Morphing viewer for SHAPESHIFT LABS models",
 };
 
