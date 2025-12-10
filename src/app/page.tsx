@@ -1050,6 +1050,7 @@ export default function Page() {
 
     wrapper.addEventListener('pointermove', handlePointerMove);
     wrapper.addEventListener('pointerdown', startAudio, { once: true });
+    window.addEventListener('pointerdown', startAudio, { once: true });
     loadModels();
     animationId = requestAnimationFrame(animate);
 
@@ -1057,6 +1058,7 @@ export default function Page() {
       if (animationId) cancelAnimationFrame(animationId);
       wrapper.removeEventListener('pointermove', handlePointerMove);
       wrapper.removeEventListener('pointerdown', startAudio);
+      window.removeEventListener('pointerdown', startAudio);
       window.removeEventListener('resize', resize);
       clearOverlayNodes();
 
@@ -1147,33 +1149,79 @@ export default function Page() {
   }, [palette]);
 
   return (
-    <div id="page">
+    <>
       <div className="bg-diagonal" aria-hidden="true" />
-      <div id="model-wrapper" ref={wrapperRef}>
-        <div className="diagram-layer" ref={diagramRef}>
-          <div className="diagram-grid" />
-        </div>
 
-        <h1 id="title-shape" className="title-text">
-          <span className="title-shape-text">SHAPE</span>
-        </h1>
-        <h1 id="title-shift" className="title-text">
-          <span>S</span>
-          <span>H</span>
-          <span>I</span>
-          <span>F</span>
-          <span>T</span>
-        </h1>
+      <div id="page">
+        <div id="model-wrapper" ref={wrapperRef}>
+          <div className="diagram-layer" ref={diagramRef}>
+            <div className="diagram-grid" />
+          </div>
 
-        <div id="container" ref={containerRef} />
+          <h1 id="title-shape" className="title-text">
+            <span className="title-shape-text">SHAPE</span>
+          </h1>
+          <h1 id="title-shift" className="title-text">
+            <span>S</span>
+            <span>H</span>
+            <span>I</span>
+            <span>F</span>
+            <span>T</span>
+          </h1>
 
-        <div id="palette-wrapper">
-          <div className="palette-inner">
-            <ColorChart palette={palette} size={180} />
+          <div id="container" ref={containerRef} />
+
+          <div id="palette-wrapper">
+            <div className="palette-inner">
+              <ColorChart palette={palette} size={180} />
+            </div>
           </div>
         </div>
       </div>
+
+      <section className="content-section">
+        <h2>Shapeshift Labs</h2>
+        <p>
+          A morphing field of points driven by audio-reactive systems and a rotating
+          palette of sampled color relationships. Built as a lightweight viewer for
+          SHAPESHIFT model experiments.
+        </p>
+        <p>
+          These notes use the primary Geist font to contrast with the Halfre display type
+          in the hero lockup.
+        </p>
+        <p>
+          The viewer is intentionally minimal: no chrome, no panels, just enough
+          annotation to understand what the system is doing without crowding the motion.
+        </p>
+        <p>
+          Under the surface, the same engine can drive different bodies, palettes, and
+          interaction modes, making this page a sketchpad for future SHAPESHIFT studies.
+        </p>
+      </section>
+
+      <section className="content-section">
+        <h2>Pipeline</h2>
+        <p>
+          Point clouds are aligned, doubled, and scattered through a custom jitter field
+          so transitions stay grounded while still feeling alive.
+        </p>
+        <p>
+          Palettes are blended over time and reprojected onto the mesh, so the system can
+          shift shape and color without breaking the overall mood.
+        </p>
+        <p>
+          Along the way, subtle forces—audio-reactive wind, mouse-driven fields, and
+          timed glitches—nudge the structure just enough to feel alive without collapsing
+          into noise.
+        </p>
+        <p>
+          The result is a system that can be steered, themed, and re-skinned without
+          rewriting the underlying motion grammar.
+        </p>
+      </section>
+
       <div className="film-grain-overlay" aria-hidden="true" />
-    </div>
+    </>
   );
 }

@@ -21,8 +21,9 @@ body {
   margin: 0;
   padding: 0;
   width: 100%;
-  height: 100%;
-  overflow: hidden;
+  min-height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
   font-family: 'Halfre', 'Inter', 'Helvetica Neue', Arial, sans-serif;
   background-color: #000;
   color: var(--ink);
@@ -50,20 +51,60 @@ body {
   opacity: 0.45;
 }
 
+.content-section {
+  width: 100%;
+  max-width: 840px;
+  margin: 0 auto;
+  padding: 16px 40px 24px;
+  font-family: var(--font-geist-sans);
+  color: var(--ink);
+  text-align: left;
+}
+
+.content-section h2 {
+  margin: 0 0 16px;
+  font-size: 1.25rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.9;
+}
+
+.content-section p {
+  margin: 0 0 12px;
+  max-width: none;
+  line-height: 1.6;
+  opacity: 0.78;
+}
+
+.content-section + .content-section {
+  margin-top: 8px;
+}
+
+.content-section:first-of-type {
+  margin-top: 24px;
+}
+
+@media (max-width: 640px) {
+  .content-section {
+    padding: 20px 16px 28px;
+  }
+}
+
 #page {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
   width: 100vw;
-  height: 100vh;
+  min-height: auto;
   position: relative;
+  padding: 8px 0 0;
 }
 
 #model-wrapper {
   position: relative;
   width: min(100vw, 1120px);
   height: min(78vh, 820px);
-  transform: translateY(-4vh);
+  transform: none;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -379,7 +420,7 @@ body {
 #palette-wrapper {
   position: absolute;
   left: 40px;
-  bottom: 24px;
+  bottom: 16px;
   width: 168px;
   height: 168px;
   display: flex;
@@ -429,7 +470,7 @@ body {
     font-size: 2.1rem;
   }
   #palette-wrapper {
-    transform: scale(0.4);
+    transform: scale(0.48);
   }
 }
 
@@ -437,9 +478,15 @@ body {
 @media (max-width: 640px) {
   #model-wrapper {
     width: 100vw;
-    height: min(70vh, 560px);
-    max-height: 560px;
-    transform: translateY(-8vh);
+    height: min(64vh, 520px);
+    max-height: 520px;
+    transform: none;
+  }
+
+  #palette-wrapper {
+    position: absolute;
+    left: 24px;
+    bottom: 12px;
   }
 
   #title-shift {
