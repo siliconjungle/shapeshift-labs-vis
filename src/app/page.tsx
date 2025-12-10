@@ -1199,7 +1199,7 @@ export default function Page() {
       </div>
 
       <section className="content-section">
-        <h2>Lorem Ipsum</h2>
+        <h2>everything a source of inspiration</h2>
         <p>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum nec lectus
           nunc. Nullam eget feugiat purus, at pulvinar odio.
@@ -1209,18 +1209,49 @@ export default function Page() {
           pharetra neque mi ac arcu. Sed hendrerit justo non mi venenatis, in placerat
           augue ultrices.
         </p>
+      </section>
+
+      <section className="content-section">
+        <h2>stories, archetypes &amp; symbols carry meaning with high fidelity</h2>
         <p>
-          Curabitur scelerisque, eros ac dignissim cursus, nibh lorem interdum ante, non
-          suscipit velit libero vitae justo. Nunc at felis in lacus porttitor volutpat.
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras eu sem a urna
+          accumsan hendrerit. Integer tincidunt, sapien non luctus mollis, justo mauris
+          pulvinar nisl, eget dapibus massa purus at justo.
         </p>
         <p>
-          Suspendisse potenti. Donec viverra lorem ut enim rhoncus, quis dapibus erat
-          imperdiet. Morbi ut massa sed augue ullamcorper rhoncus.
+          Vivamus finibus, est quis molestie elementum, enim nulla pharetra lacus, vel
+          volutpat dolor arcu id felis. Donec fringilla, erat eget aliquam accumsan,
+          ligula urna interdum est, et euismod erat arcu a enim.
         </p>
       </section>
 
       <section className="content-section">
-        <h2>Dolor Sit Amet</h2>
+        <h2>your environment shapes your thoughts</h2>
+        <p>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque habitant
+          morbi tristique senectus et netus et malesuada fames ac turpis egestas.
+        </p>
+        <p>
+          Mauris pellentesque, ipsum ut pulvinar tincidunt, risus augue tincidunt dolor,
+          sit amet imperdiet mauris tellus ac metus. Integer aliquet faucibus tellus sed
+          dignissim.
+        </p>
+      </section>
+
+      <section className="content-section">
+        <h2>creation as wayfinding</h2>
+        <p>
+          Sed sit amet consectetur elit. Duis et leo a nunc bibendum sodales. Maecenas
+          tincidunt congue mi, nec imperdiet tortor vehicula sit amet.
+        </p>
+        <p>
+          Phasellus maximus, nibh id accumsan molestie, orci arcu faucibus elit, sed
+          faucibus nibh metus a libero. Cras non nisl quis neque congue viverra.
+        </p>
+      </section>
+
+      <section className="content-section">
+        <h2>we adapt to technology, then it adapts to us</h2>
         <p>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec dictum luctus
           mauris, id rhoncus velit malesuada vel. Pellentesque a lacus nec dui tempor
@@ -1230,13 +1261,46 @@ export default function Page() {
           Aliquam erat volutpat. Cras a velit mi. In vitae nunc efficitur, ultricies
           ipsum non, faucibus eros. Vivamus ac nisl non augue vestibulum tincidunt.
         </p>
+      </section>
+
+      <section className="content-section">
+        <h2>computation is the medium of process</h2>
         <p>
-          Sed sit amet consectetur elit. Duis et leo a nunc bibendum sodales. Maecenas
-          tincidunt congue mi, nec imperdiet tortor vehicula sit amet.
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent finibus, sem
+          at faucibus tempor, arcu justo condimentum lorem, nec facilisis urna odio ac
+          arcu.
         </p>
         <p>
-          Phasellus maximus, nibh id accumsan molestie, orci arcu faucibus elit, sed
-          faucibus nibh metus a libero. Cras non nisl quis neque congue viverra.
+          Integer ornare, risus id vulputate aliquam, mauris erat vulputate libero, id
+          pulvinar magna ligula in diam. Proin faucibus nibh in elit lacinia, sit amet
+          feugiat tortor viverra.
+        </p>
+      </section>
+
+      <section className="content-section">
+        <h2>history is beautiful</h2>
+        <p>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer auctor, lectus
+          vitae laoreet luctus, tortor lacus cursus nisl, vitae gravida arcu erat at
+          lectus.
+        </p>
+        <p>
+          Donec a sollicitudin orci. Vestibulum ante ipsum primis in faucibus orci luctus
+          et ultrices posuere cubilia curae; Sed rhoncus quis lectus non congue.
+        </p>
+      </section>
+
+      <section className="content-section">
+        <h2>and so is what is lost</h2>
+        <p>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed congue elit id
+          sapien venenatis, ac tincidunt sapien volutpat. Nunc feugiat, urna sed
+          efficitur condimentum, lorem ligula pharetra nisl, nec cursus tortor ligula ut
+          felis.
+        </p>
+        <p>
+          Curabitur ut tincidunt lorem. Praesent consequat, ipsum at dictum gravida, nisl
+          nulla commodo erat, non bibendum eros nisi ac leo.
         </p>
       </section>
 
