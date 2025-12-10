@@ -54,10 +54,12 @@ const randomInt = (minInclusive: number, maxExclusive: number) =>
 const doubleVertices = (targets: Float32Array[]) =>
   targets.map((src) => {
     const vertCount = src.length / 3;
-    const dst = new Float32Array(src.length * 2);
+    const extraVerts = Math.floor(vertCount / 3); // add ~1/3 more points
+    const newVertCount = vertCount + extraVerts; // ~4/3 of original
+    const dst = new Float32Array(newVertCount * 3);
     dst.set(src, 0);
-    // duplicate each vertex; scatter/jitter will separate them later
-    for (let i = 0; i < vertCount; i++) {
+    // duplicate a subset of vertices; scatter/jitter will separate them later
+    for (let i = 0; i < extraVerts; i++) {
       const srcIdx = i * 3;
       const dstIdx = (vertCount + i) * 3;
       dst[dstIdx] = src[srcIdx];

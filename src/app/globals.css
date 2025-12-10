@@ -82,6 +82,10 @@ body {
   margin-top: 22px;
 }
 
+.content-section:first-of-type h2 {
+  margin-top: 34px;
+}
+
 .content-section + .content-section {
   margin-top: 8px;
 }
