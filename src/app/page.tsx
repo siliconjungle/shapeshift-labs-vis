@@ -1167,28 +1167,9 @@ export default function Page() {
 
         <div id="container" ref={containerRef} />
 
-        <div
-          style={{
-            position: 'absolute',
-            left: 24,
-            bottom: 24,
-            width: 140,
-            height: 140,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            pointerEvents: 'none',
-          }}
-        >
-          <div
-            style={{
-              position: 'relative',
-              width: '100%',
-              height: '100%',
-              pointerEvents: 'auto',
-            }}
-          >
-            <ColorChart palette={palette} size={140} />
+        <div id="palette-wrapper">
+          <div className="palette-inner">
+            <ColorChart palette={palette} size={180} />
           </div>
         </div>
       </div>
