@@ -148,10 +148,12 @@ export default function Page() {
   const diagramRef = useRef(null);
   const basePositionsRef = useRef(null);
   const paletteRef = useRef([]);
+  const audioStartedRef = useRef(false);
+  const startAudioRef = useRef(null);
 
   const [palette, setPalette] = useState([]);
   const [palettes, setPalettes] = useState([]);
-  const [isMuted, setIsMuted] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
   const gainRef = useRef(null);
 
   useEffect(() => {
@@ -235,7 +237,7 @@ export default function Page() {
     let animationId = null;
     let currentRotX = 0;
     let currentRotY = 0;
-    let audioStarted = false;
+    let audioStarted = audioStartedRef.current;
     let totalTime = 0;
     let jitterSeeds = null;
     let scatterVelocities = null;
@@ -294,9 +296,10 @@ export default function Page() {
       lineEntries.splice(0, lineEntries.length).forEach((line) => line.remove());
     };
 
-    const startAudio = async () => {
+    const startAudio = async (initialMuted) => {
       if (audioStarted) return;
       audioStarted = true;
+      audioStartedRef.current = true;
       try {
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
         if (!AudioCtx) {
@@ -321,7 +324,8 @@ export default function Page() {
         const data = new Uint8Array(analyser.frequencyBinCount);
 
         const gain = ctx.createGain();
-        gain.gain.value = isMuted ? 0 : 1;
+        const muted = typeof initialMuted === 'boolean' ? initialMuted : isMuted;
+        gain.gain.value = muted ? 0 : 1;
 
         source.connect(analyser);
         analyser.connect(gain);
@@ -336,6 +340,9 @@ export default function Page() {
         console.error('Audio start failed:', err);
       }
     };
+
+    // Expose startAudio so other handlers (like the mute button) can trigger it
+    startAudioRef.current = startAudio;
 
     const buildOverlayNodes = () => {
       if (!diagram || !mesh) return;
@@ -1053,20 +1060,12 @@ export default function Page() {
     };
 
     wrapper.addEventListener('pointermove', handlePointerMove);
-    wrapper.addEventListener('pointerdown', startAudio, { once: true });
-    wrapper.addEventListener('touchstart', startAudio, { once: true });
-    window.addEventListener('pointerdown', startAudio, { once: true });
-    window.addEventListener('touchstart', startAudio, { once: true });
     loadModels();
     animationId = requestAnimationFrame(animate);
 
     return () => {
       if (animationId) cancelAnimationFrame(animationId);
       wrapper.removeEventListener('pointermove', handlePointerMove);
-      wrapper.removeEventListener('pointerdown', startAudio);
-      wrapper.removeEventListener('touchstart', startAudio);
-      window.removeEventListener('pointerdown', startAudio);
-      window.removeEventListener('touchstart', startAudio);
       window.removeEventListener('resize', resize);
       clearOverlayNodes();
 
@@ -1085,6 +1084,7 @@ export default function Page() {
       audioDataRef.current = null;
       audioSourceRef.current = null;
       audioStarted = false;
+      audioStartedRef.current = false;
       scatterVelocities = null;
 
       if (mesh) {
@@ -1158,11 +1158,18 @@ export default function Page() {
 
   const toggleMute = () => {
     const next = !isMuted;
-    setIsMuted(next);
-    const gain = gainRef.current;
-    if (gain) {
-      gain.gain.value = next ? 0 : 1;
+
+    // Ensure audio context is started on first user interaction (desktop + mobile)
+    if (!audioStartedRef.current && startAudioRef.current) {
+      startAudioRef.current(next);
+    } else {
+      const gain = gainRef.current;
+      if (gain) {
+        gain.gain.value = next ? 0 : 1;
+      }
     }
+
+    setIsMuted(next);
   };
 
   return (
