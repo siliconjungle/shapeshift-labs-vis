@@ -298,7 +298,12 @@ export default function Page() {
       if (audioStarted) return;
       audioStarted = true;
       try {
-        const ctx = new AudioContext();
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) {
+          console.error('Web Audio API not supported in this browser');
+          return;
+        }
+        const ctx = new AudioCtx();
         audioCtxRef.current = ctx;
         if (ctx.state === 'suspended') {
           await ctx.resume();
@@ -1049,7 +1054,9 @@ export default function Page() {
 
     wrapper.addEventListener('pointermove', handlePointerMove);
     wrapper.addEventListener('pointerdown', startAudio, { once: true });
+    wrapper.addEventListener('touchstart', startAudio, { once: true });
     window.addEventListener('pointerdown', startAudio, { once: true });
+    window.addEventListener('touchstart', startAudio, { once: true });
     loadModels();
     animationId = requestAnimationFrame(animate);
 
@@ -1057,7 +1064,9 @@ export default function Page() {
       if (animationId) cancelAnimationFrame(animationId);
       wrapper.removeEventListener('pointermove', handlePointerMove);
       wrapper.removeEventListener('pointerdown', startAudio);
+      wrapper.removeEventListener('touchstart', startAudio);
       window.removeEventListener('pointerdown', startAudio);
+      window.removeEventListener('touchstart', startAudio);
       window.removeEventListener('resize', resize);
       clearOverlayNodes();
 

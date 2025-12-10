@@ -95,6 +95,11 @@ body {
   margin-top: 24px;
 }
 
+/* Extra breathing room below the final block of copy */
+.content-section:last-of-type {
+  padding-bottom: 64px;
+}
+
 @media (max-width: 640px) {
   .content-section {
     padding: 20px 16px 28px;
