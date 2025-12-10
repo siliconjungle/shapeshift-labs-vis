@@ -1199,44 +1199,44 @@ export default function Page() {
       </div>
 
       <section className="content-section">
-        <h2>Shapeshift Labs</h2>
+        <h2>Lorem Ipsum</h2>
         <p>
-          A morphing field of points driven by audio-reactive systems and a rotating
-          palette of sampled color relationships. Built as a lightweight viewer for
-          SHAPESHIFT model experiments.
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum nec lectus
+          nunc. Nullam eget feugiat purus, at pulvinar odio.
         </p>
         <p>
-          These notes use the primary Geist font to contrast with the Halfre display type
-          in the hero lockup.
+          Integer egestas, arcu eget varius scelerisque, enim enim iaculis sapien, in
+          pharetra neque mi ac arcu. Sed hendrerit justo non mi venenatis, in placerat
+          augue ultrices.
         </p>
         <p>
-          The viewer is intentionally minimal: no chrome, no panels, just enough
-          annotation to understand what the system is doing without crowding the motion.
+          Curabitur scelerisque, eros ac dignissim cursus, nibh lorem interdum ante, non
+          suscipit velit libero vitae justo. Nunc at felis in lacus porttitor volutpat.
         </p>
         <p>
-          Under the surface, the same engine can drive different bodies, palettes, and
-          interaction modes, making this page a sketchpad for future SHAPESHIFT studies.
+          Suspendisse potenti. Donec viverra lorem ut enim rhoncus, quis dapibus erat
+          imperdiet. Morbi ut massa sed augue ullamcorper rhoncus.
         </p>
       </section>
 
       <section className="content-section">
-        <h2>Pipeline</h2>
+        <h2>Dolor Sit Amet</h2>
         <p>
-          Point clouds are aligned, doubled, and scattered through a custom jitter field
-          so transitions stay grounded while still feeling alive.
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec dictum luctus
+          mauris, id rhoncus velit malesuada vel. Pellentesque a lacus nec dui tempor
+          scelerisque.
         </p>
         <p>
-          Palettes are blended over time and reprojected onto the mesh, so the system can
-          shift shape and color without breaking the overall mood.
+          Aliquam erat volutpat. Cras a velit mi. In vitae nunc efficitur, ultricies
+          ipsum non, faucibus eros. Vivamus ac nisl non augue vestibulum tincidunt.
         </p>
         <p>
-          Along the way, subtle forces—audio-reactive wind, mouse-driven fields, and
-          timed glitches—nudge the structure just enough to feel alive without collapsing
-          into noise.
+          Sed sit amet consectetur elit. Duis et leo a nunc bibendum sodales. Maecenas
+          tincidunt congue mi, nec imperdiet tortor vehicula sit amet.
         </p>
         <p>
-          The result is a system that can be steered, themed, and re-skinned without
-          rewriting the underlying motion grammar.
+          Phasellus maximus, nibh id accumsan molestie, orci arcu faucibus elit, sed
+          faucibus nibh metus a libero. Cras non nisl quis neque congue viverra.
         </p>
       </section>
 
