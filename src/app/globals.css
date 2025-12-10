@@ -28,6 +28,28 @@ body {
   color: var(--ink);
 }
 
+.bg-diagonal {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+  background:
+    radial-gradient(
+      circle at 0% 0%,
+      rgba(255, 255, 255, 0.08),
+      transparent 52%
+    ),
+    linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.04) 0%,
+      rgba(255, 255, 255, 0.015) 32%,
+      rgba(0, 0, 0, 0) 60%,
+      rgba(0, 0, 0, 0.38) 100%
+    );
+  mix-blend-mode: screen;
+  opacity: 0.45;
+}
+
 #page {
   display: flex;
   justify-content: center;
@@ -62,6 +84,8 @@ body {
   --label-c-anchor-y: 0px;
   --label-c-len: 0px;
   --label-c-angle: 0deg;
+  /* glitch variable (driven from JS) */
+  --glitch-amount: 0;
 }
 
 .film-grain-overlay {
@@ -73,14 +97,14 @@ body {
   background-repeat: repeat;
   background-size: 110px 110px, 260px 260px;
   background-position: 0 0, 0 0;
-  opacity: 0.18;
+  opacity: 0.15;
   mix-blend-mode: screen;
   filter: contrast(140%) brightness(102%);
 }
 
 @media (prefers-color-scheme: dark) {
   .film-grain-overlay {
-    opacity: 0.22;
+    opacity: 0.19;
   }
 }
 
@@ -124,15 +148,15 @@ body {
   -webkit-mask-image: radial-gradient(
     circle at center,
     rgba(255, 255, 255, 1) 0%,
-    rgba(255, 255, 255, 1) 55%,
-    rgba(255, 255, 255, 0) 85%,
+    rgba(255, 255, 255, 1) 40%,
+    rgba(255, 255, 255, 0) 80%,
     rgba(255, 255, 255, 0) 100%
   );
   mask-image: radial-gradient(
     circle at center,
     rgba(255, 255, 255, 1) 0%,
-    rgba(255, 255, 255, 1) 55%,
-    rgba(255, 255, 255, 0) 85%,
+    rgba(255, 255, 255, 1) 40%,
+    rgba(255, 255, 255, 0) 80%,
     rgba(255, 255, 255, 0) 100%
   );
   transition: opacity 400ms ease;
@@ -267,7 +291,7 @@ body {
   background: #101010;
   padding: 2px 6px;
   border-radius: 0;
-  z-index: 16;
+  z-index: 18;
 }
 
 .mesh-line {
@@ -277,7 +301,7 @@ body {
   background: linear-gradient(to right, #e4e4e4, #e4e4e4);
   transform-origin: 0 50%;
   opacity: 1;
-  z-index: 16;
+  z-index: 15;
 }
 
 .diagram-label-group--visible {
@@ -350,4 +374,19 @@ body {
   gap: 0;
   line-height: 0.95;
   font-feature-settings: 'salt' 1, 'ss01' 1, 'ss02' 1;
+}
+
+/* --- subtle text glitch driven by --glitch-amount and .is-glitching --- */
+#model-wrapper .title-text span {
+  position: relative;
+}
+
+#model-wrapper.is-glitching .title-text span {
+  /* tiny CRT-ish horizontal double-shadow */
+  text-shadow:
+    calc(var(--glitch-amount, 0) * -2px) 0 0 rgba(255, 255, 255, 0.45),
+    calc(var(--glitch-amount, 0) * 2px) 0 0 rgba(255, 255, 255, 0.18);
+  filter: contrast(calc(1 + var(--glitch-amount, 0) * 0.2));
+  opacity: calc(0.96 + var(--glitch-amount, 0) * 0.04);
+  transition: text-shadow 90ms ease-out, filter 90ms ease-out, opacity 90ms ease-out;
 }

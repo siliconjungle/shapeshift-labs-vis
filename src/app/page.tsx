@@ -160,9 +160,7 @@ export default function Page() {
     // start with mouse "outside" the canvas so steering waits for first move
     wrapper.style.setProperty('--mouse-x', '-0.2');
     wrapper.style.setProperty('--mouse-y', '-0.2');
-
-    let grainFrameId: number | null = null;
-    let lastGrainUpdate = 0;
+    wrapper.style.setProperty('--glitch-amount', '0');
 
     const updateFilmGrain = () => {
       try {
@@ -176,9 +174,26 @@ export default function Page() {
           const imageData = ctx.createImageData(size, size);
           const data = imageData.data;
           for (let i = 0; i < data.length; i += 4) {
-            const base = 132;
-            const jitter = (Math.random() - 0.5) * 36 * contrast;
-            const v = Math.max(100, Math.min(165, base + jitter));
+            // approximate a soft Gaussian brightness distribution
+            const gaussian =
+              (Math.random() +
+                Math.random() +
+                Math.random() +
+                Math.random()) /
+                4 -
+              0.5;
+            const base = 150;
+            let v = base + gaussian * 90 * contrast;
+
+            // sparse bright and dark specks for a more film-like texture
+            const sparkle = Math.random();
+            if (sparkle < 0.012) {
+              v += 55; // highlight speck
+            } else if (sparkle > 0.988) {
+              v -= 65; // dark speck
+            }
+
+            v = Math.max(85, Math.min(225, v));
             data[i] = v;
             data[i + 1] = v;
             data[i + 2] = v;
@@ -189,7 +204,7 @@ export default function Page() {
         };
 
         const fine = createLayer(96, 0.7);
-        const coarse = createLayer(192, 1.1);
+        const coarse = createLayer(192, 1.0);
         const rootStyle = document.documentElement.style;
         if (fine) {
           rootStyle.setProperty('--grain-texture-fine', fine);
@@ -202,18 +217,10 @@ export default function Page() {
       }
     };
 
-    const grainLoop = () => {
-      const now = performance.now();
-      if (now - lastGrainUpdate > 190) {
-        lastGrainUpdate = now;
-        updateFilmGrain();
-      }
-      grainFrameId = requestAnimationFrame(grainLoop);
-    };
-    grainLoop();
+    updateFilmGrain();
 
     let scene: THREE.Scene;
-    let camera: THREE.PerspectiveCamera;
+    let camera: THREE.OrthographicCamera;
     let renderer: THREE.WebGLRenderer | undefined;
     let mesh: THREE.Points | undefined;
     let morphTargets: Float32Array[] = [];
@@ -227,6 +234,12 @@ export default function Page() {
     let totalTime = 0;
     let jitterSeeds: Float32Array | null = null;
     let scatterVelocities: Float32Array | null = null;
+
+    // --- subtle glitch control (softer) ---
+    let glitchAmount = 0; // 0..1
+    let glitchTimeRemaining = 0;
+    let glitchDuration = 0;
+    let nextGlitchIn = 6000 + Math.random() * 7000; // ms until next glitch window
 
     const raycaster = new THREE.Raycaster();
     const pointer = new THREE.Vector2();
@@ -256,7 +269,12 @@ export default function Page() {
       const wrapperHeight = wrapper.clientHeight || 1;
       const fullWidth = window.innerWidth || wrapperWidth;
 
-      camera.aspect = fullWidth / wrapperHeight;
+      const aspect = fullWidth / wrapperHeight;
+      const frustumSize = 6;
+      camera.left = (-frustumSize * aspect) / 2;
+      camera.right = (frustumSize * aspect) / 2;
+      camera.top = frustumSize / 2;
+      camera.bottom = -frustumSize / 2;
       camera.updateProjectionMatrix();
       renderer.setSize(fullWidth, wrapperHeight);
 
@@ -396,7 +414,8 @@ export default function Page() {
         const wobbleY = Math.cos(t * 1.1 + 0.5) * amp;
         const wobbleZ = Math.sin(t * 0.9 + 1.3) * amp;
 
-        const wave = Math.sin(wavePhase + baseX * 1.2 + baseY * 0.8) +
+        const wave =
+          Math.sin(wavePhase + baseX * 1.2 + baseY * 0.8) +
           Math.cos(wavePhase * 1.1 + baseY * 1.4 + baseZ * 0.6);
         const waveOffset = waveAmp * 0.5 * wave;
 
@@ -411,12 +430,9 @@ export default function Page() {
         const rz = (baseZ / radialLen) * 0.02 * (0.3 + level * 0.9);
         const pulse = 0.5 + 0.5 * Math.sin(totalTime * 0.0008 + seed);
 
-        array[idx3] =
-          baseX + wobbleX + waveOffset * 0.8 + windX + rx * pulse;
-        array[idx3 + 1] =
-          baseY + wobbleY + waveOffset + windY + ry * pulse;
-        array[idx3 + 2] =
-          baseZ + wobbleZ + waveOffset * 0.6 + windZ + rz * pulse;
+        array[idx3] = baseX + wobbleX + waveOffset * 0.8 + windX + rx * pulse;
+        array[idx3 + 1] = baseY + wobbleY + waveOffset + windY + ry * pulse;
+        array[idx3 + 2] = baseZ + wobbleZ + waveOffset * 0.6 + windZ + rz * pulse;
       }
     };
 
@@ -433,6 +449,35 @@ export default function Page() {
         scatterVelocities[idx3] *= damping;
         scatterVelocities[idx3 + 1] *= damping;
         scatterVelocities[idx3 + 2] *= damping;
+      }
+    };
+
+    // softer banded glitch displacement, uses base positions so it feels structural
+    const applyGlitchStripes = (array: Float32Array, amount: number) => {
+      if (amount <= 0 || !basePositionsRef.current) return;
+      const base = basePositionsRef.current;
+      const vertCount = array.length / 3;
+
+      const bandScale = 0.015 + 0.05 * amount; // much smaller than before
+      const bandHeight = 0.28; // fewer bands across the height
+
+      for (let i = 0; i < vertCount; i++) {
+        const idx3 = i * 3;
+
+        const baseX = base[idx3];
+        const baseY = base[idx3 + 1];
+        const baseZ = base[idx3 + 2];
+
+        const bandIndex = Math.floor((baseY + 2.0) / bandHeight);
+        const dir = bandIndex % 2 === 0 ? 1 : -1;
+
+        const phase = Math.sin(baseX * 9.3 + baseZ * 6.1 + totalTime * 0.018);
+        const strength = bandScale * (0.4 + 0.6 * Math.abs(phase)) * 0.6;
+
+        const offset = dir * strength;
+
+        array[idx3] += offset;
+        array[idx3 + 2] += offset * 0.08;
       }
     };
 
@@ -502,6 +547,7 @@ export default function Page() {
       basePositionsRef.current = array.slice();
       applyJitter(array, basePositionsRef.current, jitterSeeds, audioLevelRef.current);
       applyScatter(array);
+      applyGlitchStripes(array, glitchAmount);
       currentPositionAttribute.needsUpdate = true;
     };
 
@@ -555,6 +601,7 @@ export default function Page() {
       basePositionsRef.current = array.slice();
       applyJitter(array, basePositionsRef.current, jitterSeeds, audioLevel);
       applyScatter(array);
+      applyGlitchStripes(array, glitchAmount);
       currentPositionAttribute.needsUpdate = true;
 
       if (stepped) {
@@ -582,6 +629,31 @@ export default function Page() {
           audioLevelRef.current = audioLevelRef.current * 0.85 + level * 0.15;
         }
         const level = audioLevelRef.current || 0;
+
+        // --- glitch timing: short, rare-ish bursts, but visible ---
+        if (glitchTimeRemaining > 0) {
+          glitchTimeRemaining -= cappedDelta;
+          const phase = Math.max(0, 1 - glitchTimeRemaining / (glitchDuration || 1));
+          glitchAmount = Math.sin(phase * Math.PI);
+          if (glitchTimeRemaining <= 0) {
+            glitchAmount = 0;
+            nextGlitchIn = 7000 + Math.random() * 9000;
+          }
+        } else {
+          nextGlitchIn -= cappedDelta;
+          if (nextGlitchIn <= 0) {
+            glitchDuration = 120 + Math.random() * 220; // very short
+            glitchTimeRemaining = glitchDuration;
+          }
+        }
+
+        wrapper.style.setProperty('--glitch-amount', glitchAmount.toFixed(3));
+        if (glitchAmount > 0.05) {
+          wrapper.classList.add('is-glitching');
+        } else {
+          wrapper.classList.remove('is-glitching');
+        }
+
         const speedFactor = 1 - Math.min(0.4, level * 0.5); // faster with louder beats
         const effectiveDuration = morphDurationBase * speedFactor;
 
@@ -714,7 +786,6 @@ export default function Page() {
             const bBase = (c0.b + (c1.b - c0.b) * localT) / 255;
 
             const boosted = boostSaturationAndBrightness(rBase, gBase, bBase);
-            // convert boosted color to a light grey/white tone
             const luminance =
               0.299 * boosted.r + 0.587 * boosted.g + 0.114 * boosted.b;
             const grey = Math.min(1, 0.75 + luminance * 0.25);
@@ -753,8 +824,23 @@ export default function Page() {
 
     const initScene = () => {
       scene = new THREE.Scene();
-      camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
+
+      const wrapperWidth = wrapper.clientWidth || 1;
+      const wrapperHeight = wrapper.clientHeight || 1;
+      const fullWidth = window.innerWidth || wrapperWidth;
+      const aspect = fullWidth / wrapperHeight;
+      const frustumSize = 6;
+
+      camera = new THREE.OrthographicCamera(
+        (-frustumSize * aspect) / 2,
+        (frustumSize * aspect) / 2,
+        frustumSize / 2,
+        -frustumSize / 2,
+        0.1,
+        1000
+      );
       camera.position.z = 4;
+      camera.lookAt(0, 0, 0);
 
       renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
       renderer.setClearColor(0x000000, 0);
@@ -821,7 +907,6 @@ export default function Page() {
           const bBase = (c0.b + (c1.b - c0.b) * localT) / 255;
 
           const boosted = boostSaturationAndBrightness(rBase, gBase, bBase);
-          // convert boosted color to a light grey/white tone
           const luminance =
             0.299 * boosted.r + 0.587 * boosted.g + 0.114 * boosted.b;
           const grey = Math.min(1, 0.75 + luminance * 0.25);
@@ -970,7 +1055,6 @@ export default function Page() {
 
     return () => {
       if (animationId) cancelAnimationFrame(animationId);
-      if (grainFrameId) cancelAnimationFrame(grainFrameId);
       wrapper.removeEventListener('pointermove', handlePointerMove);
       wrapper.removeEventListener('pointerdown', startAudio);
       window.removeEventListener('resize', resize);
@@ -1064,6 +1148,7 @@ export default function Page() {
 
   return (
     <div id="page">
+      <div className="bg-diagonal" aria-hidden="true" />
       <div id="model-wrapper" ref={wrapperRef}>
         <div className="diagram-layer" ref={diagramRef}>
           <div className="diagram-grid" />
