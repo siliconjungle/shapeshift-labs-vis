@@ -356,7 +356,7 @@ body {
   }
 
   .theme-toggle--light {
-    --thumb-shift: 26px;
+    --thumb-shift: 0px;
   }
 }
 

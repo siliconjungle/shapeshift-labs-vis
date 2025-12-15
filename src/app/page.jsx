@@ -167,6 +167,7 @@ export default function Page() {
   const [barcodeTransform, setBarcodeTransform] = useState('translate3d(18px, -10px, 0)');
   const [isBarcodeGlitch, setIsBarcodeGlitch] = useState(false);
   const [meshReady, setMeshReady] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const barcode = useMemo(() => {
     // deterministic fixed-length barcode from the payload string
     const targetWidth = 210;
@@ -284,6 +285,11 @@ export default function Page() {
     const container = containerRef.current;
     const wrapper = wrapperRef.current;
     const diagram = diagramRef.current;
+    const hasCoarsePointer =
+      typeof window.matchMedia === 'function'
+        ? window.matchMedia('(pointer: coarse)').matches
+        : false;
+    setIsMobile(hasCoarsePointer);
     const barcodeConfig = {
       tree: {
         payload: '02',
@@ -463,7 +469,7 @@ export default function Page() {
     };
 
     const startAudio = async (initialMuted) => {
-      if (audioStarted) return;
+      if (audioStarted || hasCoarsePointer) return;
       audioStarted = true;
       audioStartedRef.current = true;
       try {
@@ -508,7 +514,7 @@ export default function Page() {
     };
 
     // Expose startAudio so other handlers (like the mute button) can trigger it
-    startAudioRef.current = startAudio;
+    startAudioRef.current = hasCoarsePointer ? () => {} : startAudio;
 
     const buildOverlayNodes = () => {
       if (!diagram || !mesh) return;
@@ -1224,13 +1230,17 @@ export default function Page() {
       }
     };
 
-    wrapper.addEventListener('pointermove', handlePointerMove);
+    if (!hasCoarsePointer) {
+      wrapper.addEventListener('pointermove', handlePointerMove);
+    }
     loadModels();
     animationId = requestAnimationFrame(animate);
 
     return () => {
       if (animationId) cancelAnimationFrame(animationId);
-      wrapper.removeEventListener('pointermove', handlePointerMove);
+      if (!hasCoarsePointer) {
+        wrapper.removeEventListener('pointermove', handlePointerMove);
+      }
       window.removeEventListener('resize', resize);
       clearOverlayNodes();
 
@@ -1264,6 +1274,7 @@ export default function Page() {
   }, []);
 
   const toggleMute = () => {
+    if (isMobile) return; // disable audio on mobile
     const next = !isMuted;
 
     // Ensure audio context is started on first user interaction (desktop + mobile)
@@ -1490,14 +1501,16 @@ export default function Page() {
         </p>
       </section>
 
-      <button
-        type="button"
-        className="audio-toggle"
-        onClick={toggleMute}
-        aria-label={isMuted ? 'Unmute audio' : 'Mute audio'}
-      >
-        {isMuted ? <IoVolumeMute size={26} /> : <IoVolumeHigh size={26} />}
-      </button>
+      {!isMobile && (
+        <button
+          type="button"
+          className="audio-toggle"
+          onClick={toggleMute}
+          aria-label={isMuted ? 'Unmute audio' : 'Mute audio'}
+        >
+          {isMuted ? <IoVolumeMute size={26} /> : <IoVolumeHigh size={26} />}
+        </button>
+      )}
 
       <div className="film-grain-overlay" aria-hidden="true" />
     </>
