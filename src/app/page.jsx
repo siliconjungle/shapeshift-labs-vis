@@ -290,6 +290,12 @@ export default function Page() {
         ? window.matchMedia('(pointer: coarse)').matches
         : false;
     setIsMobile(hasCoarsePointer);
+    const computePointSize = () => {
+      if (typeof window === 'undefined') return 0.018;
+      const dpr = window.devicePixelRatio || 1;
+      const dprBoost = dpr >= 3 ? 1.7 : dpr >= 2.5 ? 1.45 : dpr >= 2 ? 1.25 : 1;
+      return 0.018 * dprBoost;
+    };
     const barcodeConfig = {
       tree: {
         payload: '02',
@@ -451,6 +457,13 @@ export default function Page() {
       camera.bottom = -frustumSize / 2;
       camera.updateProjectionMatrix();
       renderer.setSize(fullWidth, wrapperHeight);
+      if (mesh && mesh.material && typeof mesh.material.size === 'number') {
+        const targetSize = computePointSize();
+        if (Math.abs(mesh.material.size - targetSize) > 1e-5) {
+          mesh.material.size = targetSize;
+          mesh.material.needsUpdate = true;
+        }
+      }
 
       // make the canvas span full viewport width but keep it centered
       const canvas = renderer.domElement;
@@ -1087,7 +1100,7 @@ export default function Page() {
       const material = new THREE.PointsMaterial({
         vertexColors: paletteRef.current.length ? true : false,
         color: paletteRef.current.length ? undefined : 0xe9ddc7,
-        size: 0.018,
+        size: computePointSize(),
         sizeAttenuation: true,
         transparent: true,
         opacity: 0.85,
