@@ -72,23 +72,7 @@ const shuffle = (arr) => {
 const randomInt = (minInclusive, maxExclusive) =>
   minInclusive + Math.floor(Math.random() * (maxExclusive - minInclusive));
 
-const doubleVertices = (targets) =>
-  targets.map((src) => {
-    const vertCount = src.length / 3;
-    const extraVerts = Math.floor(vertCount / 3); // add ~1/3 more points
-    const newVertCount = vertCount + extraVerts; // ~4/3 of original
-    const dst = new Float32Array(newVertCount * 3);
-    dst.set(src, 0);
-    // duplicate a subset of vertices; scatter/jitter will separate them later
-    for (let i = 0; i < extraVerts; i++) {
-      const srcIdx = i * 3;
-      const dstIdx = (vertCount + i) * 3;
-      dst[dstIdx] = src[srcIdx];
-      dst[dstIdx + 1] = src[srcIdx + 1];
-      dst[dstIdx + 2] = src[srcIdx + 2];
-    }
-    return dst;
-  });
+const doubleVertices = (targets) => targets;
 
 const boostSaturationAndBrightness = (r, g, b) => {
   const rn = r;
@@ -168,6 +152,7 @@ export default function Page() {
   const wrapperRef = useRef(null);
   const diagramRef = useRef(null);
   const basePositionsRef = useRef(null);
+  const meshRef = useRef(null);
   const paletteRef = useRef(taupePalette);
   const morphNamesRef = useRef([]);
   const audioStartedRef = useRef(false);
@@ -181,6 +166,7 @@ export default function Page() {
   const [signalLabel, setSignalLabel] = useState('Signal 00');
   const [barcodeTransform, setBarcodeTransform] = useState('translate3d(18px, -10px, 0)');
   const [isBarcodeGlitch, setIsBarcodeGlitch] = useState(false);
+  const [meshReady, setMeshReady] = useState(false);
   const barcode = useMemo(() => {
     // deterministic fixed-length barcode from the payload string
     const targetWidth = 210;
@@ -279,6 +265,18 @@ export default function Page() {
     root.setAttribute('data-theme', theme);
     paletteRef.current = theme === 'light' ? lightModeInkPalette : taupePalette;
   }, [theme]);
+
+  useEffect(() => {
+    const mesh = meshRef.current;
+    if (!mesh || !meshReady) return;
+    const mat = mesh.material;
+    if (!mat) return;
+    const targetOpacity = theme === 'light' ? 0.98 : 0.85;
+    if (mat.opacity !== targetOpacity) {
+      mat.opacity = targetOpacity;
+      mat.needsUpdate = true;
+    }
+  }, [theme, meshReady]);
 
   useEffect(() => {
     if (!containerRef.current || !wrapperRef.current) return;
@@ -1091,6 +1089,8 @@ export default function Page() {
       mesh = new THREE.Points(geometry, material);
       mesh.scale.set(1.2, 1.2, 1.2);
       scene.add(mesh);
+      meshRef.current = mesh;
+      setMeshReady(true);
     };
 
     const loadModels = async () => {
@@ -1256,6 +1256,7 @@ export default function Page() {
         mesh.geometry.dispose();
         mesh.material.dispose();
       }
+      meshRef.current = null;
       if (container && renderer?.domElement?.parentElement === container) {
         container.removeChild(renderer.domElement);
       }
