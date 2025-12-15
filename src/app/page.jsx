@@ -1317,9 +1317,11 @@ export default function Page() {
 
       <div id="page">
         <div id="model-wrapper" ref={wrapperRef}>
-          <div className="diagram-layer" ref={diagramRef}>
+          <div className="diagram-grid-layer" aria-hidden="true">
             <div className="diagram-grid" />
           </div>
+
+          <div className="diagram-layer" ref={diagramRef} />
 
           <h1 id="title-shape" className="title-text">
             <span className="title-shape-text">SHAPE</span>
