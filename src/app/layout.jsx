@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 
 export const metadata = {
   title: "SHAPESHIFT LABS",
-  description: "Morphing viewer for SHAPESHIFT LABS models",
+  description: "everything is a source of inspiration",
 };
 
 export default function RootLayout({ children }) {
