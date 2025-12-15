@@ -1309,7 +1309,7 @@ export default function Page() {
       </section>
 
       <section className="content-section">
-        <h2>seek imperfection</h2>
+        <h2>humanity is in the imperfections</h2>
         <p>
           Maecenas consequat nisl id augue consequat, quis dignissim nulla sollicitudin.
           Phasellus vitae arcu vel nisl suscipit vulputate sit amet non sem.
