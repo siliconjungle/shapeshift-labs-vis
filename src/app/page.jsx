@@ -293,8 +293,10 @@ export default function Page() {
     const computePointSize = () => {
       if (typeof window === 'undefined') return 0.018;
       const dpr = window.devicePixelRatio || 1;
-      const dprBoost = dpr >= 3 ? 1.7 : dpr >= 2.5 ? 1.45 : dpr >= 2 ? 1.25 : 1;
-      return 0.018 * dprBoost;
+      const dprBoost = dpr >= 3 ? 2.2 : dpr >= 2.5 ? 1.8 : dpr >= 2 ? 1.5 : 1;
+      const size = 0.018 * dprBoost;
+      // guarantee a minimum lift on high-DPR devices so points stay legible
+      return dpr >= 2 ? Math.max(size, 0.028) : size;
     };
     const barcodeConfig = {
       tree: {
