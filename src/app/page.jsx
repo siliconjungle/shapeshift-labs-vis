@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FiMoon, FiSun } from 'react-icons/fi';
 import { IoVolumeHigh, IoVolumeMute } from 'react-icons/io5';
 import * as THREE from 'three';
@@ -168,6 +168,12 @@ export default function Page() {
   const [isBarcodeGlitch, setIsBarcodeGlitch] = useState(false);
   const [meshReady, setMeshReady] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const getPointSize = useCallback(() => {
+    if (typeof window === 'undefined') return 1;
+    const dpr = window.devicePixelRatio || 1;
+    const boost = dpr >= 3 ? 1.2 : dpr >= 2 ? 1.05 : 1;
+    return 1 * boost;
+  }, []);
   const barcode = useMemo(() => {
     // deterministic fixed-length barcode from the payload string
     const targetWidth = 210;
@@ -290,14 +296,7 @@ export default function Page() {
         ? window.matchMedia('(pointer: coarse)').matches
         : false;
     setIsMobile(hasCoarsePointer);
-    const computePointSize = () => {
-      if (typeof window === 'undefined') return 0.018;
-      const dpr = window.devicePixelRatio || 1;
-      const dprBoost = dpr >= 3 ? 2.2 : dpr >= 2.5 ? 1.8 : dpr >= 2 ? 1.5 : 1;
-      const size = 0.018 * dprBoost;
-      // guarantee a minimum lift on high-DPR devices so points stay legible
-      return dpr >= 2 ? Math.max(size, 0.028) : size;
-    };
+    const computePointSize = () => getPointSize();
     const barcodeConfig = {
       tree: {
         payload: '02',
@@ -1103,7 +1102,7 @@ export default function Page() {
         vertexColors: paletteRef.current.length ? true : false,
         color: paletteRef.current.length ? undefined : 0xe9ddc7,
         size: computePointSize(),
-        sizeAttenuation: true,
+        sizeAttenuation: false, // use pixel sizes for clear scaling
         transparent: true,
         opacity: 0.85,
       });
