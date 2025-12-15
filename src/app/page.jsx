@@ -1,10 +1,15 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { IoVolumeHigh, IoVolumeMute } from 'react-icons/io5';
 import * as THREE from 'three';
-import ColorChart from '../components/ColorChart';
-import { interpolatePalette } from '../lib/colors';
+
+const taupePalette = [
+  { r: 233, g: 221, b: 199 },
+  { r: 211, g: 192, b: 166 },
+  { r: 183, g: 156, b: 124 },
+  { r: 139, g: 112, b: 86 },
+];
 
 const morphDurationBase = 4500; // ms per transition
 const minNodes = 2;
@@ -147,14 +152,62 @@ export default function Page() {
   const wrapperRef = useRef(null);
   const diagramRef = useRef(null);
   const basePositionsRef = useRef(null);
-  const paletteRef = useRef([]);
+  const paletteRef = useRef(taupePalette);
+  const morphNamesRef = useRef([]);
   const audioStartedRef = useRef(false);
   const startAudioRef = useRef(null);
 
-  const [palette, setPalette] = useState([]);
-  const [palettes, setPalettes] = useState([]);
   const [isMuted, setIsMuted] = useState(true);
   const gainRef = useRef(null);
+  const [barcodeData, setBarcodeData] = useState('00');
+  const [signalLabel, setSignalLabel] = useState('Signal 00');
+  const [barcodeTransform, setBarcodeTransform] = useState('translate3d(18px, -10px, 0)');
+  const [isBarcodeGlitch, setIsBarcodeGlitch] = useState(false);
+  const barcode = useMemo(() => {
+    // deterministic fixed-length barcode from the payload string
+    const targetWidth = 210;
+    const barHeight = 78;
+    const barCount = 26;
+    const baseSpacing = 3.4; // more negative space
+
+    const text = (barcodeData || '').toUpperCase();
+    // simple hash seed
+    let seed = 0;
+    for (let i = 0; i < text.length; i++) {
+      seed = (seed * 31 + text.charCodeAt(i)) >>> 0;
+    }
+    const rand = () => {
+      seed = (seed * 1664525 + 1013904223) >>> 0;
+      return seed / 0xffffffff;
+    };
+
+    const widths = [];
+    for (let i = 0; i < barCount; i++) {
+      const raw = 3 + Math.floor(Math.pow(rand(), 0.6) * 12); // bias toward thicker strokes
+      widths.push(raw);
+    }
+
+    // variable spacing to create bigger voids between clusters
+    const spacings = widths.map(() => baseSpacing * (1 + rand() * 2.4));
+    const baseTotal =
+      widths.reduce((sum, w) => sum + w, 0) +
+      spacings.reduce((sum, s) => sum + s, 0);
+    const scale = targetWidth / baseTotal;
+
+    let x = 0;
+    const bars = widths.map((w, i) => {
+      const width = w * scale;
+      const bar = { x, width, height: barHeight };
+      x += width + spacings[i] * scale;
+      // occasional additional void for larger gaps
+      if (i % 5 === 4) {
+        x += baseSpacing * scale * 3;
+      }
+      return bar;
+    });
+
+    return { bars, width: targetWidth };
+  }, [barcodeData]);
 
   useEffect(() => {
     if (!containerRef.current || !wrapperRef.current) return;
@@ -162,6 +215,50 @@ export default function Page() {
     const container = containerRef.current;
     const wrapper = wrapperRef.current;
     const diagram = diagramRef.current;
+    const barcodeConfig = {
+      tree: {
+        payload: '02',
+        signal: 'Signal 02',
+        transform: 'translate3d(18px, -10px, 0)',
+      },
+      goddess: {
+        payload: '03',
+        signal: 'Signal 03',
+        transform: 'translate3d(18px, -10px, 0)',
+      },
+      face: {
+        payload: '01',
+        signal: 'Signal 01',
+        transform: 'translate3d(18px, -10px, 0)',
+      },
+      face2: {
+        payload: '01',
+        signal: 'Signal 01',
+        transform: 'translate3d(18px, -10px, 0)',
+      },
+      default: {
+        payload: '00',
+        signal: 'Signal 00',
+        transform: 'translate3d(18px, -10px, 0)',
+      },
+    };
+
+    const firstLoad = { current: true };
+
+    const setBarcodeForModel = (name) => {
+      const entry = barcodeConfig[name] || barcodeConfig.default;
+      setBarcodeData(entry.payload.toUpperCase());
+      setSignalLabel(entry.signal);
+      setBarcodeTransform(entry.transform);
+      if (firstLoad.current) {
+        firstLoad.current = false;
+        return;
+      }
+      setIsBarcodeGlitch(true);
+      setTimeout(() => setIsBarcodeGlitch(false), 320);
+    };
+
+    setBarcodeForModel('default');
 
     wrapper.style.setProperty('--diagram-phase', '0');
     // start with mouse "outside" the canvas so steering waits for first move
@@ -564,27 +661,14 @@ export default function Page() {
       currentPositionAttribute.needsUpdate = true;
     };
 
-    const updateMorphing = (
-      deltaMs,
-      effectiveDuration,
-      audioLevel
-    ) => {
+    const updateMorphing = (deltaMs, effectiveDuration, audioLevel) => {
       const numTargets = morphTargets.length;
       if (numTargets < 2 || !mesh) return;
 
       morphTime += deltaMs;
       let phase = morphTime / effectiveDuration;
-      let stepped = false;
-
-      if (phase >= 1) {
-        const steps = Math.floor(phase);
-        if (steps > 0) {
-          currentTargetIndex = (currentTargetIndex + steps) % numTargets;
-          stepped = true;
-        }
-        morphTime -= Math.floor(phase) * effectiveDuration;
-        phase = morphTime / effectiveDuration;
-      }
+      const isComplete = phase >= 1;
+      if (phase > 1) phase = 1;
 
       const factor = 0.5 - 0.5 * Math.cos(Math.PI * phase);
       wrapper.style.setProperty('--diagram-phase', factor.toString());
@@ -615,8 +699,13 @@ export default function Page() {
       applyGlitchStripes(array, glitchAmount);
       currentPositionAttribute.needsUpdate = true;
 
-      if (stepped) {
+      if (isComplete) {
         buildOverlayNodes();
+        const activeName = morphNamesRef.current[targetIndex] || 'default';
+        setBarcodeForModel(activeName);
+        currentTargetIndex = targetIndex;
+        morphTime = 0;
+        return; // start the next morph on the following frame so the barcode waits for completion
       }
     };
 
@@ -629,7 +718,6 @@ export default function Page() {
 
       if (mesh) {
         totalTime += cappedDelta;
-        // audio-reactive morph speed
         if (analyserRef.current && audioDataRef.current) {
           analyserRef.current.getByteFrequencyData(audioDataRef.current);
           const data = audioDataRef.current;
@@ -665,8 +753,7 @@ export default function Page() {
           wrapper.classList.remove('is-glitching');
         }
 
-        const speedFactor = 1 - Math.min(0.4, level * 0.5); // faster with louder beats
-        const effectiveDuration = morphDurationBase * speedFactor;
+        const effectiveDuration = morphDurationBase; // fixed morph pacing (no audio-reactive speed)
 
         // continuous pointer avoidance field as a cylinder around the mouse ray
         // only becomes active after the pointer has moved at least once
@@ -797,13 +884,9 @@ export default function Page() {
             const bBase = (c0.b + (c1.b - c0.b) * localT) / 255;
 
             const boosted = boostSaturationAndBrightness(rBase, gBase, bBase);
-            const luminance =
-              0.299 * boosted.r + 0.587 * boosted.g + 0.114 * boosted.b;
-            const grey = Math.min(1, 0.75 + luminance * 0.25);
-
-            colorsArray[idx3] = grey;
-            colorsArray[idx3 + 1] = grey;
-            colorsArray[idx3 + 2] = grey;
+            colorsArray[idx3] = boosted.r;
+            colorsArray[idx3 + 1] = boosted.g;
+            colorsArray[idx3 + 2] = boosted.b;
           }
 
           colorAttr.needsUpdate = true;
@@ -918,13 +1001,9 @@ export default function Page() {
           const bBase = (c0.b + (c1.b - c0.b) * localT) / 255;
 
           const boosted = boostSaturationAndBrightness(rBase, gBase, bBase);
-          const luminance =
-            0.299 * boosted.r + 0.587 * boosted.g + 0.114 * boosted.b;
-          const grey = Math.min(1, 0.75 + luminance * 0.25);
-
-          colors[idx3] = grey;
-          colors[idx3 + 1] = grey;
-          colors[idx3 + 2] = grey;
+          colors[idx3] = boosted.r;
+          colors[idx3 + 1] = boosted.g;
+          colors[idx3 + 2] = boosted.b;
         }
 
         geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
@@ -932,7 +1011,7 @@ export default function Page() {
 
       const material = new THREE.PointsMaterial({
         vertexColors: paletteRef.current.length ? true : false,
-        color: paletteRef.current.length ? undefined : 0xcccccc,
+        color: paletteRef.current.length ? undefined : 0xe9ddc7,
         size: 0.018,
         sizeAttenuation: true,
         transparent: true,
@@ -967,7 +1046,7 @@ export default function Page() {
             try {
               const res = await fetch(`/precomputed/${m.bin}`);
               const buf = await res.arrayBuffer();
-              return new Float32Array(buf);
+              return { name: m.name, positions: new Float32Array(buf) };
             } catch (e) {
               console.error(`Error loading ${m.bin}:`, e);
               return null;
@@ -978,8 +1057,21 @@ export default function Page() {
         const valid = results.filter((p) => !!p);
         if (!valid.length) return;
 
-        morphTargets = alignBottoms(valid);
-        morphTargets = doubleVertices(morphTargets);
+        const aligned = alignBottoms(valid.map((v) => v.positions));
+        const doubled = doubleVertices(aligned);
+
+        let targets = doubled;
+        let names = valid.map((v) => v.name || 'default');
+
+        if (targets.length > 1) {
+          const restIndices = Array.from({ length: targets.length - 1 }, (_, i) => i + 1);
+          shuffle(restIndices);
+          targets = [targets[0], ...restIndices.map((idx) => targets[idx])];
+          names = [names[0], ...restIndices.map((idx) => names[idx])];
+        }
+
+        morphTargets = targets;
+        morphNamesRef.current = names;
 
         if (morphTargets.length > 1) {
           const ref = morphTargets[0];
@@ -1012,6 +1104,8 @@ export default function Page() {
         scatterVelocities = new Float32Array(vertexCount * 3);
         basePositionsRef.current = new Float32Array(morphTargets[0]);
         buildOverlayNodes();
+        const initialName = morphNamesRef.current[0] || 'default';
+        setBarcodeForModel(initialName);
 
         container.classList.add('loaded');
       } catch (err) {
@@ -1098,63 +1192,8 @@ export default function Page() {
   }, []);
 
   useEffect(() => {
-    const loadPalettes = async () => {
-      try {
-        const res = await fetch('/palettes.json');
-        if (!res.ok) {
-          console.warn('No palettes.json found at /palettes.json');
-          return;
-        }
-        const data = await res.json();
-        const values = Object.values(data);
-        if (!values.length) return;
-        // randomize palette order for cycling
-        setPalettes(shuffle(values.slice()));
-      } catch (err) {
-        console.error('Failed to load palettes.json:', err);
-      }
-    };
-    loadPalettes();
+    paletteRef.current = taupePalette;
   }, []);
-
-  useEffect(() => {
-    if (!palettes.length) return;
-
-    let frameId;
-    let startTime = null;
-    const duration = 10000; // ms per palette morph
-
-    const loop = (timestamp) => {
-      if (startTime === null) startTime = timestamp;
-      const elapsed = timestamp - startTime;
-      const total = palettes.length;
-      const cycle = elapsed / duration;
-      const baseIndex = Math.floor(cycle) % total;
-      const nextIndex = (baseIndex + 1) % total;
-      const phase = cycle - Math.floor(cycle);
-
-      const p1 = palettes[baseIndex];
-      const p2 = palettes[nextIndex];
-
-      if (p1 && p2 && p1.length && p2.length) {
-        const blended = interpolatePalette(p1, p2, phase);
-        setPalette(blended);
-        paletteRef.current = blended;
-      }
-
-      frameId = requestAnimationFrame(loop);
-    };
-
-    frameId = requestAnimationFrame(loop);
-
-    return () => {
-      if (frameId) cancelAnimationFrame(frameId);
-    };
-  }, [palettes]);
-
-  useEffect(() => {
-    paletteRef.current = palette;
-  }, [palette]);
 
   const toggleMute = () => {
     const next = !isMuted;
@@ -1197,14 +1236,42 @@ export default function Page() {
 
           <div id="palette-wrapper">
             <div className="palette-inner">
-              <ColorChart palette={palette} size={180} />
+              <div
+                className="barcode-card"
+                aria-hidden="true"
+                style={{ transform: barcodeTransform }}
+              >
+                <div className="barcode-meta">
+                  <div className="barcode-meta__title">
+                    <span>Shapeshift Labs</span>
+                    <span>{signalLabel}</span>
+                  </div>
+                </div>
+                <svg
+                  className="barcode"
+                  viewBox={`0 0 ${barcode.width} 76`}
+                  preserveAspectRatio="none"
+                  className={isBarcodeGlitch ? 'barcode barcode--glitch' : 'barcode'}
+                >
+                  {barcode.bars.map((bar, idx) => (
+                    <rect
+                      key={`${bar.x}-${idx}`}
+                      x={bar.x}
+                      y={4}
+                      width={bar.width}
+                      height={bar.height}
+                      rx="0.4"
+                    />
+                  ))}
+                </svg>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       <section className="content-section">
-        <h2>everything a source of inspiration</h2>
+        <h2>everything is a source of inspiration</h2>
         <p>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum nec lectus
           nunc. Nullam eget feugiat purus, at pulvinar odio.
@@ -1213,20 +1280,6 @@ export default function Page() {
           Integer egestas, arcu eget varius scelerisque, enim enim iaculis sapien, in
           pharetra neque mi ac arcu. Sed hendrerit justo non mi venenatis, in placerat
           augue ultrices.
-        </p>
-      </section>
-
-      <section className="content-section">
-        <h2>stories, archetypes &amp; symbols carry meaning with high fidelity</h2>
-        <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras eu sem a urna
-          accumsan hendrerit. Integer tincidunt, sapien non luctus mollis, justo mauris
-          pulvinar nisl, eget dapibus massa purus at justo.
-        </p>
-        <p>
-          Vivamus finibus, est quis molestie elementum, enim nulla pharetra lacus, vel
-          volutpat dolor arcu id felis. Donec fringilla, erat eget aliquam accumsan,
-          ligula urna interdum est, et euismod erat arcu a enim.
         </p>
       </section>
 
@@ -1256,15 +1309,14 @@ export default function Page() {
       </section>
 
       <section className="content-section">
-        <h2>we adapt to technology, then it adapts to us</h2>
+        <h2>seek imperfection</h2>
         <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec dictum luctus
-          mauris, id rhoncus velit malesuada vel. Pellentesque a lacus nec dui tempor
-          scelerisque.
+          Maecenas consequat nisl id augue consequat, quis dignissim nulla sollicitudin.
+          Phasellus vitae arcu vel nisl suscipit vulputate sit amet non sem.
         </p>
         <p>
-          Aliquam erat volutpat. Cras a velit mi. In vitae nunc efficitur, ultricies
-          ipsum non, faucibus eros. Vivamus ac nisl non augue vestibulum tincidunt.
+          Donec id sollicitudin ipsum. Integer non dolor volutpat, bibendum dui in,
+          facilisis nisl.
         </p>
       </section>
 
@@ -1279,6 +1331,33 @@ export default function Page() {
           Integer ornare, risus id vulputate aliquam, mauris erat vulputate libero, id
           pulvinar magna ligula in diam. Proin faucibus nibh in elit lacinia, sit amet
           feugiat tortor viverra.
+        </p>
+      </section>
+
+      <section className="content-section">
+        <h2>we adapt to technology, then it adapts to us</h2>
+        <p>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec dictum luctus
+          mauris, id rhoncus velit malesuada vel. Pellentesque a lacus nec dui tempor
+          scelerisque.
+        </p>
+        <p>
+          Aliquam erat volutpat. Cras a velit mi. In vitae nunc efficitur, ultricies
+          ipsum non, faucibus eros. Vivamus ac nisl non augue vestibulum tincidunt.
+        </p>
+      </section>
+
+      <section className="content-section">
+        <h2>stories, archetypes &amp; symbols carry meaning with high fidelity</h2>
+        <p>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras eu sem a urna
+          accumsan hendrerit. Integer tincidunt, sapien non luctus mollis, justo mauris
+          pulvinar nisl, eget dapibus massa purus at justo.
+        </p>
+        <p>
+          Vivamus finibus, est quis molestie elementum, enim nulla pharetra lacus, vel
+          volutpat dolor arcu id felis. Donec fringilla, erat eget aliquam accumsan,
+          ligula urna interdum est, et euismod erat arcu a enim.
         </p>
       </section>
 

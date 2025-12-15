@@ -13,7 +13,12 @@
 :root {
   --font-display: 'Halfre', system-ui, -apple-system, BlinkMacSystemFont, 'Inter', 'Helvetica Neue',
     Arial, sans-serif;
-  --ink: #e6e6e6;
+  --ink: #f2e6d4;
+  --ink-subtle: #dfcfb9;
+  --earth-deep: #0c0805;
+  --earth-soft: #140e08;
+  --earth-line-strong: #d7c4aa;
+  --barcode-ink: rgb(142, 132, 124);
 }
 
 html,
@@ -26,7 +31,7 @@ body {
   overflow-y: auto;
   overscroll-behavior-y: none;
   font-family: 'Halfre', 'Inter', 'Helvetica Neue', Arial, sans-serif;
-  background-color: #000;
+  background-color: var(--earth-deep);
   color: var(--ink);
 }
 
@@ -38,15 +43,15 @@ body {
   background:
     radial-gradient(
       circle at 0% 0%,
-      rgba(255, 255, 255, 0.08),
+      rgba(242, 230, 212, 0.08),
       transparent 52%
     ),
     linear-gradient(
       135deg,
-      rgba(255, 255, 255, 0.04) 0%,
-      rgba(255, 255, 255, 0.015) 32%,
-      rgba(0, 0, 0, 0) 60%,
-      rgba(0, 0, 0, 0.38) 100%
+      rgba(242, 230, 212, 0.08) 0%,
+      rgba(242, 230, 212, 0.034) 32%,
+      rgba(12, 8, 5, 0) 60%,
+      rgba(12, 8, 5, 0.5) 100%
     );
   mix-blend-mode: screen;
   opacity: 0.45;
@@ -67,16 +72,16 @@ body {
   font-size: 1.9rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  opacity: 0.9;
-   font-family: 'Halfre', 'Inter', 'Helvetica Neue', Arial, sans-serif;
-   font-feature-settings: normal;
+  opacity: 1;
+  font-family: 'Halfre', 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  font-feature-settings: normal;
 }
 
 .content-section p {
   margin: 10px 0 16px;
   max-width: none;
   line-height: 1.6;
-  opacity: 0.78;
+  opacity: 0.95;
 }
 
 .content-section p:first-of-type {
@@ -178,13 +183,13 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #8c8c8c;
+  color: var(--ink);
   cursor: pointer;
 }
 
 @media (hover: hover) and (pointer: fine) {
   .audio-toggle:hover {
-    color: #b3b3b3;
+    color: var(--ink);
   }
 }
 
@@ -216,10 +221,10 @@ body {
   mix-blend-mode: screen;
   border: none;
   background-image:
-    linear-gradient(to right, rgba(235, 235, 235, 0.22) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(235, 235, 235, 0.22) 1px, transparent 1px),
-    linear-gradient(to right, rgba(235, 235, 235, 0.1) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(235, 235, 235, 0.1) 1px, transparent 1px);
+    linear-gradient(to right, rgba(215, 196, 170, 0.26) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(215, 196, 170, 0.26) 1px, transparent 1px),
+    linear-gradient(to right, rgba(215, 196, 170, 0.12) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(215, 196, 170, 0.12) 1px, transparent 1px);
   background-size:
     36px 36px,
     36px 36px,
@@ -227,17 +232,17 @@ body {
     18px 18px;
   -webkit-mask-image: radial-gradient(
     circle at center,
-    rgba(255, 255, 255, 1) 0%,
-    rgba(255, 255, 255, 1) 40%,
-    rgba(255, 255, 255, 0) 80%,
-    rgba(255, 255, 255, 0) 100%
+    rgba(242, 230, 212, 1) 0%,
+    rgba(242, 230, 212, 1) 40%,
+    rgba(242, 230, 212, 0) 80%,
+    rgba(242, 230, 212, 0) 100%
   );
   mask-image: radial-gradient(
     circle at center,
-    rgba(255, 255, 255, 1) 0%,
-    rgba(255, 255, 255, 1) 40%,
-    rgba(255, 255, 255, 0) 80%,
-    rgba(255, 255, 255, 0) 100%
+    rgba(242, 230, 212, 1) 0%,
+    rgba(242, 230, 212, 1) 40%,
+    rgba(242, 230, 212, 0) 80%,
+    rgba(242, 230, 212, 0) 100%
   );
   transition: opacity 400ms ease;
   transform: translate(0, 0);
@@ -300,8 +305,8 @@ body {
   width: 100%;
   background: linear-gradient(
     to right,
-    rgba(220, 220, 220, 0.55),
-    rgba(220, 220, 220, 0.18)
+    rgba(215, 196, 170, 0.7),
+    rgba(215, 196, 170, 0.24)
   );
 }
 
@@ -316,10 +321,10 @@ body {
   background: radial-gradient(
     circle,
     var(--ink) 0%,
-    rgba(230, 230, 230, 0.45) 40%,
+    rgba(215, 196, 170, 0.45) 40%,
     transparent 70%
   );
-  box-shadow: 0 0 6px rgba(230, 230, 230, 0.4);
+  box-shadow: 0 0 6px rgba(215, 196, 170, 0.4);
   transform: translate(-50%, -50%);
 }
 
@@ -345,13 +350,13 @@ body {
 .mesh-node {
   position: absolute;
   pointer-events: none;
-  border: 1px solid #e4e4e4;
+  border: 1px solid var(--earth-line-strong);
   box-shadow: none;
   z-index: 16;
 }
 
 .mesh-node--filled {
-  background: #e4e4e4;
+  background: var(--earth-line-strong);
 }
 
 .mesh-node--outline {
@@ -366,9 +371,9 @@ body {
   font-size: 0.55rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #e4e4e4;
+  color: var(--ink);
   opacity: 1;
-  background: #101010;
+  background: var(--earth-soft);
   padding: 2px 6px;
   border-radius: 0;
   z-index: 18;
@@ -378,7 +383,7 @@ body {
   position: absolute;
   height: 2px;
   pointer-events: none;
-  background: linear-gradient(to right, #e4e4e4, #e4e4e4);
+  background: linear-gradient(to right, var(--earth-line-strong), var(--earth-line-strong));
   transform-origin: 0 50%;
   opacity: 1;
   z-index: 15;
@@ -434,8 +439,8 @@ body {
   justify-content: center;
   padding: 0.36rem 0.7rem 0.08rem;
   line-height: 1;
-  background-color: #c8c8c8;
-  color: #000000;
+  background-color: var(--ink);
+  color: var(--earth-deep);
 }
 
 .title-shape-text {
@@ -445,7 +450,7 @@ body {
 }
 
 #title-shift {
-  left: calc(100% - 4rem);
+  left: calc(100% - 6.6rem);
   top: 47%;
   transform: translateY(-50%);
   display: flex;
@@ -458,15 +463,16 @@ body {
 
 #palette-wrapper {
   position: absolute;
-  left: 40px;
-  bottom: 16px;
-  width: 168px;
-  height: 168px;
+  left: 14%;
+  top: 10%;
+  width: 210px;
+  height: auto;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-start;
+  justify-content: flex-start;
   pointer-events: none;
-  transform-origin: bottom left;
+  z-index: 50; /* sit above film grain + other overlays */
+  transform-origin: top left;
 }
 
 .palette-inner {
@@ -474,6 +480,76 @@ body {
   width: 100%;
   height: 100%;
   pointer-events: auto;
+}
+
+.barcode-card {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 210px;
+  padding: 12px 12px 14px;
+  background: none;
+  border: none;
+  box-shadow: none;
+  backdrop-filter: none;
+  color: var(--barcode-ink);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+  transition: transform 0.35s ease, opacity 0.25s ease;
+}
+
+.barcode-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-family: var(--font-display);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 0.64rem;
+  color: var(--barcode-ink);
+}
+
+.barcode-meta__title {
+  display: flex;
+  justify-content: space-between;
+  opacity: 0.96;
+}
+
+.barcode-meta__line {
+  opacity: 0.8;
+}
+
+.barcode {
+  width: 100%;
+  height: 76px;
+}
+
+.barcode rect {
+  fill: var(--barcode-ink);
+}
+
+.barcode--glitch rect:nth-child(odd) {
+  animation: barcodeGlitch 0.12s steps(2, end) 2;
+}
+.barcode--glitch rect:nth-child(even) {
+  animation: barcodeGlitch 0.12s steps(2, end) 2 reverse;
+}
+
+@keyframes barcodeGlitch {
+  0% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  50% {
+    transform: translateX(-2px);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(1px);
+    opacity: 1;
+  }
 }
 
 /* scale text + palette down only on smaller viewports */
@@ -542,8 +618,8 @@ body {
 #model-wrapper.is-glitching .title-text span {
   /* tiny CRT-ish horizontal double-shadow */
   text-shadow:
-    calc(var(--glitch-amount, 0) * -2px) 0 0 rgba(255, 255, 255, 0.45),
-    calc(var(--glitch-amount, 0) * 2px) 0 0 rgba(255, 255, 255, 0.18);
+    calc(var(--glitch-amount, 0) * -2px) 0 0 rgba(242, 230, 212, 0.45),
+    calc(var(--glitch-amount, 0) * 2px) 0 0 rgba(242, 230, 212, 0.18);
   filter: contrast(calc(1 + var(--glitch-amount, 0) * 0.2));
   opacity: calc(0.96 + var(--glitch-amount, 0) * 0.04);
   transition: text-shadow 90ms ease-out, filter 90ms ease-out, opacity 90ms ease-out;
