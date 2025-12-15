@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { FiMoon, FiSun } from 'react-icons/fi';
 import { IoVolumeHigh, IoVolumeMute } from 'react-icons/io5';
 import * as THREE from 'three';
 
@@ -10,6 +11,21 @@ const taupePalette = [
   { r: 183, g: 156, b: 124 },
   { r: 139, g: 112, b: 86 },
 ];
+
+const invertedTaupePalette = taupePalette.map(({ r, g, b }) => ({
+  r: 255 - r,
+  g: 255 - g,
+  b: 255 - b,
+}));
+
+const lightModeInkPalette = [
+  { r: 10, g: 10, b: 9 },
+  { r: 10, g: 10, b: 9 },
+  { r: 10, g: 10, b: 9 },
+  { r: 10, g: 10, b: 9 },
+];
+
+const THEME_STORAGE_KEY = 'shapeshift-theme';
 
 const morphDurationBase = 4500; // ms per transition
 const minNodes = 2;
@@ -157,6 +173,8 @@ export default function Page() {
   const audioStartedRef = useRef(false);
   const startAudioRef = useRef(null);
 
+  const userThemeOverrideRef = useRef(false);
+  const [theme, setTheme] = useState('dark');
   const [isMuted, setIsMuted] = useState(true);
   const gainRef = useRef(null);
   const [barcodeData, setBarcodeData] = useState('00');
@@ -208,6 +226,59 @@ export default function Page() {
 
     return { bars, width: targetWidth };
   }, [barcodeData]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    let stored = null;
+    try {
+      stored = window.localStorage.getItem(THEME_STORAGE_KEY);
+    } catch {
+      stored = null;
+    }
+    const media =
+      typeof window.matchMedia === 'function'
+        ? window.matchMedia('(prefers-color-scheme: dark)')
+        : null;
+    const prefersDark = media ? media.matches : false;
+    const initialTheme =
+      stored === 'light' || stored === 'dark' ? stored : prefersDark ? 'dark' : 'light';
+
+    if (stored === 'light' || stored === 'dark') {
+      userThemeOverrideRef.current = true;
+    }
+
+    setTheme(initialTheme);
+
+    const handleSystemChange = (event) => {
+      if (userThemeOverrideRef.current) return;
+      setTheme(event.matches ? 'dark' : 'light');
+    };
+
+    if (media) {
+      if (typeof media.addEventListener === 'function') {
+        media.addEventListener('change', handleSystemChange);
+      } else if (typeof media.addListener === 'function') {
+        media.addListener(handleSystemChange);
+      }
+    }
+
+    return () => {
+      if (!media) return;
+      if (typeof media.removeEventListener === 'function') {
+        media.removeEventListener('change', handleSystemChange);
+      } else if (typeof media.removeListener === 'function') {
+        media.removeListener(handleSystemChange);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    const root = document.documentElement;
+    root.setAttribute('data-theme', theme);
+    paletteRef.current = theme === 'light' ? lightModeInkPalette : taupePalette;
+  }, [theme]);
 
   useEffect(() => {
     if (!containerRef.current || !wrapperRef.current) return;
@@ -1191,10 +1262,6 @@ export default function Page() {
     };
   }, []);
 
-  useEffect(() => {
-    paletteRef.current = taupePalette;
-  }, []);
-
   const toggleMute = () => {
     const next = !isMuted;
 
@@ -1211,9 +1278,41 @@ export default function Page() {
     setIsMuted(next);
   };
 
+  const toggleTheme = () => {
+    setTheme((prev) => {
+      const next = prev === 'dark' ? 'light' : 'dark';
+      userThemeOverrideRef.current = true;
+      try {
+        window.localStorage.setItem(THEME_STORAGE_KEY, next);
+      } catch {
+        // ignore storage failures
+      }
+      return next;
+    });
+  };
+
+  const isDarkMode = theme === 'dark';
+
   return (
     <>
       <div className="bg-diagonal" aria-hidden="true" />
+
+      <button
+        type="button"
+        className={`theme-toggle ${isDarkMode ? 'theme-toggle--dark' : 'theme-toggle--light'}`}
+        onClick={toggleTheme}
+        aria-label={`Switch to ${isDarkMode ? 'day' : 'night'} mode`}
+      >
+        <span className="theme-toggle__pill">
+          <span className="theme-toggle__icon theme-toggle__icon--sun">
+            <FiSun size={18} />
+          </span>
+          <span className="theme-toggle__icon theme-toggle__icon--moon">
+            <FiMoon size={18} />
+          </span>
+          <span className="theme-toggle__thumb" />
+        </span>
+      </button>
 
       <div id="page">
         <div id="model-wrapper" ref={wrapperRef}>
