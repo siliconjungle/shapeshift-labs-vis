@@ -171,7 +171,7 @@ export default function Page() {
   const getPointSize = useCallback(() => {
     if (typeof window === 'undefined') return 1;
     const dpr = window.devicePixelRatio || 1;
-    const boost = dpr >= 3 ? 1.2 : dpr >= 2 ? 1.05 : 1;
+    const boost = dpr >= 3 ? 1.1 : dpr >= 2 ? 1.02 : 1;
     return 1 * boost;
   }, []);
   const barcode = useMemo(() => {
