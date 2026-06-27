@@ -1,0 +1,80 @@
+Agent systems often treat human questions as interruptions.
+
+The agent gets stuck, asks in chat, waits for an answer, and then continues.
+
+That works in a conversation. It breaks in a run.
+
+A human question should be control flow. It should have a shape, a scope, and a continuation.
+
+<HumanQuestionControlFlowChart caption="A question is a typed blocker. The answer determines whether the lane continues, reroutes, or creates new work." />
+
+## Questions Need Shape
+
+Some questions are too vague to unblock work.
+
+```txt
+bad: What should I do?
+better: Should the public API keep the old name?
+```
+
+A useful question records the decision being requested.
+
+```txt
+question
+  scope: public API
+  blocked lane: rename admission
+  options:
+    keep old name
+    rename and add compatibility alias
+  default: add compatibility alias
+  expires: before merge admission
+```
+
+The answer can then route back into the system.
+
+## Answers Have Dependents
+
+An answer is not just text. It can unblock several lanes.
+
+<HumanQuestionFanoutChart caption="One human answer can unblock code, tests, docs, and the final decision, so it belongs in the causal graph." />
+
+If the user says a public API must remain compatible, that answer can affect implementation, tests, documentation, and review.
+
+The run should know which work depended on that answer. If the answer changes later, the dependent work becomes questionable.
+
+## Do Not Ask Too Late
+
+Agents should not wait until the end to discover that they needed a human decision.
+
+Questions belong near the uncertainty.
+
+```txt
+before writing code:
+  should this behavior change be public?
+
+before merging:
+  should this risk be accepted?
+
+before release:
+  should this compatibility break ship?
+```
+
+The earlier the question is attached to the right region, the smaller the wasted work.
+
+## Questions Are Not Failures
+
+A good question can be progress.
+
+It narrows the system. It identifies the missing decision. It prevents agents from guessing across a boundary they do not own.
+
+The failure is not asking. The failure is asking in a way that cannot be routed back into the work.
+
+## The Mental Model
+
+A human question is a node in the run.
+
+It has parents: the evidence and uncertainty that created it.
+
+It has children: the work that uses the answer.
+
+That makes human input part of the system, not an aside from the system.

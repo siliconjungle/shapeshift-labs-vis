@@ -1,0 +1,75 @@
+An agent run is easy to mistake for a transcript. Prompt, answer, prompt, answer, final result.
+
+That view works for a single model doing a single pass. It breaks as soon as the work branches, retries, asks a human a question, produces evidence, rejects a patch, or resumes after the code has moved.
+
+A run is better understood as a causal graph. Each node records something that happened. Each edge says what depended on what.
+
+<RunCausalGraphChart caption="A run is not just a timeline. Attempts, failures, answers, evidence, and decisions all have causal links." />
+
+## Events, Not Status
+
+Status is a summary. It says the work is ready, blocked, failed, or accepted. That is useful, but it loses the shape of how the run got there.
+
+A causal run keeps the underlying events:
+
+```txt
+task created
+attempt started
+patch produced
+test failed
+retry started
+question asked
+answer received
+evidence attached
+decision recorded
+```
+
+The difference is that none of those events overwrites the previous one. The run accumulates history. The current state is a projection over that history.
+
+## Why The Graph Matters
+
+Agent systems do not move in straight lines. A worker can fail while another worker succeeds. A human answer can unblock one lane but make another lane stale. A test result can justify a decision, but only if it came after the patch it claims to test.
+
+Causality lets the system ask sharper questions.
+
+Which evidence was available when the decision was made?
+
+Was the patch tested against the same code it was later applied to?
+
+Did this retry depend on the previous failure, or did it restart from an older assumption?
+
+Did a human answer unblock the work, or did the agent continue before the answer arrived?
+
+Those are graph questions, not transcript questions.
+
+## Lanes
+
+Lanes are concurrent paths through the same run. One lane might produce code, another might test it, another might review risks, and another might wait for a human answer.
+
+<RunLaneConvergenceChart caption="A run can have several lanes moving at once. The decision should see how those lanes converged, not just the last message." />
+
+The important part is that lanes are not separate realities. They write into one causal object. When they converge, the decision can point to the exact code attempt, test result, review note, and answer it used.
+
+## Decisions Are Nodes Too
+
+A decision is not a status flag. It is an event with parents.
+
+```txt
+decision accept patch
+  depends on patch p42
+  depends on test result t17
+  depends on review r8
+  depends on answer h3
+```
+
+That makes the decision inspectable later. If the test result is invalidated, the decision can be questioned. If the patch is rebased, the old evidence does not silently follow it. If the answer was ambiguous, the graph can show which work depended on that ambiguity.
+
+## The Mental Model
+
+A run is a durable object made from events.
+
+Events form a graph.
+
+The graph explains why the current state is true.
+
+That is what makes agent work reviewable after the conversation has moved on.

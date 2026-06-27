@@ -1,0 +1,1505 @@
+[
+  {
+    "id": "chain",
+    "title": "Chain",
+    "aliases": [],
+    "nodes": [
+      { "id": "a", "label": "V1", "x": 20, "y": 50 },
+      { "id": "b", "label": "V2", "x": 80, "y": 50 }
+    ],
+    "edges": [
+      ["a", "b"]
+    ]
+  },
+  {
+    "id": "fork",
+    "title": "Branch",
+    "aliases": [],
+    "nodes": [
+      { "id": "a", "label": "SOURCE", "x": 20, "y": 50, "type": "branch", "wide": true },
+      { "id": "b", "label": "V1", "x": 80, "y": 22, "wide": true },
+      { "id": "c", "label": "V2", "x": 80, "y": 50, "wide": true },
+      { "id": "d", "label": "V3", "x": 80, "y": 78, "wide": true }
+    ],
+    "edges": [
+      ["a", "b"],
+      ["a", "c"],
+      ["a", "d"]
+    ]
+  },
+  {
+    "id": "join",
+    "title": "Join",
+    "aliases": ["barrier"],
+    "nodes": [
+      { "id": "b", "label": "V1", "x": 20, "y": 22, "wide": true },
+      { "id": "c", "label": "V2", "x": 20, "y": 50, "wide": true },
+      { "id": "d", "label": "V3", "x": 20, "y": 78, "wide": true },
+      { "id": "e", "label": "JOIN", "x": 80, "y": 50, "type": "gate", "wide": true }
+    ],
+    "edges": [
+      ["b", "e"],
+      ["c", "e"],
+      ["d", "e"]
+    ]
+  },
+  {
+    "id": "diamond",
+    "title": "Diamond",
+    "aliases": [],
+    "nodes": [
+      { "id": "a", "label": "SOURCE", "x": 20, "y": 50, "type": "branch", "wide": true },
+      { "id": "b", "label": "V1", "x": 50, "y": 22, "wide": true },
+      { "id": "c", "label": "V2", "x": 50, "y": 50, "wide": true },
+      { "id": "d", "label": "V3", "x": 50, "y": 78, "wide": true },
+      { "id": "e", "label": "JOIN", "x": 80, "y": 50, "type": "gate", "wide": true }
+    ],
+    "edges": [
+      ["a", "b"],
+      ["a", "c"],
+      ["a", "d"],
+      ["b", "e"],
+      ["c", "e"],
+      ["d", "e"]
+    ]
+  },
+  {
+    "id": "select",
+    "title": "Select",
+    "aliases": ["race"],
+    "nodes": [
+      { "id": "a", "label": "V1", "x": 20, "y": 22, "wide": true },
+      { "id": "b", "label": "V2", "x": 20, "y": 50, "wide": true },
+      { "id": "c", "label": "V3", "x": 20, "y": 78, "wide": true },
+      { "id": "e", "label": "SELECT", "x": 80, "y": 50, "type": "select", "wide": true }
+    ],
+    "edges": [
+      { "from": "a", "to": "e", "kind": "compete" },
+      { "from": "b", "to": "e", "kind": "compete" },
+      ["c", "e"]
+    ]
+  },
+  {
+    "id": "reduce",
+    "title": "Reduce",
+    "aliases": ["synthesis"],
+    "nodes": [
+      { "id": "b", "label": "V1", "x": 20, "y": 22, "wide": true },
+      { "id": "c", "label": "V2", "x": 20, "y": 50, "wide": true },
+      { "id": "d", "label": "V3", "x": 20, "y": 78, "wide": true },
+      { "id": "s", "label": "REDUCE", "x": 80, "y": 50, "type": "synthesis", "wide": true }
+    ],
+    "edges": [
+      ["b", "s"],
+      ["c", "s"],
+      ["d", "s"]
+    ]
+  },
+  {
+    "id": "tree",
+    "title": "Tree Decomposition",
+    "aliases": ["tree-decomposition"],
+    "nodes": [
+      { "id": "a", "label": "V1", "x": 18, "y": 50, "wide": true },
+      { "id": "b", "label": "V2", "x": 42, "y": 32, "wide": true },
+      { "id": "c", "label": "V3", "x": 42, "y": 68, "wide": true },
+      { "id": "b1", "label": "V4", "x": 70, "y": 18, "type": "result", "wide": true },
+      { "id": "b2", "label": "V5", "x": 70, "y": 40, "type": "result", "wide": true },
+      { "id": "c1", "label": "V6", "x": 70, "y": 60, "type": "result", "wide": true },
+      { "id": "c2", "label": "V7", "x": 70, "y": 82, "type": "result", "wide": true }
+    ],
+    "edges": [
+      ["a", "b"],
+      ["a", "c"],
+      ["b", "b1"],
+      ["b", "b2"],
+      ["c", "c1"],
+      ["c", "c2"]
+    ]
+  },
+  {
+    "id": "layered-dag",
+    "title": "Layered DAG",
+    "aliases": ["layered"],
+    "nodes": [
+      { "id": "a", "label": "A1", "x": 20, "y": 32, "wide": true },
+      { "id": "b", "label": "A2", "x": 20, "y": 68, "wide": true },
+      { "id": "c", "label": "B1", "x": 50, "y": 32, "wide": true },
+      { "id": "d", "label": "B2", "x": 50, "y": 68, "wide": true },
+      { "id": "e", "label": "RESULT", "x": 80, "y": 50, "type": "gate", "wide": true }
+    ],
+    "edges": [
+      ["a", "c"],
+      ["b", "d"],
+      ["c", "e"],
+      ["d", "e"]
+    ]
+  },
+  {
+    "id": "gate",
+    "title": "Gate",
+    "aliases": ["checkpoint"],
+    "nodes": [
+      { "id": "g", "label": "GATE", "x": 20, "y": 50, "type": "gate", "wide": true },
+      { "id": "pass", "label": "PASS", "x": 80, "y": 35, "type": "result", "wide": true },
+      { "id": "fail", "label": "FAIL", "x": 80, "y": 65, "type": "compensation", "wide": true }
+    ],
+    "edges": [
+      ["g", "pass"],
+      { "from": "g", "to": "fail", "kind": "compensate" }
+    ]
+  },
+  {
+    "id": "loop",
+    "title": "Loop",
+    "aliases": ["iteration"],
+    "nodes": [
+      { "id": "a", "label": "SOURCE", "x": 20, "y": 40, "type": "branch", "wide": true },
+      { "id": "gate", "label": "GATE", "x": 50, "y": 40, "type": "gate", "wide": true },
+      { "id": "pass", "label": "PASS", "x": 80, "y": 40, "type": "result", "wide": true }
+    ],
+    "annotations": [
+      { "type": "direction-arrow", "x": 20, "y": 55, "direction": "up" }
+    ],
+    "edges": [
+      ["a", "gate"],
+      ["gate", "pass"],
+      {
+        "from": "gate",
+        "to": "a",
+        "kind": "compensate",
+        "label": "FAIL",
+        "hideArrow": true,
+        "labelPosition": { "x": 35, "y": 74 },
+        "points": [{ "x": 50, "y": 78 }, { "x": 20, "y": 78 }],
+        "toPoint": { "x": 20, "y": 63 }
+      }
+    ]
+  },
+  {
+    "id": "simple-benchmark-loop",
+    "title": "Simple Benchmark Loop",
+    "aliases": ["benchmark-loop"],
+    "nodes": [
+      { "id": "v1", "label": "V1", "x": 20, "y": 40, "type": "branch", "wide": true },
+      { "id": "gate", "label": "GATE", "x": 50, "y": 40, "type": "gate", "wide": true },
+      { "id": "pass", "label": "PASS", "x": 80, "y": 40, "type": "result", "wide": true }
+    ],
+    "annotations": [
+      { "type": "direction-arrow", "x": 20, "y": 55, "direction": "up" }
+    ],
+    "edges": [
+      ["v1", "gate"],
+      ["gate", "pass"],
+      {
+        "from": "gate",
+        "to": "v1",
+        "kind": "compensate",
+        "label": "FAIL",
+        "hideArrow": true,
+        "labelPosition": { "x": 35, "y": 74 },
+        "points": [{ "x": 50, "y": 78 }, { "x": 20, "y": 78 }],
+        "toPoint": { "x": 20, "y": 63 }
+      }
+    ]
+  },
+  {
+    "id": "parallel-benchmark-loop",
+    "title": "Parallel Benchmark Loop",
+    "aliases": ["parallel-benchmark"],
+    "maxColumnGap": 16,
+    "nodes": [
+      { "id": "source", "label": "SOURCE", "x": 10, "y": 50, "type": "branch", "wide": true },
+      { "id": "v1", "label": "V1", "x": 34, "y": 22, "wide": true },
+      { "id": "v2", "label": "V2", "x": 34, "y": 50, "wide": true },
+      { "id": "v3", "label": "V3", "x": 34, "y": 78, "wide": true },
+      { "id": "select", "label": "SELECT", "x": 60, "y": 50, "type": "select", "wide": true },
+      { "id": "gate", "label": "GATE", "x": 84, "y": 50, "type": "gate", "wide": true },
+      { "id": "pass", "label": "PASS", "x": 104, "y": 50, "type": "result", "wide": true }
+    ],
+    "annotations": [
+      { "type": "direction-arrow", "x": 10, "y": 66, "direction": "up" }
+    ],
+    "edges": [
+      ["source", "v1"],
+      ["source", "v2"],
+      ["source", "v3"],
+      { "from": "v1", "to": "select", "kind": "compete" },
+      { "from": "v2", "to": "select", "kind": "compete" },
+      ["v3", "select"],
+      ["select", "gate"],
+      ["gate", "pass"],
+      {
+        "from": "gate",
+        "to": "source",
+        "kind": "compensate",
+        "label": "FAIL",
+        "hideArrow": true,
+        "labelPosition": { "x": 47, "y": 82 },
+        "points": [{ "x": 84, "y": 86 }, { "x": 10, "y": 86 }],
+        "toPoint": { "x": 10, "y": 74 }
+      }
+    ]
+  },
+  {
+    "id": "research-synthesis",
+    "title": "Research Synthesis",
+    "aliases": ["research"],
+    "maxColumnGap": 16,
+    "nodes": [
+      { "id": "source", "label": "SOURCE", "x": 10, "y": 50, "type": "branch", "wide": true },
+      { "id": "v1", "label": "V1", "x": 34, "y": 22, "wide": true },
+      { "id": "v2", "label": "V2", "x": 34, "y": 50, "wide": true },
+      { "id": "v3", "label": "V3", "x": 34, "y": 78, "wide": true },
+      { "id": "reduce", "label": "REDUCE", "x": 60, "y": 50, "type": "synthesis", "wide": true },
+      { "id": "gate", "label": "GATE", "x": 84, "y": 50, "type": "gate", "wide": true },
+      { "id": "pass", "label": "PASS", "x": 104, "y": 35, "type": "result", "wide": true },
+      { "id": "fail", "label": "FAIL", "x": 104, "y": 65, "type": "compensation", "wide": true }
+    ],
+    "edges": [
+      ["source", "v1"],
+      ["source", "v2"],
+      ["source", "v3"],
+      ["v1", "reduce"],
+      ["v2", "reduce"],
+      ["v3", "reduce"],
+      ["reduce", "gate"],
+      ["gate", "pass"],
+      { "from": "gate", "to": "fail", "kind": "compensate" }
+    ]
+  },
+  {
+    "id": "research-tree-synthesis",
+    "title": "Research Tree Synthesis",
+    "aliases": ["tree-synthesis"],
+    "maxColumnGap": 14,
+    "nodes": [
+      { "id": "source", "label": "SOURCE", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "v1", "label": "V1", "x": 30, "y": 50, "wide": true },
+      { "id": "v2", "label": "V2", "x": 52, "y": 34, "wide": true },
+      { "id": "v3", "label": "V3", "x": 52, "y": 66, "wide": true },
+      { "id": "v4", "label": "V4", "x": 74, "y": 16, "type": "result", "wide": true },
+      { "id": "v5", "label": "V5", "x": 74, "y": 38, "type": "result", "wide": true },
+      { "id": "v6", "label": "V6", "x": 74, "y": 62, "type": "result", "wide": true },
+      { "id": "v7", "label": "V7", "x": 74, "y": 84, "type": "result", "wide": true },
+      { "id": "reduce", "label": "REDUCE", "x": 98, "y": 50, "type": "synthesis", "wide": true },
+      { "id": "gate", "label": "GATE", "x": 122, "y": 50, "type": "gate", "wide": true },
+      { "id": "pass", "label": "PASS", "x": 144, "y": 34, "type": "result", "wide": true },
+      { "id": "fail", "label": "FAIL", "x": 144, "y": 66, "type": "compensation", "wide": true }
+    ],
+    "edges": [
+      ["source", "v1"],
+      ["v1", "v2"],
+      ["v1", "v3"],
+      ["v2", "v4"],
+      ["v2", "v5"],
+      ["v3", "v6"],
+      ["v3", "v7"],
+      ["v4", "reduce"],
+      ["v5", "reduce"],
+      ["v6", "reduce"],
+      ["v7", "reduce"],
+      ["reduce", "gate"],
+      ["gate", "pass"],
+      { "from": "gate", "to": "fail", "kind": "compensate" }
+    ]
+  },
+  {
+    "id": "semantic-merge-text-conflict",
+    "title": "Text Conflict",
+    "aliases": ["text-conflict"],
+    "maxColumnGap": 18,
+    "nodes": [
+      { "id": "base", "label": "BASE", "x": 10, "y": 50, "type": "branch", "wide": true },
+      { "id": "a", "label": "A EDIT", "x": 36, "y": 30, "wide": true },
+      { "id": "b", "label": "B EDIT", "x": 36, "y": 70, "wide": true },
+      { "id": "conflict", "label": "TEXT CONFLICT", "x": 68, "y": 50, "type": "conflict", "wide": true },
+      { "id": "human", "label": "HUMAN", "x": 94, "y": 50, "type": "gate", "wide": true }
+    ],
+    "edges": [
+      ["base", "a"],
+      ["base", "b"],
+      { "from": "a", "to": "conflict", "kind": "conflict" },
+      { "from": "b", "to": "conflict", "kind": "conflict" },
+      ["conflict", "human"]
+    ]
+  },
+  {
+    "id": "semantic-merge-import-set",
+    "title": "Import Set Merge",
+    "aliases": ["semantic-import-set"],
+    "maxColumnGap": 17,
+    "nodes": [
+      { "id": "base", "label": "BASE IMPORT", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "a", "label": "+ WRITE", "x": 34, "y": 28, "wide": true },
+      { "id": "b", "label": "+ DELETE", "x": 34, "y": 72, "wide": true },
+      { "id": "set", "label": "IMPORT SET", "x": 62, "y": 50, "type": "synthesis", "wide": true },
+      { "id": "gate", "label": "ADMISSION", "x": 88, "y": 50, "type": "gate", "wide": true },
+      { "id": "output", "label": "MERGED", "x": 112, "y": 50, "type": "result", "wide": true }
+    ],
+    "edges": [
+      ["base", "a"],
+      ["base", "b"],
+      ["a", "set"],
+      ["b", "set"],
+      ["set", "gate"],
+      ["gate", "output"]
+    ]
+  },
+  {
+    "id": "semantic-merge-typed-rebase",
+    "title": "Typed Rebase Admission",
+    "aliases": ["typed-rebase"],
+    "maxColumnGap": 16,
+    "nodes": [
+      { "id": "base", "label": "BASE CONTRACT", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "head", "label": "HEAD RENAME", "x": 34, "y": 28, "wide": true },
+      { "id": "worker", "label": "WORKER HELPER", "x": 34, "y": 72, "wide": true },
+      { "id": "rebase", "label": "REBASE", "x": 62, "y": 50, "type": "synthesis", "wide": true },
+      { "id": "gate", "label": "TS GATE", "x": 88, "y": 50, "type": "gate", "wide": true },
+      { "id": "pass", "label": "OUTPUT", "x": 112, "y": 34, "type": "result", "wide": true },
+      { "id": "fail", "label": "BLOCK", "x": 112, "y": 66, "type": "compensation", "wide": true }
+    ],
+    "edges": [
+      ["base", "head"],
+      ["base", "worker"],
+      ["head", "rebase"],
+      ["worker", "rebase"],
+      ["rebase", "gate"],
+      ["gate", "pass"],
+      { "from": "gate", "to": "fail", "kind": "compensate" }
+    ]
+  },
+  {
+    "id": "run-causal-graph",
+    "title": "Run Causal Graph",
+    "aliases": ["causal-run"],
+    "maxColumnGap": 15,
+    "nodes": [
+      { "id": "task", "label": "TASK", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "a", "label": "ATTEMPT A", "x": 30, "y": 26, "wide": true },
+      { "id": "b", "label": "ATTEMPT B", "x": 30, "y": 74, "wide": true },
+      { "id": "fail", "label": "FAIL", "x": 52, "y": 74, "type": "compensation", "wide": true },
+      { "id": "retry", "label": "RETRY", "x": 74, "y": 74, "wide": true },
+      { "id": "question", "label": "QUESTION", "x": 52, "y": 26, "type": "event", "wide": true },
+      { "id": "answer", "label": "ANSWER", "x": 74, "y": 26, "type": "event", "wide": true },
+      { "id": "evidence", "label": "EVIDENCE", "x": 96, "y": 50, "type": "synthesis", "wide": true },
+      { "id": "decision", "label": "DECISION", "x": 118, "y": 50, "type": "gate", "wide": true },
+      { "id": "applied", "label": "APPLIED", "x": 140, "y": 36, "type": "result", "wide": true },
+      { "id": "blocked", "label": "BLOCKED", "x": 140, "y": 64, "type": "compensation", "wide": true }
+    ],
+    "edges": [
+      ["task", "a"],
+      ["task", "b"],
+      ["a", "question"],
+      ["question", "answer"],
+      ["answer", "evidence"],
+      { "from": "b", "to": "fail", "kind": "compensate" },
+      { "from": "fail", "to": "retry", "kind": "compensate" },
+      ["retry", "evidence"],
+      ["evidence", "decision"],
+      ["decision", "applied"],
+      { "from": "decision", "to": "blocked", "kind": "compensate" }
+    ]
+  },
+  {
+    "id": "run-lane-convergence",
+    "title": "Run Lane Convergence",
+    "aliases": ["lane-convergence"],
+    "maxColumnGap": 16,
+    "nodes": [
+      { "id": "intent", "label": "INTENT", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "code", "label": "CODE LANE", "x": 34, "y": 22, "wide": true },
+      { "id": "test", "label": "TEST LANE", "x": 34, "y": 50, "wide": true },
+      { "id": "review", "label": "REVIEW LANE", "x": 34, "y": 78, "wide": true },
+      { "id": "join", "label": "JOIN", "x": 64, "y": 50, "type": "synthesis", "wide": true },
+      { "id": "decision", "label": "DECISION", "x": 90, "y": 50, "type": "gate", "wide": true },
+      { "id": "continue", "label": "CONTINUE", "x": 116, "y": 34, "type": "result", "wide": true },
+      { "id": "rerun", "label": "RERUN", "x": 116, "y": 66, "type": "compensation", "wide": true }
+    ],
+    "edges": [
+      ["intent", "code"],
+      ["intent", "test"],
+      ["intent", "review"],
+      ["code", "join"],
+      ["test", "join"],
+      ["review", "join"],
+      ["join", "decision"],
+      ["decision", "continue"],
+      { "from": "decision", "to": "rerun", "kind": "compensate" }
+    ]
+  },
+  {
+    "id": "evidence-admission",
+    "title": "Evidence Admission",
+    "aliases": ["evidence-first-admission"],
+    "maxColumnGap": 16,
+    "nodes": [
+      { "id": "patch", "label": "PATCH", "x": 8, "y": 28, "wide": true },
+      { "id": "test", "label": "TEST", "x": 8, "y": 50, "wide": true },
+      { "id": "trace", "label": "TRACE", "x": 8, "y": 72, "wide": true },
+      { "id": "bundle", "label": "BUNDLE", "x": 38, "y": 50, "type": "synthesis", "wide": true },
+      { "id": "gate", "label": "ADMISSION", "x": 68, "y": 50, "type": "gate", "wide": true },
+      { "id": "apply", "label": "APPLY", "x": 98, "y": 22, "type": "result", "wide": true },
+      { "id": "review", "label": "REVIEW", "x": 98, "y": 42, "type": "select", "wide": true },
+      { "id": "rerun", "label": "RERUN", "x": 98, "y": 62, "type": "compensation", "wide": true },
+      { "id": "block", "label": "BLOCK", "x": 98, "y": 82, "type": "conflict", "wide": true }
+    ],
+    "edges": [
+      ["patch", "bundle"],
+      ["test", "bundle"],
+      ["trace", "bundle"],
+      ["bundle", "gate"],
+      ["gate", "apply"],
+      ["gate", "review"],
+      { "from": "gate", "to": "rerun", "kind": "compensate" },
+      { "from": "gate", "to": "block", "kind": "conflict" }
+    ]
+  },
+  {
+    "id": "evidence-comparison",
+    "title": "Evidence Comparison",
+    "aliases": ["evidence-worker-comparison"],
+    "maxColumnGap": 15,
+    "nodes": [
+      { "id": "intent", "label": "INTENT", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "a", "label": "WORKER A", "x": 30, "y": 24, "wide": true },
+      { "id": "b", "label": "WORKER B", "x": 30, "y": 50, "wide": true },
+      { "id": "c", "label": "WORKER C", "x": 30, "y": 76, "wide": true },
+      { "id": "ea", "label": "EVIDENCE A", "x": 58, "y": 24, "type": "event", "wide": true },
+      { "id": "eb", "label": "EVIDENCE B", "x": 58, "y": 50, "type": "event", "wide": true },
+      { "id": "ec", "label": "EVIDENCE C", "x": 58, "y": 76, "type": "event", "wide": true },
+      { "id": "score", "label": "COMPARE", "x": 88, "y": 50, "type": "synthesis", "wide": true },
+      { "id": "select", "label": "SELECT", "x": 116, "y": 50, "type": "gate", "wide": true },
+      { "id": "accept", "label": "ACCEPT", "x": 140, "y": 34, "type": "result", "wide": true },
+      { "id": "reject", "label": "REJECT", "x": 140, "y": 66, "type": "compensation", "wide": true }
+    ],
+    "edges": [
+      ["intent", "a"],
+      ["intent", "b"],
+      ["intent", "c"],
+      ["a", "ea"],
+      ["b", "eb"],
+      ["c", "ec"],
+      ["ea", "score"],
+      ["eb", "score"],
+      ["ec", "score"],
+      ["score", "select"],
+      ["select", "accept"],
+      { "from": "select", "to": "reject", "kind": "compensate" }
+    ]
+  },
+  {
+    "id": "semantic-lease-claim",
+    "title": "Semantic Lease Claim",
+    "aliases": ["lease-claim"],
+    "maxColumnGap": 16,
+    "nodes": [
+      { "id": "intent", "label": "INTENT", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "file", "label": "FILE", "x": 34, "y": 24, "wide": true },
+      { "id": "symbol", "label": "EXPORT", "x": 34, "y": 42, "wide": true },
+      { "id": "route", "label": "ROUTE", "x": 34, "y": 60, "wide": true },
+      { "id": "invariant", "label": "INVARIANT", "x": 34, "y": 78, "wide": true },
+      { "id": "lease", "label": "LEASE", "x": 66, "y": 50, "type": "gate", "wide": true },
+      { "id": "work", "label": "WORK", "x": 96, "y": 36, "type": "result", "wide": true },
+      { "id": "wait", "label": "WAIT", "x": 96, "y": 64, "type": "compensation", "wide": true }
+    ],
+    "edges": [
+      ["intent", "file"],
+      ["intent", "symbol"],
+      ["intent", "route"],
+      ["intent", "invariant"],
+      ["file", "lease"],
+      ["symbol", "lease"],
+      ["route", "lease"],
+      ["invariant", "lease"],
+      ["lease", "work"],
+      { "from": "lease", "to": "wait", "kind": "compensate" }
+    ]
+  },
+  {
+    "id": "semantic-lease-fencing",
+    "title": "Lease Fencing",
+    "aliases": ["fencing-token"],
+    "maxColumnGap": 16,
+    "nodes": [
+      { "id": "claim", "label": "CLAIM", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "token", "label": "TOKEN 7", "x": 34, "y": 34, "type": "event", "wide": true },
+      { "id": "head", "label": "READ HEAD", "x": 34, "y": 66, "wide": true },
+      { "id": "patch", "label": "PATCH", "x": 62, "y": 50, "wide": true },
+      { "id": "check", "label": "FENCE", "x": 90, "y": 50, "type": "gate", "wide": true },
+      { "id": "apply", "label": "APPLY", "x": 118, "y": 34, "type": "result", "wide": true },
+      { "id": "stale", "label": "STALE", "x": 118, "y": 66, "type": "conflict", "wide": true }
+    ],
+    "edges": [
+      ["claim", "token"],
+      ["claim", "head"],
+      ["token", "patch"],
+      ["head", "patch"],
+      ["patch", "check"],
+      ["check", "apply"],
+      { "from": "check", "to": "stale", "kind": "conflict" }
+    ]
+  },
+  {
+    "id": "semantic-lease-merge",
+    "title": "Lease Merge Admission",
+    "aliases": ["lease-admission"],
+    "maxColumnGap": 16,
+    "nodes": [
+      { "id": "a", "label": "LEASE A", "x": 8, "y": 28, "wide": true },
+      { "id": "b", "label": "LEASE B", "x": 8, "y": 72, "wide": true },
+      { "id": "regions", "label": "REGIONS", "x": 36, "y": 50, "type": "synthesis", "wide": true },
+      { "id": "evidence", "label": "EVIDENCE", "x": 66, "y": 50, "type": "event", "wide": true },
+      { "id": "gate", "label": "ADMISSION", "x": 96, "y": 50, "type": "gate", "wide": true },
+      { "id": "merge", "label": "MERGE", "x": 124, "y": 26, "type": "result", "wide": true },
+      { "id": "rebase", "label": "REBASE", "x": 124, "y": 50, "type": "select", "wide": true },
+      { "id": "block", "label": "BLOCK", "x": 124, "y": 74, "type": "conflict", "wide": true }
+    ],
+    "edges": [
+      ["a", "regions"],
+      ["b", "regions"],
+      ["regions", "evidence"],
+      ["evidence", "gate"],
+      ["gate", "merge"],
+      ["gate", "rebase"],
+      { "from": "gate", "to": "block", "kind": "conflict" }
+    ]
+  },
+  {
+    "id": "coordinator-work-triage",
+    "title": "Coordinator Triage",
+    "aliases": ["coordinator-triage"],
+    "maxColumnGap": 15,
+    "nodes": [
+      { "id": "goal", "label": "GOAL", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "a", "label": "WORKER A", "x": 30, "y": 24, "wide": true },
+      { "id": "b", "label": "WORKER B", "x": 30, "y": 50, "wide": true },
+      { "id": "c", "label": "WORKER C", "x": 30, "y": 76, "wide": true },
+      { "id": "bundle", "label": "BUNDLES", "x": 58, "y": 50, "type": "event", "wide": true },
+      { "id": "coord", "label": "COORDINATOR", "x": 88, "y": 50, "type": "synthesis", "wide": true },
+      { "id": "apply", "label": "APPLY", "x": 118, "y": 25, "type": "result", "wide": true },
+      { "id": "rerun", "label": "RERUN", "x": 118, "y": 50, "type": "compensation", "wide": true },
+      { "id": "ask", "label": "ASK", "x": 118, "y": 75, "type": "select", "wide": true }
+    ],
+    "edges": [
+      ["goal", "a"],
+      ["goal", "b"],
+      ["goal", "c"],
+      ["a", "bundle"],
+      ["b", "bundle"],
+      ["c", "bundle"],
+      ["bundle", "coord"],
+      ["coord", "apply"],
+      { "from": "coord", "to": "rerun", "kind": "compensate" },
+      ["coord", "ask"]
+    ]
+  },
+  {
+    "id": "coordinator-wave-loop",
+    "title": "Coordinator Wave Loop",
+    "aliases": ["coord-wave"],
+    "maxColumnGap": 16,
+    "nodes": [
+      { "id": "backlog", "label": "BACKLOG", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "plan", "label": "PLAN", "x": 34, "y": 50, "wide": true },
+      { "id": "wave", "label": "WAVE", "x": 62, "y": 50, "wide": true },
+      { "id": "collect", "label": "COLLECT", "x": 90, "y": 50, "type": "synthesis", "wide": true },
+      { "id": "decision", "label": "DECISION", "x": 118, "y": 50, "type": "gate", "wide": true },
+      { "id": "done", "label": "DONE", "x": 146, "y": 34, "type": "result", "wide": true }
+    ],
+    "annotations": [
+      { "type": "direction-arrow", "x": 8, "y": 68, "direction": "up" }
+    ],
+    "edges": [
+      ["backlog", "plan"],
+      ["plan", "wave"],
+      ["wave", "collect"],
+      ["collect", "decision"],
+      ["decision", "done"],
+      {
+        "from": "decision",
+        "to": "backlog",
+        "kind": "compensate",
+        "label": "NEXT",
+        "hideArrow": true,
+        "labelPosition": { "x": 64, "y": 84 },
+        "points": [{ "x": 118, "y": 88 }, { "x": 8, "y": 88 }],
+        "toPoint": { "x": 8, "y": 74 }
+      }
+    ]
+  },
+  {
+    "id": "merge-review-admission",
+    "title": "Merge Review Admission",
+    "aliases": ["merge-admission"],
+    "maxColumnGap": 16,
+    "nodes": [
+      { "id": "patch", "label": "PATCH", "x": 8, "y": 28, "wide": true },
+      { "id": "evidence", "label": "EVIDENCE", "x": 8, "y": 50, "type": "event", "wide": true },
+      { "id": "head", "label": "HEAD", "x": 8, "y": 72, "wide": true },
+      { "id": "review", "label": "REVIEW", "x": 42, "y": 50, "type": "synthesis", "wide": true },
+      { "id": "gate", "label": "ADMIT", "x": 74, "y": 50, "type": "gate", "wide": true },
+      { "id": "apply", "label": "APPLY", "x": 106, "y": 23, "type": "result", "wide": true },
+      { "id": "rerun", "label": "RERUN", "x": 106, "y": 50, "type": "compensation", "wide": true },
+      { "id": "block", "label": "BLOCK", "x": 106, "y": 77, "type": "conflict", "wide": true }
+    ],
+    "edges": [
+      ["patch", "review"],
+      ["evidence", "review"],
+      ["head", "review"],
+      ["review", "gate"],
+      ["gate", "apply"],
+      { "from": "gate", "to": "rerun", "kind": "compensate" },
+      { "from": "gate", "to": "block", "kind": "conflict" }
+    ]
+  },
+  {
+    "id": "merge-review-rebase",
+    "title": "Review Rebase",
+    "aliases": ["merge-rebase"],
+    "maxColumnGap": 16,
+    "nodes": [
+      { "id": "base", "label": "BASE", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "worker", "label": "WORKER", "x": 34, "y": 30, "wide": true },
+      { "id": "head", "label": "HEAD", "x": 34, "y": 70, "wide": true },
+      { "id": "rebase", "label": "REBASE", "x": 66, "y": 50, "type": "synthesis", "wide": true },
+      { "id": "gate", "label": "GATE", "x": 96, "y": 50, "type": "gate", "wide": true },
+      { "id": "merged", "label": "MERGED", "x": 126, "y": 34, "type": "result", "wide": true },
+      { "id": "review", "label": "REVIEW", "x": 126, "y": 66, "type": "select", "wide": true }
+    ],
+    "edges": [
+      ["base", "worker"],
+      ["base", "head"],
+      ["worker", "rebase"],
+      ["head", "rebase"],
+      ["rebase", "gate"],
+      ["gate", "merged"],
+      ["gate", "review"]
+    ]
+  },
+  {
+    "id": "human-question-control-flow",
+    "title": "Human Question Control Flow",
+    "aliases": ["question-control-flow"],
+    "maxColumnGap": 16,
+    "nodes": [
+      { "id": "lane", "label": "LANE", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "block", "label": "BLOCKED", "x": 36, "y": 50, "type": "conflict", "wide": true },
+      { "id": "question", "label": "QUESTION", "x": 66, "y": 50, "type": "event", "wide": true },
+      { "id": "answer", "label": "ANSWER", "x": 96, "y": 50, "type": "event", "wide": true },
+      { "id": "continue", "label": "CONTINUE", "x": 126, "y": 34, "type": "result", "wide": true },
+      { "id": "reroute", "label": "REROUTE", "x": 126, "y": 66, "type": "select", "wide": true }
+    ],
+    "edges": [
+      ["lane", "block"],
+      ["block", "question"],
+      ["question", "answer"],
+      ["answer", "continue"],
+      ["answer", "reroute"]
+    ]
+  },
+  {
+    "id": "human-question-fanout",
+    "title": "Question Fanout",
+    "aliases": ["question-fanout"],
+    "maxColumnGap": 15,
+    "nodes": [
+      { "id": "question", "label": "ANSWER", "x": 8, "y": 50, "type": "event", "wide": true },
+      { "id": "code", "label": "CODE", "x": 38, "y": 25, "wide": true },
+      { "id": "test", "label": "TEST", "x": 38, "y": 50, "wide": true },
+      { "id": "docs", "label": "DOCS", "x": 38, "y": 75, "wide": true },
+      { "id": "join", "label": "JOIN", "x": 70, "y": 50, "type": "synthesis", "wide": true },
+      { "id": "decision", "label": "DECISION", "x": 100, "y": 50, "type": "gate", "wide": true },
+      { "id": "next", "label": "NEXT", "x": 130, "y": 50, "type": "result", "wide": true }
+    ],
+    "edges": [
+      ["question", "code"],
+      ["question", "test"],
+      ["question", "docs"],
+      ["code", "join"],
+      ["test", "join"],
+      ["docs", "join"],
+      ["join", "decision"],
+      ["decision", "next"]
+    ]
+  },
+  {
+    "id": "semantic-region-index",
+    "title": "Semantic Region Index",
+    "aliases": ["region-index"],
+    "maxColumnGap": 16,
+    "nodes": [
+      { "id": "files", "label": "FILES", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "exports", "label": "EXPORTS", "x": 36, "y": 22, "wide": true },
+      { "id": "routes", "label": "ROUTES", "x": 36, "y": 40, "wide": true },
+      { "id": "types", "label": "TYPES", "x": 36, "y": 58, "wide": true },
+      { "id": "tests", "label": "TESTS", "x": 36, "y": 76, "wide": true },
+      { "id": "index", "label": "INDEX", "x": 70, "y": 50, "type": "synthesis", "wide": true },
+      { "id": "leases", "label": "LEASES", "x": 102, "y": 34, "type": "gate", "wide": true },
+      { "id": "merge", "label": "MERGE", "x": 102, "y": 66, "type": "result", "wide": true }
+    ],
+    "edges": [
+      ["files", "exports"],
+      ["files", "routes"],
+      ["files", "types"],
+      ["files", "tests"],
+      ["exports", "index"],
+      ["routes", "index"],
+      ["types", "index"],
+      ["tests", "index"],
+      ["index", "leases"],
+      ["index", "merge"]
+    ]
+  },
+  {
+    "id": "semantic-region-overlap",
+    "title": "Region Overlap",
+    "aliases": ["region-overlap"],
+    "maxColumnGap": 15,
+    "nodes": [
+      { "id": "a", "label": "REGION A", "x": 8, "y": 28, "wide": true },
+      { "id": "b", "label": "REGION B", "x": 8, "y": 72, "wide": true },
+      { "id": "overlap", "label": "OVERLAP", "x": 42, "y": 50, "type": "synthesis", "wide": true },
+      { "id": "classify", "label": "CLASSIFY", "x": 74, "y": 50, "type": "gate", "wide": true },
+      { "id": "parallel", "label": "PARALLEL", "x": 108, "y": 24, "type": "result", "wide": true },
+      { "id": "review", "label": "REVIEW", "x": 108, "y": 50, "type": "select", "wide": true },
+      { "id": "block", "label": "BLOCK", "x": 108, "y": 76, "type": "conflict", "wide": true }
+    ],
+    "edges": [
+      ["a", "overlap"],
+      ["b", "overlap"],
+      ["overlap", "classify"],
+      ["classify", "parallel"],
+      ["classify", "review"],
+      { "from": "classify", "to": "block", "kind": "conflict" }
+    ]
+  },
+  {
+    "id": "stale-work-detection",
+    "title": "Stale Work Detection",
+    "aliases": ["stale-detection"],
+    "maxColumnGap": 16,
+    "nodes": [
+      { "id": "head1", "label": "HEAD 1", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "worker", "label": "WORKER", "x": 36, "y": 30, "wide": true },
+      { "id": "head2", "label": "HEAD 2", "x": 36, "y": 70, "wide": true },
+      { "id": "return", "label": "PATCH", "x": 66, "y": 50, "wide": true },
+      { "id": "check", "label": "STALE CHECK", "x": 98, "y": 50, "type": "gate", "wide": true },
+      { "id": "ok", "label": "CURRENT", "x": 128, "y": 34, "type": "result", "wide": true },
+      { "id": "stale", "label": "STALE", "x": 128, "y": 66, "type": "conflict", "wide": true }
+    ],
+    "edges": [
+      ["head1", "worker"],
+      ["head1", "head2"],
+      ["worker", "return"],
+      ["head2", "check"],
+      ["return", "check"],
+      ["check", "ok"],
+      { "from": "check", "to": "stale", "kind": "conflict" }
+    ]
+  },
+  {
+    "id": "stale-work-rebase-loop",
+    "title": "Stale Work Rebase Loop",
+    "aliases": ["stale-rebase"],
+    "maxColumnGap": 16,
+    "nodes": [
+      { "id": "stale", "label": "STALE", "x": 8, "y": 50, "type": "conflict", "wide": true },
+      { "id": "evidence", "label": "EVIDENCE", "x": 36, "y": 50, "type": "event", "wide": true },
+      { "id": "rebase", "label": "REBASE", "x": 66, "y": 50, "type": "synthesis", "wide": true },
+      { "id": "gate", "label": "GATE", "x": 96, "y": 50, "type": "gate", "wide": true },
+      { "id": "apply", "label": "APPLY", "x": 126, "y": 32, "type": "result", "wide": true },
+      { "id": "rerun", "label": "RERUN", "x": 126, "y": 68, "type": "compensation", "wide": true }
+    ],
+    "annotations": [
+      { "type": "direction-arrow", "x": 8, "y": 68, "direction": "up" }
+    ],
+    "edges": [
+      ["stale", "evidence"],
+      ["evidence", "rebase"],
+      ["rebase", "gate"],
+      ["gate", "apply"],
+      {
+        "from": "gate",
+        "to": "stale",
+        "kind": "compensate",
+        "label": "FAIL",
+        "hideArrow": true,
+        "labelPosition": { "x": 52, "y": 84 },
+        "points": [{ "x": 96, "y": 88 }, { "x": 8, "y": 88 }],
+        "toPoint": { "x": 8, "y": 74 }
+      },
+      { "from": "gate", "to": "rerun", "kind": "compensate" }
+    ]
+  },
+  {
+    "id": "merge-routing-router",
+    "title": "Merge Routing",
+    "aliases": ["merging-is-routing"],
+    "maxColumnGap": 15,
+    "nodes": [
+      { "id": "candidate", "label": "CANDIDATE", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "patch", "label": "PATCH", "x": 32, "y": 24, "wide": true },
+      { "id": "evidence", "label": "EVIDENCE", "x": 32, "y": 50, "type": "event", "wide": true },
+      { "id": "head", "label": "HEAD", "x": 32, "y": 76, "wide": true },
+      { "id": "router", "label": "ROUTER", "x": 64, "y": 50, "type": "gate", "wide": true },
+      { "id": "apply", "label": "APPLY", "x": 96, "y": 18, "type": "result", "wide": true },
+      { "id": "review", "label": "REVIEW", "x": 96, "y": 38, "type": "select", "wide": true },
+      { "id": "rerun", "label": "RERUN", "x": 96, "y": 58, "type": "compensation", "wide": true },
+      { "id": "ask", "label": "ASK", "x": 96, "y": 78, "type": "event", "wide": true },
+      { "id": "block", "label": "BLOCK", "x": 126, "y": 50, "type": "conflict", "wide": true }
+    ],
+    "edges": [
+      ["candidate", "patch"],
+      ["candidate", "evidence"],
+      ["candidate", "head"],
+      ["patch", "router"],
+      ["evidence", "router"],
+      ["head", "router"],
+      ["router", "apply"],
+      ["router", "review"],
+      { "from": "router", "to": "rerun", "kind": "compensate" },
+      ["router", "ask"],
+      { "from": "router", "to": "block", "kind": "conflict" }
+    ]
+  },
+  {
+    "id": "merge-routing-outcome-loop",
+    "title": "Merge Outcome Loop",
+    "aliases": ["routing-outcome-loop"],
+    "maxColumnGap": 16,
+    "nodes": [
+      { "id": "router", "label": "ROUTER", "x": 8, "y": 50, "type": "gate", "wide": true },
+      { "id": "apply", "label": "APPLY", "x": 36, "y": 20, "type": "result", "wide": true },
+      { "id": "rebase", "label": "REBASE", "x": 36, "y": 40, "type": "synthesis", "wide": true },
+      { "id": "split", "label": "SPLIT", "x": 36, "y": 60, "type": "select", "wide": true },
+      { "id": "question", "label": "QUESTION", "x": 36, "y": 80, "type": "event", "wide": true },
+      { "id": "gate", "label": "GATE", "x": 68, "y": 50, "type": "gate", "wide": true },
+      { "id": "state", "label": "STATE", "x": 100, "y": 34, "type": "result", "wide": true },
+      { "id": "backlog", "label": "BACKLOG", "x": 100, "y": 66, "type": "compensation", "wide": true }
+    ],
+    "annotations": [
+      { "type": "direction-arrow", "x": 100, "y": 84, "direction": "up" }
+    ],
+    "edges": [
+      ["router", "apply"],
+      ["router", "rebase"],
+      ["router", "split"],
+      ["router", "question"],
+      ["apply", "gate"],
+      ["rebase", "gate"],
+      ["split", "gate"],
+      ["question", "gate"],
+      ["gate", "state"],
+      { "from": "gate", "to": "backlog", "kind": "compensate" },
+      {
+        "from": "backlog",
+        "to": "router",
+        "kind": "compensate",
+        "label": "NEXT",
+        "hideArrow": true,
+        "labelPosition": { "x": 52, "y": 88 },
+        "points": [{ "x": 100, "y": 90 }, { "x": 8, "y": 90 }],
+        "toPoint": { "x": 8, "y": 68 }
+      }
+    ]
+  },
+  {
+    "id": "patch-admission-type-check",
+    "title": "Admission Type Check",
+    "aliases": ["patch-admission-type-system"],
+    "maxColumnGap": 16,
+    "nodes": [
+      { "id": "patch", "label": "PATCH", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "claims", "label": "CLAIMS", "x": 36, "y": 24, "wide": true },
+      { "id": "regions", "label": "REGIONS", "x": 36, "y": 50, "wide": true },
+      { "id": "evidence", "label": "EVIDENCE", "x": 36, "y": 76, "type": "event", "wide": true },
+      { "id": "checker", "label": "CHECKER", "x": 70, "y": 50, "type": "gate", "wide": true },
+      { "id": "apply", "label": "APPLY", "x": 104, "y": 32, "type": "result", "wide": true },
+      { "id": "error", "label": "TYPE ERROR", "x": 104, "y": 68, "type": "conflict", "wide": true }
+    ],
+    "edges": [
+      ["patch", "claims"],
+      ["patch", "regions"],
+      ["patch", "evidence"],
+      ["claims", "checker"],
+      ["regions", "checker"],
+      ["evidence", "checker"],
+      ["checker", "apply"],
+      { "from": "checker", "to": "error", "kind": "conflict" }
+    ]
+  },
+  {
+    "id": "patch-admission-fail-closed",
+    "title": "Fail Closed",
+    "aliases": ["admission-fail-closed"],
+    "maxColumnGap": 16,
+    "nodes": [
+      { "id": "candidate", "label": "CANDIDATE", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "contract", "label": "CONTRACT", "x": 36, "y": 34, "wide": true },
+      { "id": "proof", "label": "PROOF", "x": 36, "y": 66, "type": "event", "wide": true },
+      { "id": "admit", "label": "ADMIT", "x": 68, "y": 50, "type": "gate", "wide": true },
+      { "id": "state", "label": "STATE", "x": 100, "y": 24, "type": "result", "wide": true },
+      { "id": "record", "label": "ERROR RECORD", "x": 100, "y": 50, "type": "conflict", "wide": true },
+      { "id": "task", "label": "NEXT TASK", "x": 100, "y": 76, "type": "compensation", "wide": true }
+    ],
+    "edges": [
+      ["candidate", "contract"],
+      ["candidate", "proof"],
+      ["contract", "admit"],
+      ["proof", "admit"],
+      ["admit", "state"],
+      { "from": "admit", "to": "record", "kind": "conflict" },
+      { "from": "record", "to": "task", "kind": "compensate" }
+    ]
+  },
+  {
+    "id": "patch-admission-evidence-subtyping",
+    "title": "Evidence Subtyping",
+    "aliases": ["admission-evidence-subtyping"],
+    "maxColumnGap": 16,
+    "rowGap": 18,
+    "nodes": [
+      { "id": "claim", "label": "CLAIM", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "expected", "label": "EXPECTED", "x": 36, "y": 50, "type": "gate", "wide": true },
+      { "id": "project", "label": "PROJECT GATE", "x": 68, "y": 20, "type": "event", "wide": true },
+      { "id": "api", "label": "API PROOF", "x": 68, "y": 40, "type": "event", "wide": true },
+      { "id": "trace", "label": "TRACE", "x": 68, "y": 60, "type": "event", "wide": true },
+      { "id": "screenshot", "label": "SCREENSHOT", "x": 68, "y": 80, "type": "task", "wide": true },
+      { "id": "admit", "label": "ADMIT", "x": 102, "y": 36, "type": "result", "wide": true },
+      { "id": "mismatch", "label": "MISMATCH", "x": 102, "y": 68, "type": "conflict", "wide": true }
+    ],
+    "edges": [
+      ["claim", "expected"],
+      ["project", "expected"],
+      ["api", "expected"],
+      ["trace", "expected"],
+      { "from": "screenshot", "to": "expected", "kind": "conflict" },
+      ["expected", "admit"],
+      { "from": "expected", "to": "mismatch", "kind": "conflict" }
+    ]
+  },
+  {
+    "id": "agent-readable-surface",
+    "title": "Agent-Readable Surface",
+    "aliases": ["agent-readable-software"],
+    "maxColumnGap": 16,
+    "nodes": [
+      { "id": "system", "label": "SYSTEM", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "state", "label": "STATE", "x": 34, "y": 20, "type": "event", "wide": true },
+      { "id": "actions", "label": "ACTIONS", "x": 34, "y": 40, "wide": true },
+      { "id": "invariants", "label": "INVARIANTS", "x": 34, "y": 60, "type": "gate", "wide": true },
+      { "id": "examples", "label": "EXAMPLES", "x": 34, "y": 80, "wide": true },
+      { "id": "agent", "label": "AGENT", "x": 68, "y": 50, "type": "synthesis", "wide": true },
+      { "id": "patch", "label": "PATCH", "x": 102, "y": 34, "type": "result", "wide": true },
+      { "id": "question", "label": "QUESTION", "x": 102, "y": 66, "type": "event", "wide": true }
+    ],
+    "edges": [
+      ["system", "state"],
+      ["system", "actions"],
+      ["system", "invariants"],
+      ["system", "examples"],
+      ["state", "agent"],
+      ["actions", "agent"],
+      ["invariants", "agent"],
+      ["examples", "agent"],
+      ["agent", "patch"],
+      ["agent", "question"]
+    ]
+  },
+  {
+    "id": "agent-readable-feedback",
+    "title": "Agent Feedback Loop",
+    "aliases": ["agent-readable-feedback-loop"],
+    "maxColumnGap": 16,
+    "nodes": [
+      { "id": "observe", "label": "OBSERVE", "x": 8, "y": 50, "type": "event", "wide": true },
+      { "id": "plan", "label": "PLAN", "x": 36, "y": 50, "wide": true },
+      { "id": "act", "label": "ACT", "x": 64, "y": 50, "type": "synthesis", "wide": true },
+      { "id": "evidence", "label": "EVIDENCE", "x": 92, "y": 50, "type": "gate", "wide": true },
+      { "id": "state", "label": "STATE", "x": 120, "y": 32, "type": "result", "wide": true },
+      { "id": "model", "label": "MODEL", "x": 120, "y": 68, "type": "compensation", "wide": true }
+    ],
+    "annotations": [
+      { "type": "direction-arrow", "x": 8, "y": 68, "direction": "up" }
+    ],
+    "edges": [
+      ["observe", "plan"],
+      ["plan", "act"],
+      ["act", "evidence"],
+      ["evidence", "state"],
+      {
+        "from": "evidence",
+        "to": "observe",
+        "kind": "compensate",
+        "label": "UPDATE",
+        "hideArrow": true,
+        "labelPosition": { "x": 50, "y": 86 },
+        "points": [{ "x": 92, "y": 88 }, { "x": 8, "y": 88 }],
+        "toPoint": { "x": 8, "y": 72 }
+      },
+      { "from": "evidence", "to": "model", "kind": "compensate" }
+    ]
+  },
+  {
+    "id": "simulation-before-mutation-sandbox",
+    "title": "Simulation Before Mutation",
+    "aliases": ["simulation-sandbox"],
+    "maxColumnGap": 16,
+    "nodes": [
+      { "id": "candidate", "label": "CANDIDATE", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "sandbox", "label": "SANDBOX", "x": 36, "y": 50, "type": "synthesis", "wide": true },
+      { "id": "fixtures", "label": "FIXTURES", "x": 64, "y": 24, "type": "event", "wide": true },
+      { "id": "trace", "label": "TRACE", "x": 64, "y": 50, "type": "event", "wide": true },
+      { "id": "oracle", "label": "ORACLE", "x": 64, "y": 76, "type": "gate", "wide": true },
+      { "id": "gate", "label": "GATE", "x": 94, "y": 50, "type": "gate", "wide": true },
+      { "id": "mutate", "label": "MUTATE", "x": 124, "y": 32, "type": "result", "wide": true },
+      { "id": "rerun", "label": "RERUN", "x": 124, "y": 68, "type": "compensation", "wide": true }
+    ],
+    "edges": [
+      ["candidate", "sandbox"],
+      ["sandbox", "fixtures"],
+      ["sandbox", "trace"],
+      ["sandbox", "oracle"],
+      ["fixtures", "gate"],
+      ["trace", "gate"],
+      ["oracle", "gate"],
+      ["gate", "mutate"],
+      { "from": "gate", "to": "rerun", "kind": "compensate" }
+    ]
+  },
+  {
+    "id": "simulation-before-mutation-ladder",
+    "title": "Simulation Ladder",
+    "aliases": ["simulation-ladder"],
+    "maxColumnGap": 16,
+    "nodes": [
+      { "id": "idea", "label": "IDEA", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "dry", "label": "DRY RUN", "x": 34, "y": 22, "wide": true },
+      { "id": "fixture", "label": "FIXTURE", "x": 34, "y": 42, "type": "event", "wide": true },
+      { "id": "shadow", "label": "SHADOW", "x": 34, "y": 62, "type": "synthesis", "wide": true },
+      { "id": "replay", "label": "REPLAY", "x": 34, "y": 82, "type": "event", "wide": true },
+      { "id": "proof", "label": "PROOF", "x": 68, "y": 50, "type": "gate", "wide": true },
+      { "id": "apply", "label": "APPLY", "x": 102, "y": 34, "type": "result", "wide": true },
+      { "id": "narrow", "label": "NARROW", "x": 102, "y": 66, "type": "compensation", "wide": true }
+    ],
+    "edges": [
+      ["idea", "dry"],
+      ["idea", "fixture"],
+      ["idea", "shadow"],
+      ["idea", "replay"],
+      ["dry", "proof"],
+      ["fixture", "proof"],
+      ["shadow", "proof"],
+      ["replay", "proof"],
+      ["proof", "apply"],
+      { "from": "proof", "to": "narrow", "kind": "compensate" }
+    ]
+  },
+  {
+    "id": "oracle-stack",
+    "title": "Oracle Stack",
+    "aliases": ["oracles-over-opinions"],
+    "maxColumnGap": 16,
+    "nodes": [
+      { "id": "claim", "label": "CLAIM", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "compiler", "label": "COMPILER", "x": 36, "y": 20, "type": "event", "wide": true },
+      { "id": "tests", "label": "TESTS", "x": 36, "y": 40, "type": "event", "wide": true },
+      { "id": "trace", "label": "TRACE", "x": 36, "y": 60, "type": "event", "wide": true },
+      { "id": "human", "label": "HUMAN", "x": 36, "y": 80, "type": "select", "wide": true },
+      { "id": "compare", "label": "COMPARE", "x": 70, "y": 50, "type": "gate", "wide": true },
+      { "id": "admit", "label": "ADMIT", "x": 104, "y": 34, "type": "result", "wide": true },
+      { "id": "reject", "label": "REJECT", "x": 104, "y": 66, "type": "conflict", "wide": true }
+    ],
+    "edges": [
+      ["claim", "compiler"],
+      ["claim", "tests"],
+      ["claim", "trace"],
+      ["claim", "human"],
+      ["compiler", "compare"],
+      ["tests", "compare"],
+      ["trace", "compare"],
+      ["human", "compare"],
+      ["compare", "admit"],
+      { "from": "compare", "to": "reject", "kind": "conflict" }
+    ]
+  },
+  {
+    "id": "oracle-disagreement",
+    "title": "Oracle Disagreement",
+    "aliases": ["oracle-mismatch"],
+    "maxColumnGap": 16,
+    "nodes": [
+      { "id": "opinion", "label": "OPINION", "x": 8, "y": 30, "wide": true },
+      { "id": "oracle", "label": "ORACLE", "x": 8, "y": 70, "type": "gate", "wide": true },
+      { "id": "compare", "label": "COMPARE", "x": 42, "y": 50, "type": "synthesis", "wide": true },
+      { "id": "match", "label": "MATCH", "x": 76, "y": 30, "type": "result", "wide": true },
+      { "id": "mismatch", "label": "MISMATCH", "x": 76, "y": 70, "type": "conflict", "wide": true },
+      { "id": "task", "label": "NEXT TASK", "x": 110, "y": 70, "type": "compensation", "wide": true }
+    ],
+    "edges": [
+      ["opinion", "compare"],
+      ["oracle", "compare"],
+      ["compare", "match"],
+      { "from": "compare", "to": "mismatch", "kind": "conflict" },
+      { "from": "mismatch", "to": "task", "kind": "compensate" }
+    ]
+  },
+  {
+    "id": "parallel-work-interfaces",
+    "title": "Parallel Work Interfaces",
+    "aliases": ["interfaces-for-parallel-work"],
+    "maxColumnGap": 16,
+    "nodes": [
+      { "id": "backlog", "label": "BACKLOG", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "api", "label": "API", "x": 36, "y": 20, "wide": true },
+      { "id": "region", "label": "REGION", "x": 36, "y": 40, "type": "event", "wide": true },
+      { "id": "test", "label": "TEST", "x": 36, "y": 60, "type": "gate", "wide": true },
+      { "id": "doc", "label": "DOC", "x": 36, "y": 80, "wide": true },
+      { "id": "lanes", "label": "LANES", "x": 70, "y": 50, "type": "synthesis", "wide": true },
+      { "id": "merge", "label": "MERGE", "x": 104, "y": 50, "type": "result", "wide": true }
+    ],
+    "edges": [
+      ["backlog", "api"],
+      ["backlog", "region"],
+      ["backlog", "test"],
+      ["backlog", "doc"],
+      ["api", "lanes"],
+      ["region", "lanes"],
+      ["test", "lanes"],
+      ["doc", "lanes"],
+      ["lanes", "merge"]
+    ]
+  },
+  {
+    "id": "parallel-work-boundary",
+    "title": "Parallel Boundary",
+    "aliases": ["parallel-boundary"],
+    "maxColumnGap": 16,
+    "nodes": [
+      { "id": "contract", "label": "CONTRACT", "x": 8, "y": 50, "type": "gate", "wide": true },
+      { "id": "a", "label": "AGENT A", "x": 36, "y": 24, "wide": true },
+      { "id": "b", "label": "AGENT B", "x": 36, "y": 50, "wide": true },
+      { "id": "c", "label": "AGENT C", "x": 36, "y": 76, "wide": true },
+      { "id": "evidence", "label": "EVIDENCE", "x": 70, "y": 50, "type": "synthesis", "wide": true },
+      { "id": "admit", "label": "ADMIT", "x": 104, "y": 34, "type": "result", "wide": true },
+      { "id": "split", "label": "SPLIT", "x": 104, "y": 66, "type": "compensation", "wide": true }
+    ],
+    "edges": [
+      ["contract", "a"],
+      ["contract", "b"],
+      ["contract", "c"],
+      ["a", "evidence"],
+      ["b", "evidence"],
+      ["c", "evidence"],
+      ["evidence", "admit"],
+      { "from": "evidence", "to": "split", "kind": "compensate" }
+    ]
+  },
+  {
+    "id": "layout-runtime-stack",
+    "title": "Layout Runtime Stack",
+    "aliases": ["layout-is-a-runtime"],
+    "maxColumnGap": 16,
+    "nodes": [
+      { "id": "markup", "label": "MARKUP", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "cascade", "label": "CASCADE", "x": 36, "y": 22, "type": "event", "wide": true },
+      { "id": "layout", "label": "LAYOUT", "x": 36, "y": 42, "type": "gate", "wide": true },
+      { "id": "focus", "label": "FOCUS", "x": 36, "y": 62, "wide": true },
+      { "id": "a11y", "label": "A11Y TREE", "x": 36, "y": 82, "type": "event", "wide": true },
+      { "id": "browser", "label": "BROWSER", "x": 70, "y": 50, "type": "synthesis", "wide": true },
+      { "id": "state", "label": "STATE", "x": 104, "y": 34, "type": "result", "wide": true },
+      { "id": "risk", "label": "RISK", "x": 104, "y": 66, "type": "conflict", "wide": true }
+    ],
+    "edges": [
+      ["markup", "cascade"],
+      ["markup", "layout"],
+      ["markup", "focus"],
+      ["markup", "a11y"],
+      ["cascade", "browser"],
+      ["layout", "browser"],
+      ["focus", "browser"],
+      ["a11y", "browser"],
+      ["browser", "state"],
+      { "from": "browser", "to": "risk", "kind": "conflict" }
+    ]
+  },
+  {
+    "id": "layout-runtime-evidence",
+    "title": "Layout Evidence",
+    "aliases": ["layout-evidence"],
+    "maxColumnGap": 16,
+    "nodes": [
+      { "id": "change", "label": "UI CHANGE", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "selector", "label": "SELECTOR", "x": 36, "y": 22, "wide": true },
+      { "id": "viewport", "label": "VIEWPORT", "x": 36, "y": 42, "type": "event", "wide": true },
+      { "id": "interaction", "label": "INTERACTION", "x": 36, "y": 62, "type": "event", "wide": true },
+      { "id": "access", "label": "ACCESS", "x": 36, "y": 82, "type": "gate", "wide": true },
+      { "id": "admit", "label": "ADMIT", "x": 72, "y": 38, "type": "result", "wide": true },
+      { "id": "review", "label": "REVIEW", "x": 72, "y": 66, "type": "compensation", "wide": true }
+    ],
+    "edges": [
+      ["change", "selector"],
+      ["change", "viewport"],
+      ["change", "interaction"],
+      ["change", "access"],
+      ["selector", "admit"],
+      ["viewport", "admit"],
+      ["interaction", "admit"],
+      ["access", "admit"],
+      { "from": "change", "to": "review", "kind": "compensate" }
+    ]
+  },
+  {
+    "id": "review-bandwidth-funnel",
+    "title": "Review Bandwidth Funnel",
+    "aliases": ["review-bandwidth"],
+    "maxColumnGap": 16,
+    "nodes": [
+      { "id": "workers", "label": "WORKERS", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "patches", "label": "PATCHES", "x": 34, "y": 24, "wide": true },
+      { "id": "logs", "label": "LOGS", "x": 34, "y": 50, "type": "event", "wide": true },
+      { "id": "claims", "label": "CLAIMS", "x": 34, "y": 76, "wide": true },
+      { "id": "summary", "label": "SUMMARY", "x": 68, "y": 50, "type": "synthesis", "wide": true },
+      { "id": "decision", "label": "DECISION", "x": 102, "y": 34, "type": "result", "wide": true },
+      { "id": "debt", "label": "REVIEW DEBT", "x": 102, "y": 66, "type": "conflict", "wide": true }
+    ],
+    "edges": [
+      ["workers", "patches"],
+      ["workers", "logs"],
+      ["workers", "claims"],
+      ["patches", "summary"],
+      ["logs", "summary"],
+      ["claims", "summary"],
+      ["summary", "decision"],
+      { "from": "summary", "to": "debt", "kind": "conflict" }
+    ]
+  },
+  {
+    "id": "review-bandwidth-routing",
+    "title": "Review Bandwidth Routing",
+    "aliases": ["review-routing"],
+    "maxColumnGap": 16,
+    "nodes": [
+      { "id": "candidate", "label": "CANDIDATE", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "risk", "label": "RISK", "x": 36, "y": 30, "type": "gate", "wide": true },
+      { "id": "evidence", "label": "EVIDENCE", "x": 36, "y": 70, "type": "event", "wide": true },
+      { "id": "auto", "label": "AUTO", "x": 72, "y": 20, "type": "result", "wide": true },
+      { "id": "human", "label": "HUMAN", "x": 72, "y": 50, "type": "select", "wide": true },
+      { "id": "rerun", "label": "RERUN", "x": 72, "y": 80, "type": "compensation", "wide": true },
+      { "id": "state", "label": "STATE", "x": 106, "y": 50, "type": "result", "wide": true }
+    ],
+    "edges": [
+      ["candidate", "risk"],
+      ["candidate", "evidence"],
+      ["risk", "auto"],
+      ["risk", "human"],
+      ["evidence", "human"],
+      { "from": "evidence", "to": "rerun", "kind": "compensate" },
+      ["auto", "state"],
+      ["human", "state"]
+    ]
+  },
+  {
+    "id": "workspace-isolation-worlds",
+    "title": "Workspace Worlds",
+    "aliases": ["workspaces-are-isolation-boundaries"],
+    "maxColumnGap": 16,
+    "nodes": [
+      { "id": "intent", "label": "INTENT", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "copy", "label": "COPY", "x": 36, "y": 20, "wide": true },
+      { "id": "branch", "label": "BRANCH", "x": 36, "y": 40, "type": "event", "wide": true },
+      { "id": "sandbox", "label": "SANDBOX", "x": 36, "y": 60, "type": "synthesis", "wide": true },
+      { "id": "cloud", "label": "CLOUD", "x": 36, "y": 80, "wide": true },
+      { "id": "proof", "label": "PROOF", "x": 72, "y": 50, "type": "gate", "wide": true },
+      { "id": "shared", "label": "SHARED", "x": 106, "y": 34, "type": "result", "wide": true },
+      { "id": "discard", "label": "DISCARD", "x": 106, "y": 66, "type": "compensation", "wide": true }
+    ],
+    "edges": [
+      ["intent", "copy"],
+      ["intent", "branch"],
+      ["intent", "sandbox"],
+      ["intent", "cloud"],
+      ["copy", "proof"],
+      ["branch", "proof"],
+      ["sandbox", "proof"],
+      ["cloud", "proof"],
+      ["proof", "shared"],
+      { "from": "proof", "to": "discard", "kind": "compensate" }
+    ]
+  },
+  {
+    "id": "workspace-isolation-admission",
+    "title": "Workspace Admission",
+    "aliases": ["workspace-admission"],
+    "maxColumnGap": 16,
+    "nodes": [
+      { "id": "world", "label": "WORLD", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "head", "label": "HEAD", "x": 36, "y": 24, "type": "event", "wide": true },
+      { "id": "patch", "label": "PATCH", "x": 36, "y": 50, "wide": true },
+      { "id": "evidence", "label": "EVIDENCE", "x": 36, "y": 76, "type": "gate", "wide": true },
+      { "id": "compare", "label": "COMPARE", "x": 72, "y": 50, "type": "synthesis", "wide": true },
+      { "id": "apply", "label": "APPLY", "x": 106, "y": 30, "type": "result", "wide": true },
+      { "id": "stale", "label": "STALE", "x": 106, "y": 50, "type": "conflict", "wide": true },
+      { "id": "rerun", "label": "RERUN", "x": 106, "y": 70, "type": "compensation", "wide": true }
+    ],
+    "edges": [
+      ["world", "head"],
+      ["world", "patch"],
+      ["world", "evidence"],
+      ["head", "compare"],
+      ["patch", "compare"],
+      ["evidence", "compare"],
+      ["compare", "apply"],
+      { "from": "compare", "to": "stale", "kind": "conflict" },
+      { "from": "stale", "to": "rerun", "kind": "compensate" }
+    ]
+  },
+  {
+    "id": "capabilities-action-surface",
+    "title": "Capability Surface",
+    "aliases": ["capabilities-over-prompts"],
+    "maxColumnGap": 16,
+    "nodes": [
+      { "id": "agent", "label": "AGENT", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "read", "label": "READ", "x": 36, "y": 20, "wide": true },
+      { "id": "patch", "label": "PATCH", "x": 36, "y": 40, "type": "event", "wide": true },
+      { "id": "gate", "label": "RUN GATE", "x": 36, "y": 60, "type": "gate", "wide": true },
+      { "id": "ask", "label": "ASK", "x": 36, "y": 80, "type": "select", "wide": true },
+      { "id": "policy", "label": "POLICY", "x": 72, "y": 50, "type": "gate", "wide": true },
+      { "id": "result", "label": "RESULT", "x": 106, "y": 34, "type": "result", "wide": true },
+      { "id": "denied", "label": "DENIED", "x": 106, "y": 66, "type": "conflict", "wide": true }
+    ],
+    "edges": [
+      ["agent", "read"],
+      ["agent", "patch"],
+      ["agent", "gate"],
+      ["agent", "ask"],
+      ["read", "policy"],
+      ["patch", "policy"],
+      ["gate", "policy"],
+      ["ask", "policy"],
+      ["policy", "result"],
+      { "from": "policy", "to": "denied", "kind": "conflict" }
+    ]
+  },
+  {
+    "id": "capabilities-audit-trail",
+    "title": "Capability Audit Trail",
+    "aliases": ["capability-audit"],
+    "maxColumnGap": 16,
+    "nodes": [
+      { "id": "request", "label": "REQUEST", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "grant", "label": "GRANT", "x": 36, "y": 30, "type": "gate", "wide": true },
+      { "id": "action", "label": "ACTION", "x": 36, "y": 70, "wide": true },
+      { "id": "record", "label": "RECORD", "x": 72, "y": 50, "type": "event", "wide": true },
+      { "id": "review", "label": "REVIEW", "x": 106, "y": 34, "type": "select", "wide": true },
+      { "id": "rollback", "label": "ROLLBACK", "x": 106, "y": 66, "type": "compensation", "wide": true }
+    ],
+    "edges": [
+      ["request", "grant"],
+      ["grant", "action"],
+      ["action", "record"],
+      ["record", "review"],
+      { "from": "record", "to": "rollback", "kind": "compensate" }
+    ]
+  },
+  {
+    "id": "text-substrate-layers",
+    "title": "Text Substrate",
+    "aliases": ["source-text-substrate"],
+    "maxColumnGap": 16,
+    "nodes": [
+      { "id": "text", "label": "TEXT", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "hashes", "label": "HASHES", "x": 36, "y": 24, "type": "event", "wide": true },
+      { "id": "spans", "label": "SPANS", "x": 36, "y": 50, "wide": true },
+      { "id": "trivia", "label": "TRIVIA", "x": 36, "y": 76, "wide": true },
+      { "id": "semantic", "label": "SEMANTIC", "x": 72, "y": 50, "type": "synthesis", "wide": true },
+      { "id": "write", "label": "WRITE", "x": 106, "y": 50, "type": "result", "wide": true }
+    ],
+    "edges": [
+      ["text", "hashes"],
+      ["text", "spans"],
+      ["text", "trivia"],
+      ["hashes", "semantic"],
+      ["spans", "semantic"],
+      ["trivia", "semantic"],
+      ["semantic", "write"]
+    ]
+  },
+  {
+    "id": "four-version-merge-binding",
+    "title": "Four Version Binding",
+    "aliases": ["base-worker-head-output"],
+    "maxColumnGap": 16,
+    "nodes": [
+      { "id": "base", "label": "BASE", "x": 8, "y": 24, "type": "event", "wide": true },
+      { "id": "worker", "label": "WORKER", "x": 8, "y": 50, "wide": true },
+      { "id": "head", "label": "HEAD", "x": 8, "y": 76, "wide": true },
+      { "id": "proof", "label": "PROOF", "x": 50, "y": 50, "type": "gate", "wide": true },
+      { "id": "output", "label": "OUTPUT", "x": 92, "y": 34, "type": "result", "wide": true },
+      { "id": "stale", "label": "STALE", "x": 92, "y": 66, "type": "conflict", "wide": true }
+    ],
+    "edges": [
+      ["base", "proof"],
+      ["worker", "proof"],
+      ["head", "proof"],
+      ["proof", "output"],
+      { "from": "proof", "to": "stale", "kind": "conflict" }
+    ]
+  },
+  {
+    "id": "css-dependency-graph",
+    "title": "CSS Dependency Graph",
+    "aliases": ["css-is-a-dependency-graph"],
+    "maxColumnGap": 16,
+    "nodes": [
+      { "id": "decl", "label": "DECL", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "vars", "label": "VARS", "x": 36, "y": 20, "wide": true },
+      { "id": "selector", "label": "SELECTOR", "x": 36, "y": 40, "wide": true },
+      { "id": "scope", "label": "SCOPE", "x": 36, "y": 60, "wide": true },
+      { "id": "asset", "label": "ASSET", "x": 36, "y": 80, "wide": true },
+      { "id": "cascade", "label": "CASCADE", "x": 72, "y": 50, "type": "synthesis", "wide": true },
+      { "id": "runtime", "label": "RUNTIME", "x": 106, "y": 50, "type": "gate", "wide": true }
+    ],
+    "edges": [
+      ["decl", "vars"],
+      ["decl", "selector"],
+      ["decl", "scope"],
+      ["decl", "asset"],
+      ["vars", "cascade"],
+      ["selector", "cascade"],
+      ["scope", "cascade"],
+      ["asset", "cascade"],
+      ["cascade", "runtime"]
+    ]
+  },
+  {
+    "id": "matrix-routing-system",
+    "title": "Matrix Routing System",
+    "aliases": ["semantic-merge-matrix"],
+    "maxColumnGap": 16,
+    "nodes": [
+      { "id": "change", "label": "CHANGE", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "surface", "label": "SURFACE", "x": 34, "y": 24, "wide": true },
+      { "id": "claim", "label": "CLAIM", "x": 34, "y": 50, "wide": true },
+      { "id": "proof", "label": "PROOF", "x": 34, "y": 76, "type": "gate", "wide": true },
+      { "id": "matrix", "label": "MATRIX", "x": 70, "y": 50, "type": "synthesis", "wide": true },
+      { "id": "admit", "label": "ADMIT", "x": 106, "y": 24, "type": "result", "wide": true },
+      { "id": "route", "label": "ROUTE", "x": 106, "y": 50, "type": "select", "wide": true },
+      { "id": "block", "label": "BLOCK", "x": 106, "y": 76, "type": "conflict", "wide": true }
+    ],
+    "edges": [
+      ["change", "surface"],
+      ["change", "claim"],
+      ["change", "proof"],
+      ["surface", "matrix"],
+      ["claim", "matrix"],
+      ["proof", "matrix"],
+      ["matrix", "admit"],
+      ["matrix", "route"],
+      { "from": "matrix", "to": "block", "kind": "conflict" }
+    ]
+  }
+]

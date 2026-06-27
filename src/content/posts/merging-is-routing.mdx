@@ -1,0 +1,110 @@
+A merge is often described as a mechanical act.
+
+Take two changes. Apply them. Resolve conflicts. Move on.
+
+That model is too small for agent work. An agent merge is a review object first and a routing decision second. The system has to read the patch, the current head, the claimed regions, the evidence, the stale assumptions, and the remaining uncertainty before it decides where the candidate goes.
+
+<MergeReviewAdmissionChart caption="A merge review reads the patch, evidence, and current head before deciding whether the candidate can move." />
+
+## The Review Object
+
+A patch says what text changed.
+
+It does not say whether the change is current, whether the tests cover the right behavior, whether the public contract moved, or whether another worker invalidated the same assumption.
+
+The review object is larger:
+
+```txt
+candidate patch
+current head
+semantic regions touched
+claims made by the worker
+tests, traces, and gates
+staleness markers
+known limits
+requested decision
+```
+
+Once those pieces are visible, the merge stops being a button and becomes a decision the system can inspect later.
+
+## The Router
+
+The decision should not collapse into applied or failed.
+
+Most useful agent outputs are somewhere between those two states. A stale patch can contain the right diagnosis. A failed test can be the strongest artifact a worker produced. A broad patch can contain one safe hunk and one risky hunk.
+
+<MergeRoutingRouterChart caption="The merge router reads the review object and sends the candidate to the next correct place." />
+
+The route should preserve that meaning:
+
+```txt
+apply: evidence is strong enough
+review: evidence is useful but incomplete
+rebase: the idea fits, but the head moved
+rerun: the evidence is stale, failed, or too weak
+split: one part is safe and another part is not
+ask: a decision is missing
+block: the candidate conflicts with the system
+```
+
+The route is part of the output. A future coordinator should be able to ask why a candidate was applied, why it became a rerun, or why it turned into a human question instead of disappearing into a failed transcript.
+
+## Rebase Is Not Rerun
+
+Rebase means the candidate still has useful shape.
+
+The patch may need to move, but the evidence says the idea is probably alive. The next job is to test whether the same meaning survives the new head.
+
+Rerun means the evidence itself is no longer enough.
+
+Maybe the worker used stale context. Maybe the gate failed. Maybe another lane changed the public contract. The next useful action is not to massage the old patch. It is to ask for a fresh attempt with sharper inputs.
+
+<MergeReviewRebaseChart caption="A semantic rebase checks whether the same candidate still means the same thing against the new head." />
+
+That distinction matters because it saves useful work without pretending stale work is current.
+
+## Split Is A Route
+
+Some candidates contain more than one decision.
+
+One hunk updates a private helper. Another changes a public API. One file has clean evidence. Another touches runtime effect order.
+
+The right route might be:
+
+```txt
+apply: private helper
+review: public API
+rerun: runtime effect proof
+```
+
+That is not a partial failure. It is the merge system refusing to flatten different risks into one verdict.
+
+## Questions Are Routes
+
+A human question is not an interruption.
+
+It is a route for work that cannot proceed honestly without a missing decision:
+
+```txt
+ask: should this behavior be public?
+ask: is this migration allowed to drop old fixtures?
+ask: which product behavior wins?
+```
+
+Once the answer exists, the candidate can continue from that point in the graph. The answer becomes evidence, not side-channel context.
+
+## The Outcome Loop
+
+Routing is cyclic.
+
+Every route either changes shared state or creates a better next task.
+
+<MergeRoutingOutcomeLoopChart caption="Routes either update shared state or create the next backlog item with better evidence." />
+
+Apply updates the state. Review creates a narrower decision. Rebase tests an idea against a new head. Rerun creates a better attempt. Split turns an overloaded candidate into separate decisions. Ask turns missing judgment into explicit control flow. Block records that the candidate should not enter the system as-is.
+
+## The Mental Model
+
+The merge is where evidence becomes a route.
+
+More workers can produce more candidates, but shared state should only move when the merge system can explain which review object it saw and why that object supported the selected route.

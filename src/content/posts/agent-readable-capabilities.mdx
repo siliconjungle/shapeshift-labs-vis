@@ -1,0 +1,125 @@
+Most software is written for humans first and agents second.
+
+That leaves agents guessing. They can see files, docs, logs, and prompts, but the real operating shape of the system is often implicit: what state matters, which actions are allowed, what invariants must hold, and what kind of feedback should change the next attempt.
+
+Agent-readable software makes those surfaces explicit. Capabilities make them enforceable.
+
+<AgentReadableSurfaceChart caption="Agent-readable software exposes state, actions, invariants, examples, and feedback as first-class surfaces." />
+
+## Readable Does Not Mean Verbose
+
+Agent-readable software is not a longer README.
+
+It is a system whose working shape can be inspected:
+
+```txt
+state: current head, pending tasks, accepted decisions
+actions: run gate, propose patch, ask question, open review
+invariants: public API stable, migration reversible, route renders
+examples: fixtures, traces, accepted patches
+feedback: stale head, failed gate, blocked question
+```
+
+The point is not to describe everything. The point is to expose the things that change the outcome in a form the agent can use.
+
+## Capabilities Are Boundaries
+
+A prompt can ask an agent to be careful.
+
+A capability makes care concrete.
+
+<CapabilitiesActionSurfaceChart caption="An agent acts through named capabilities, with policy deciding what is allowed and what evidence is required." />
+
+```txt
+prompt boundary:
+  please only change the parser and be careful with public APIs
+
+capability boundary:
+  can read: parser, parser tests, public declarations
+  can patch: parser recovery region
+  can run: parser gate
+  cannot publish
+  must ask: public API change
+```
+
+The second form gives the system something to enforce, log, and review. It also gives the agent a clearer model of what kind of work it is allowed to do.
+
+## Actions Need Shape
+
+A useful capability is more than a permission bit.
+
+It says what the action requires, what it produces, and how the result is inspected.
+
+```txt
+capability: propose patch
+requires: current head, claimed region
+produces: patch, touched regions, summary
+review: apply dry run and gate
+
+capability: ask question
+requires: blocker, options, dependent lane
+produces: answer node
+review: unblock or reroute
+```
+
+That shape turns agent behavior into system behavior. The agent is not improvising a workflow. It is operating a workflow the system can understand.
+
+## The Interface Teaches The Agent
+
+Agents learn the system through the surfaces they can see.
+
+If the only visible surface is the file tree, the agent treats the job as text editing. If the visible surface includes contracts, traces, stale-head markers, region ownership, and capability records, the agent can reason at those levels instead.
+
+```txt
+bad surface:
+  fix the bug
+
+better surface:
+  make fixture checkout-discount-03 pass
+  preserve route trace checkout-happy-path
+  do not change public declaration hash
+```
+
+The software is teaching the agent what matters by deciding what is inspectable.
+
+## Feedback Updates The Model
+
+An agent-readable system should not only accept actions. It should explain what happened after the action ran.
+
+<AgentReadableFeedbackChart caption="The useful loop is observe, plan, act, collect evidence, and update the model of the system." />
+
+The feedback can be small:
+
+```txt
+gate failed because public API changed
+patch was stale against head abc123
+question unblocked two dependent tasks
+trace proves the happy path but not the error state
+```
+
+That feedback becomes the next input. The agent does not need to remember a vague transcript. It can continue from structured state.
+
+## Audit Is Part Of The Capability
+
+If an action matters, it should leave a record.
+
+<CapabilitiesAuditTrailChart caption="A capability request, grant, action, and result form an audit trail that can be reviewed later." />
+
+```txt
+requested: publish package
+granted by: release policy
+input: version, package, commit
+result: published
+evidence: npm version, git push
+rollback: deprecate or patch release
+```
+
+That record matters later. It lets the system explain why the action happened, what authority was used, and what evidence was available at the time.
+
+## The Mental Model
+
+Agent-readable software explains how it can be safely changed.
+
+Capabilities define which changes can actually happen.
+
+Prompts still matter. They carry intent, taste, constraints, and context. But prompts should not be the control plane. Give agents inspectable state, named invariants, shaped actions, explicit authority, and evidence-rich feedback. Then they can stop guessing from prose and start operating against the real shape of the system.

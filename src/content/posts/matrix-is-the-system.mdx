@@ -1,0 +1,153 @@
+A semantic merge matrix is easy to mistake for a progress chart.
+
+It is more than that.
+
+The matrix is the system's routing table. It names the surfaces a change can touch, the claims the system is allowed to make, the proof each claim requires, and the next route when proof is missing.
+
+<MatrixRoutingSystemChart caption="A semantic merge matrix turns a change into surfaces, claims, proof requirements, and routes." />
+
+## Surfaces Come First
+
+A change should not enter the merge system as a blob of confidence.
+
+It should be classified by surface.
+
+```txt
+source text
+parser spans
+scope graph
+module graph
+type contract
+runtime order
+jsx render surface
+html identity
+css cascade
+browser runtime
+```
+
+Each surface has different rules.
+
+A parser span proves source location. It does not prove runtime behavior.
+
+A type gate proves static compatibility. It does not prove visual layout.
+
+A browser trace proves one workflow. It does not prove every input state.
+
+The matrix keeps those boundaries visible.
+
+## Claims Need Proof Levels
+
+The system should say exactly what it is claiming.
+
+```txt
+claim: import additions commute
+proof level: import set evidence
+
+claim: public API preserved
+proof level: declaration output proof
+
+claim: CSS selector target preserved
+proof level: selector target graph
+
+claim: browser behavior preserved
+proof level: runtime proof bundle
+```
+
+This prevents accidental widening.
+
+If a merge only has parser evidence, the matrix should not let it claim semantic equivalence.
+
+If a merge only has source hashes, the matrix should not let it claim browser equivalence.
+
+The proof level is the strength of the claim.
+
+## Missing Proof Is A Route
+
+The best failure is specific.
+
+```txt
+missing: selector target graph
+route: prove selector target or review target move
+
+missing: output-bound runtime proof
+route: run browser assertion against output
+
+missing: type contract proof
+route: emit declarations and compare public shape
+```
+
+That is different from saying "merge failed."
+
+A failed matrix row should produce the next useful task.
+
+It should tell the coordinator whether to:
+
+```txt
+apply
+rebase
+rerun
+split
+ask
+block
+request proof
+```
+
+This is how semantic merging becomes operational rather than philosophical.
+
+## Rows Protect Against Broad Claims
+
+The matrix should make overclaiming difficult.
+
+```txt
+parser row: passed
+identity row: passed
+runtime row: missing
+decision: structural merge may be possible, runtime claim remains false
+```
+
+That distinction matters.
+
+A system can safely admit some structural changes without pretending it proved the whole runtime.
+
+It can also block runtime-sensitive changes without discarding the parser or identity evidence already collected.
+
+Rows let partial knowledge stay useful without becoming unsafe.
+
+## The Matrix Evolves
+
+A good matrix is not static.
+
+When the system discovers a new kind of missing proof, it should become a row or a route.
+
+```txt
+found gap: CSS var() fallback dependency
+add route: prove fallback dependency graph
+
+found gap: HTML navigation attribute
+add route: require navigation runtime proof
+
+found gap: named CSS Module import
+add route: prove bundler transform for named export
+```
+
+That is how the system learns.
+
+Not by saying every new case is special.
+
+By turning repeated uncertainty into a typed surface.
+
+## The Mental Model
+
+The matrix is the control plane for semantic merging.
+
+It says:
+
+```txt
+what changed
+what surface it touched
+what claim is being made
+what proof is required
+what happens if proof is missing
+```
+
+When the matrix is explicit, agents can work in parallel without guessing the review standard. Coordinators can route work instead of rereading every patch from first principles. Humans can see exactly where the system is confident, where it is cautious, and where it needs a decision.

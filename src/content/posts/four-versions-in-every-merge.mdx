@@ -1,0 +1,140 @@
+A merge proof is not a statement about one file.
+
+It is a statement about four versions.
+
+The original version. The worker's version. The current head. The output the system wants to admit.
+
+If a proof does not bind all four, it can be correct and still unsafe.
+
+<FourVersionMergeBindingChart caption="A merge proof has to bind base, worker, head, and output before it can safely admit the result." />
+
+## Base Is The Common Memory
+
+The base is where the two branches began.
+
+It answers the first question:
+
+```txt
+what did both branches believe was true?
+```
+
+Without the base, the system cannot tell whether a branch added something, removed something, renamed something, or merely preserved it.
+
+```txt
+base:   import { readUser } from "./api"
+worker: import { readUser, writeUser } from "./api"
+head:   import { readUser, deleteUser } from "./api"
+```
+
+The base makes both edits legible. One branch added `writeUser`. The other added `deleteUser`.
+
+Without the base, the system only sees two different lines.
+
+## Worker Is The Attempt
+
+The worker version is the candidate future.
+
+It contains the patch, but also the assumptions behind the patch.
+
+```txt
+worker changed:
+  symbol: displayName
+  assumption: User.name still exists
+  evidence: local test passed
+```
+
+That evidence is useful only if the system knows the exact worker source that produced it.
+
+A test passing against the worker version is not the same as a test passing against the final merged output.
+
+It is a claim that still has to survive head.
+
+## Head Is The World Now
+
+Head is the shared state the candidate must join.
+
+This is where stale work becomes visible.
+
+```txt
+worker built against: User.name
+head changed to:      User.fullName
+```
+
+The worker may have been reasonable when it was written. It may still contain a useful helper. But it cannot be applied as if the world had not changed.
+
+The system needs a route:
+
+```txt
+same surface, compatible change -> rebase
+same surface, incompatible change -> review
+different surface, proof still current -> admit
+different surface, proof stale -> rerun
+```
+
+Head is what keeps useful old work from becoming unsafe new state.
+
+## Output Is The Claim
+
+The output is not just a patch application.
+
+It is the system saying:
+
+```txt
+given base, worker, and head,
+this is the source we believe can enter shared state.
+```
+
+That output needs its own proof.
+
+```txt
+base hash: h_base
+worker hash: h_worker
+head hash: h_head
+output hash: h_output
+claim: typed rebase preserved public contract
+gate: project diagnostics passed on output
+```
+
+A proof that only binds worker is too weak.
+
+A proof that only binds head is too weak.
+
+A proof that never names output is not a merge proof. It is evidence about an earlier attempt.
+
+## Spoofing Starts In The Gaps
+
+Many unsafe proofs look plausible because they omit one side.
+
+```txt
+parser evidence exists
+but only for worker
+
+runtime proof exists
+but output hash is missing
+
+test passed
+but against an old head
+```
+
+Each omission creates a place where the system can accidentally admit the wrong thing.
+
+That is why a serious merge system should fail closed when source-side evidence is missing.
+
+Not because the candidate is necessarily bad.
+
+Because the proof is not bound to the actual merge.
+
+## The Mental Model
+
+Every merge is a square.
+
+```txt
+base -> worker
+base -> head
+worker + head -> output
+output -> shared state
+```
+
+The proof has to cover the square, not one edge of it.
+
+When the four versions are explicit, the system can reuse stale work carefully, rebase useful attempts, reject spoofed evidence, and make admission decisions that are tied to the source that will actually be written.

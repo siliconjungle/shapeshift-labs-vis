@@ -1,0 +1,74 @@
+Old work can be correct and unsafe at the same time.
+
+An agent might produce a good patch against the head it saw. Then the code moves. The patch still looks plausible, but its evidence now belongs to a different world.
+
+That is stale work.
+
+<StaleWorkDetectionChart caption="Staleness appears when a worker returns with evidence from one head while the shared system has moved to another." />
+
+## Stale Does Not Mean Useless
+
+Stale work can still contain value.
+
+```txt
+useful:
+  diagnosis
+  test fixture
+  narrowed failure
+  partial patch
+  review note
+
+not safe:
+  blind apply
+```
+
+The system should not throw stale work away automatically. It should also not apply it automatically.
+
+Stale work needs admission.
+
+## Evidence Has A Head
+
+Every piece of evidence was produced against some state.
+
+```txt
+patch built against: head 12
+tests passed against: head 12
+current head: head 17
+```
+
+If the current head differs, the evidence may still be relevant, but it is no longer complete.
+
+That should be visible in the run graph. The coordinator should not have to infer it from timestamps or transcripts.
+
+## Rebase Or Rerun
+
+There are two common ways out of stale work.
+
+<StaleWorkRebaseLoopChart caption="Stale work can be rebased and gated, or rerun when the old evidence no longer supports the patch." />
+
+Rebase keeps the useful part of the work and tries to carry it forward.
+
+Rerun asks a worker to redo the task with current context.
+
+The choice depends on evidence. If the patch is narrow and the touched regions are unchanged, rebase may be enough. If the public contract, tests, or runtime assumptions moved, rerun is often cleaner.
+
+## Fencing Makes Staleness Explicit
+
+Fencing tokens make stale work easy to recognize.
+
+```txt
+worker claims region at token 7
+head advances to token 8
+worker returns with token 7
+decision: stale
+```
+
+That does not accuse the worker of being wrong. It says the worker's proof no longer matches the state being modified.
+
+## The Mental Model
+
+Stale work is not a failure mode to hide.
+
+It is a normal state in parallel systems.
+
+Good agent infrastructure makes staleness explicit, preserves the useful evidence, and routes the work to rebase, rerun, review, or block instead of pretending time did not pass.

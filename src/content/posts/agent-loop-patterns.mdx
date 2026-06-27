@@ -1,0 +1,89 @@
+## Overview
+
+Agent work gets hard to reason about when every run is described as a loose sequence of prompts. The useful shape is usually smaller: a chain, a branch, a gate, a loop, or a reduction over several attempts.
+
+This pattern language gives those shapes names. It is meant for planning and reviewing agent systems, not for drawing architecture theater. Each pattern should make the control flow obvious: what starts, what branches, what must be true before continuing, and what evidence decides whether the work moves forward.
+
+## Core Primitives
+
+These are the primitives I reach for first. Larger agent workflows are usually compositions of these shapes, with domain-specific details attached at the edges.
+
+### Chain
+
+<ChainChart />
+
+One step finishes before the next begins.
+
+Use when ordering matters: setup before implementation, tests before publish, or a migration before a dashboard update.
+
+### Branch
+
+<BranchChart />
+
+One intent creates multiple independent branches of work.
+
+Use for delegation, research shards, package splits, hypothesis splits, or any run where multiple workers can move without blocking each other.
+
+### Join
+
+<JoinChart />
+
+Several branches must all finish before the next step can continue.
+
+Use for all-tests-pass checkpoints, package release trains, or situations where the next action needs the complete set of outputs.
+
+### Reduce
+
+<ReduceChart />
+
+Several branches arrive, and the output is a synthesized conclusion rather than a simple continuation.
+
+Use for research, diagnosis, source mining, review consolidation, and comparing several proposed patches before choosing what to keep.
+
+### Select
+
+<SelectChart />
+
+Several possible branches exist, but one path is selected.
+
+Use for performance experiments, design variants, algorithm choices, and "try several approaches, keep the best one" workflows.
+
+### Gate
+
+<GateChart />
+
+Continuation is blocked until a policy or check passes.
+
+Use for automated tests, human decisions, budget checks, evidence thresholds, merge admission, and release approval. Retry behavior belongs in a loop around the gate.
+
+### Loop
+
+<LoopChart />
+
+The system runs a step, checks it at a gate, continues on pass, and returns to the step on fail.
+
+Use for debugging, rerunning with tighter context, benchmark tuning, and repair-until-passing workflows.
+
+## Simple Benchmark Loop
+
+<SimpleBenchmarkLoopChart />
+
+One worker attempts the task, then a gate decides whether the result is good enough. Failure returns to the same worker shape with better evidence or a narrower instruction.
+
+## Parallel Benchmark Loop
+
+<ParallelBenchmarkLoopChart />
+
+Source fans out to V1, V2, and V3. Select chooses the strongest result, then a gate decides whether it is ready. Failure returns to the source so the next round can try a different split or better constraints.
+
+## Research Synthesis
+
+<ResearchSynthesisChart />
+
+Source fans out to V1, V2, and V3. Reduce turns the separate outputs into one conclusion before the gate judges it.
+
+## Research Tree Synthesis
+
+<ResearchTreeSynthesisChart />
+
+Source expands through a tree of smaller questions. The leaves reduce into a single answer, and the gate checks whether the synthesis is strong enough to use.

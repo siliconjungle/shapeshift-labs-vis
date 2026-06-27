@@ -11,13 +11,20 @@
     "generate-palettes": "node scripts/generate-palettes.mjs"
   },
   "dependencies": {
+    "@mdx-js/loader": "^3.1.1",
+    "@mdx-js/react": "^3.1.1",
+    "@next/mdx": "^16.0.10",
+    "@types/mdx": "^2.0.14",
     "color-thief-browser": "^2.0.2",
     "colorthief": "^2.6.0",
+    "date-fns": "^4.4.0",
     "munkres-js": "^1.2.2",
     "next": "16.0.10",
     "react": "19.2.0",
     "react-dom": "19.2.0",
-    "react-icons": "^5.5.0"
+    "react-icons": "^5.5.0",
+    "rehype-pretty-code": "^0.14.3",
+    "shiki": "^4.2.0"
   },
   "devDependencies": {
     "@types/node": "^20",

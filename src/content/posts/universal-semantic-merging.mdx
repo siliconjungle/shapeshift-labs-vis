@@ -1,0 +1,134 @@
+Most merge tools begin with text. They compare two edited files against a base file, look for overlapping lines, and ask a person to resolve anything that lands in the same place.
+
+That is useful, but it is also a very small view of what changed. Two edits can touch the same line while changing different facts. Two edits can touch different lines while breaking the same symbol, type, import, or runtime contract.
+
+Semantic merge treats the source as a graph of meaning first and a string of text second. It asks which symbols, imports, declarations, type contracts, call sites, ownership regions, and evidence gates changed. Text is still the thing we write back to disk, but it is not the only thing the merge decision sees.
+
+<SemanticMergeTextConflictChart caption="A text merge sees both branches landing on the same line and escalates to a human." />
+
+## Example: Same-Line Imports
+
+Start with a single import.
+
+```ts
+import { readUser } from "./api";
+
+export function run() {
+  return readUser();
+}
+```
+
+Agent A adds a writer.
+
+```ts
+import { readUser, writeUser } from "./api";
+```
+
+Agent B adds a deleter.
+
+```ts
+import { readUser, deleteUser } from "./api";
+```
+
+A line-based merge sees the same original line changed twice. A semantic merge can recognize that both edits are additions to the same import set.
+
+```ts
+import { readUser, deleteUser, writeUser } from "./api";
+
+export function run() {
+  return readUser();
+}
+```
+
+<SemanticMergeImportSetChart caption="The conflict disappears when the line is interpreted as an import set with two independent additions." />
+
+The important output is not only the merged text. The system can also produce an admission record.
+
+```json
+{
+  "kind": "import-specifier-addition",
+  "module": "./api",
+  "base": ["readUser"],
+  "leftAdds": ["writeUser"],
+  "rightAdds": ["deleteUser"],
+  "decision": "merge"
+}
+```
+
+That record is what makes the merge inspectable. It says why this was safe: neither branch removed the base import, neither branch introduced a duplicate local binding, and the output keeps all three specifiers.
+
+## Example: Typed Rebase
+
+The harder case is when one branch changes a contract and the other branch builds on the old shape.
+
+```ts
+export interface User {
+  id: string;
+  name: string;
+}
+
+export function greet(user: User) {
+  return `Hello ${user.name}`;
+}
+```
+
+One branch adds a helper.
+
+```ts
+export interface User {
+  id: string;
+  name: string;
+  nickname?: string;
+}
+
+export function displayName(user: User) {
+  return user.nickname ?? user.name;
+}
+
+export function greet(user: User) {
+  return `Hello ${displayName(user)}`;
+}
+```
+
+Another branch renames the public field.
+
+```ts
+export interface User {
+  id: string;
+  fullName: string;
+}
+
+export function greet(user: User) {
+  return `Hello ${user.fullName}`;
+}
+```
+
+A useful semantic merge does not blindly concatenate those edits. It needs to understand that `name` became `fullName`, rebase the new helper through that contract change, and then run a type gate before admitting the output.
+
+```ts
+export interface User {
+  id: string;
+  fullName: string;
+  nickname?: string;
+}
+
+export function displayName(user: User) {
+  return user.nickname ?? user.fullName;
+}
+
+export function greet(user: User) {
+  return `Hello ${displayName(user)}`;
+}
+```
+
+<SemanticMergeTypedRebaseChart caption="A typed rebase is not just a text patch. The adapted output has to pass a compiler or diagnostics gate before it can be admitted." />
+
+This is the difference between a merge result and a merge claim. The result is the source text above. The claim is narrower: this particular adaptation is acceptable because the symbol rename was detected, the helper was rewritten through that rename, and the project still type-checks.
+
+## What We Gain
+
+Semantic merge reduces false conflicts, but that is not the whole point. The larger gain is that the tool can separate mechanical overlap from meaningful overlap.
+
+If two agents add independent imports, merge them. If two agents edit the same public type in incompatible ways, block. If a branch moves a symbol and another branch imports it, ask for module-resolution evidence. If a helper can be rebased through a typed rename, do it only with diagnostics.
+
+That gives collaboration a better shape. Agents can work in parallel without treating every shared line as danger, and humans can spend attention on the cases where meaning is actually uncertain.

@@ -1,0 +1,112 @@
+Adding more agents is easy.
+
+Reviewing more agent output is hard.
+
+The coordinator exists because those two facts collide. It is the part of the system that turns many candidate futures into one reviewable decision without letting review bandwidth collapse.
+
+<CoordinatorTriageChart caption="The coordinator receives attempts and evidence, then decides what can apply, rerun, split, or ask." />
+
+## Attempts Are Supply
+
+An agent can produce a patch, test, diagnosis, benchmark, question, fixture, or partial proof.
+
+None of those is automatically the outcome.
+
+```txt
+worker A: patch plus weak test
+worker B: diagnosis plus no patch
+worker C: broad rewrite
+worker D: focused fixture
+worker E: stale but useful evidence
+```
+
+If every output arrives as a transcript, the coordinator has to reconstruct the whole run by hand. More agents can then slow the system down.
+
+The useful unit is the reviewable bundle:
+
+```txt
+candidate
+changed regions
+patch summary
+evidence
+risk
+stale head
+missing proof
+recommended route
+```
+
+That bundle is small enough to compare.
+
+## Review Bandwidth Is Demand
+
+Agent output is supply.
+
+Review bandwidth is demand.
+
+<ReviewBandwidthFunnelChart caption="More workers produce more candidates. The coordinator needs compression before those outputs become decisions." />
+
+When supply grows faster than review capacity, quality falls even if worker count rises. The answer is not fewer agents by default. The answer is shaped output, better compression, risk routing, and a willingness to stop work that no longer changes the decision.
+
+## Context Is A Resource
+
+Coordinator work is also context budgeting.
+
+Workers should not all receive the whole world. They should receive the smallest slice that lets them produce useful evidence.
+
+```txt
+worker A: parser fixture and expected output
+worker B: public API surface and type gate
+worker C: failing browser step and DOM probe
+```
+
+That makes worker output easier to compare. It also keeps failures local. If a worker had the wrong context, the coordinator can fix the slice instead of treating the result as mysterious.
+
+## Route By Review Cost
+
+Not every candidate deserves the same review path.
+
+<ReviewBandwidthRoutingChart caption="Candidates should route by risk and evidence: automatic admission, human review, rerun, split, or block." />
+
+```txt
+low risk + strong evidence -> admit
+low risk + missing evidence -> rerun
+high risk + strong evidence -> human review
+high risk + weak evidence -> split or block
+```
+
+That routing protects human attention. The human should see the cases where judgment matters, not every case where an agent was verbose.
+
+## Waves
+
+Large agent systems move in waves.
+
+One wave explores. Another implements. Another verifies. Another reviews what the previous waves missed.
+
+<CoordinatorWaveLoopChart caption="Coordinator work is cyclic: plan a wave, collect evidence, make decisions, and refill the backlog." />
+
+A useful coordinator does not keep every worker running forever. It collects when enough evidence exists to make the next decision.
+
+Long-tail work is not free. The coordinator should ask whether a slow worker can still change the decision. If the lane is duplicate, stale, or unlikely to produce new evidence, stopping and collecting can be the correct move.
+
+## The Backlog Changes
+
+A coordinator backlog is alive.
+
+When an agent finds a missing oracle, that becomes a task. When a patch is stale, that becomes a rebase task. When two workers disagree, that becomes a comparison task. When the system needs a human answer, that becomes a typed blocker.
+
+```txt
+new task: build focused fixture
+new task: rerun worker patch against current head
+new task: compare two diagnoses
+blocked: user must choose public API behavior
+```
+
+This is why coordinator work belongs in the run graph. The backlog is not just a to-do list. It is part of the history of why the final state exists.
+
+## The Mental Model
+
+Agents create candidate futures.
+
+The coordinator spends limited review bandwidth on deciding which future is supported by evidence.
+
+Good coordinator work makes the system faster without making it less reviewable. It lets many workers move at once while keeping the final decision small enough for a human to understand.

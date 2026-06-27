@@ -1,0 +1,157 @@
+CSS looks like a list of rules.
+
+It behaves more like a dependency graph.
+
+A declaration can depend on a custom property. A selector can depend on an element moving in markup. A rule can depend on a media query, a container, a cascade layer, a scope, a pseudo-class, a font face, or an asset URL.
+
+Merging CSS safely means seeing those edges.
+
+<CssDependencyGraphChart caption="A CSS declaration reaches runtime through variables, selectors, scopes, assets, and cascade order." />
+
+## Declarations Are Not Alone
+
+This looks local:
+
+```css
+.button {
+  color: var(--brand-fg, black);
+}
+```
+
+It is not only local.
+
+```txt
+.button -> selector target
+color -> property in cascade
+var(--brand-fg) -> custom property dependency
+black -> fallback dependency
+```
+
+If one branch edits the variable and another edits the rule, the merge decision needs to know that those changes are connected.
+
+```css
+:root {
+  --brand-fg: blue;
+}
+
+.button {
+  color: var(--brand-fg, black);
+}
+```
+
+The changed text may be far apart. The dependency is still direct.
+
+## Selectors Are Edges
+
+A selector is a relationship between CSS and markup.
+
+```css
+.toolbar .button {
+  pointer-events: none;
+}
+```
+
+Changing `.button` to `.primary` is not only a rename. It changes which elements the rule reaches.
+
+```txt
+selector before: .toolbar .button
+selector after:  .toolbar .primary
+needed proof: same target, intentional target move, or review
+```
+
+That is why selector evidence matters.
+
+The system should distinguish:
+
+```txt
+same target, renamed class with use-site proof -> possible rebase
+different target, no proof -> block
+selector list changed partially -> split or review
+```
+
+Without target evidence, a CSS merge can silently style the wrong thing.
+
+## Scope Changes Meaning
+
+CSS has regions of control.
+
+```css
+@media (min-width: 48rem) { ... }
+@container card (min-width: 300px) { ... }
+@layer components { ... }
+@scope (.card) { ... }
+```
+
+A declaration inside one of those scopes is not equivalent to the same declaration outside it.
+
+```txt
+property: color
+selector: .button
+scope: @media + @layer + @scope
+cascade key: scope + selector + property
+```
+
+The merge key is not just `.button::color`.
+
+It is the scoped cascade position where that declaration wins or loses.
+
+## Assets And Descriptors Are Runtime Edges
+
+Some CSS changes cross into resources and browser behavior.
+
+```css
+@font-face {
+  font-family: Inter;
+  src: url("/fonts/inter.woff2");
+}
+
+.hero {
+  background-image: url("/hero.avif");
+}
+```
+
+Those edges are not layout text. They affect fetches, font fallback, paint timing, and rendered output.
+
+Descriptor-like at-rules also have typed behavior:
+
+```txt
+@font-face -> font family and source
+@property -> custom property registration
+@page -> paged media behavior
+@keyframes -> animation timeline
+```
+
+A safe merge should not turn those into generic rule text. It should route them to descriptor, dependency, or runtime evidence.
+
+## CSS Modules Add A Build Edge
+
+CSS Modules add another graph.
+
+```txt
+source class: .root
+generated class: _root_123
+tsx use site: styles.root
+source map: generated class back to source
+```
+
+Now the merge spans CSS, TypeScript, JSX, and the bundler.
+
+Changing the CSS export and changing the JSX use site can be safe, but only if the generated map and use-site graph agree.
+
+Without that build edge, the system should fail closed.
+
+## The Mental Model
+
+Do not treat CSS as plain style text.
+
+Treat it as a graph from source declarations to rendered behavior.
+
+```txt
+declaration -> selector target
+declaration -> cascade position
+declaration -> variable dependency
+declaration -> asset or descriptor
+declaration -> runtime surface
+```
+
+A semantic merge does not need every browser proof for every CSS edit. It needs to know which graph edges the edit touched, then ask for the smallest evidence that matches those edges.

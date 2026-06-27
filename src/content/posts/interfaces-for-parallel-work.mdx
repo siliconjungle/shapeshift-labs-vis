@@ -1,0 +1,101 @@
+Parallel work is not created by starting more workers.
+
+It is created by giving work interfaces that can survive more workers.
+
+If every task is "change the codebase," parallelism collapses into conflict. If the work has contracts, regions, tests, documents, and ownership boundaries, many agents can move at once without pretending they are independent.
+
+<ParallelInterfacesChart caption="Parallel work needs interfaces: APIs, regions, tests, docs, and lanes that can be joined later." />
+
+## A Task Needs A Boundary
+
+A useful parallel task says what it owns.
+
+```txt
+own: exported parser options
+read: tokenizer behavior, public tests
+write: parser option normalization
+prove: type gate, parser fixture, declaration boundary
+avoid: renderer behavior
+```
+
+That boundary does not make the task small for its own sake. It makes the task mergeable. Another agent can work on renderer behavior because the ownership is visible. A coordinator can see whether the two candidates overlap by meaning, not only by file path.
+
+## Interfaces Are Merge Points
+
+An interface is the place where independent work can meet.
+
+An API lets one agent build a caller while another changes the implementation. A fixture lets one agent improve behavior while another rewrites internals. A document section lets one agent clarify intent while another changes code. A region index lets the coordinator compare claims across files.
+
+```txt
+API: caller and implementation can move separately
+fixture: behavior and internals can be checked together
+document: intent and implementation can be compared
+region: ownership and merge risk can be measured
+```
+
+The interface is not bureaucracy. It is the shape that lets separate work become one decision.
+
+## Parallelism Needs Evidence
+
+Without evidence, parallel work just creates more patches to read.
+
+With evidence, the coordinator can compare outputs.
+
+```txt
+agent A changed route loading behavior
+evidence: browser trace, route fixture
+
+agent B changed API shape
+evidence: declaration boundary, type gate
+
+agent C changed docs
+evidence: linked decision, examples updated
+```
+
+Those outputs are comparable because they are shaped. The coordinator can ask which boundary each patch crossed and whether the evidence matches that boundary.
+
+## Contracts Let Agents Move
+
+A contract lets agents work without constant synchronization.
+
+<ParallelBoundaryChart caption="A shared contract lets many agents work separately and return evidence to one admission point." />
+
+If the contract is explicit, an agent can make progress locally. It does not need to ask whether every private helper name is acceptable. It needs to preserve the public boundary, satisfy the evidence requirement, and report any assumption it could not prove.
+
+```txt
+contract: keep public route behavior stable
+agent freedom: refactor loading internals
+required evidence: trace and fixture
+merge route: apply if evidence matches
+```
+
+The contract creates room for autonomy because it says where autonomy ends.
+
+## Bad Interfaces Create False Conflict
+
+Some conflicts are real. Others are artifacts of poor boundaries.
+
+Two agents editing the same file might be independent if they touch different regions. Two agents editing different files might conflict if they both redefine the same public behavior.
+
+File layout is only a weak interface.
+
+The better interface is meaning:
+
+```txt
+symbol identity
+public contract
+runtime effect
+route behavior
+test fixture
+human decision
+```
+
+When those interfaces are visible, the system can preserve useful parallelism and block only the conflicts that matter.
+
+## The Mental Model
+
+Parallel work is designed before it is scheduled.
+
+Give agents clear boundaries, stable contracts, comparable evidence, and interfaces where their work can meet. Then more workers can produce more useful candidates instead of more review debt.
+
+The unit of parallelism is not the worker. It is the interface that lets independent work rejoin safely.

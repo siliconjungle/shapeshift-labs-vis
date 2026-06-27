@@ -4,6 +4,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FiMoon, FiSun } from 'react-icons/fi';
 import { IoVolumeHigh, IoVolumeMute } from 'react-icons/io5';
 import * as THREE from 'three';
+import ProgressivePostList from '../components/ProgressivePostList';
+import { homepagePosts } from '../content/posts/posts';
 
 const taupePalette = [
   { r: 233, g: 221, b: 199 },
@@ -11,12 +13,6 @@ const taupePalette = [
   { r: 183, g: 156, b: 124 },
   { r: 139, g: 112, b: 86 },
 ];
-
-const invertedTaupePalette = taupePalette.map(({ r, g, b }) => ({
-  r: 255 - r,
-  g: 255 - g,
-  b: 255 - b,
-}));
 
 const lightModeInkPalette = [
   { r: 10, g: 10, b: 9 },
@@ -26,6 +22,11 @@ const lightModeInkPalette = [
 ];
 
 const THEME_STORAGE_KEY = 'shapeshift-theme';
+
+const detectCoarsePointer = () =>
+  typeof window !== 'undefined' &&
+  typeof window.matchMedia === 'function' &&
+  window.matchMedia('(pointer: coarse)').matches;
 
 const morphDurationBase = 4500; // ms per transition
 const minNodes = 2;
@@ -147,7 +148,7 @@ const randomTag = () => {
   return tag.slice(0, 3);
 };
 
-export default function Page() {
+export function ShapeshiftHero({ children = null }) {
   const containerRef = useRef(null);
   const wrapperRef = useRef(null);
   const diagramRef = useRef(null);
@@ -160,6 +161,7 @@ export default function Page() {
 
   const userThemeOverrideRef = useRef(false);
   const [theme, setTheme] = useState('dark');
+  const isMutedRef = useRef(true);
   const [isMuted, setIsMuted] = useState(true);
   const gainRef = useRef(null);
   const [barcodeData, setBarcodeData] = useState('00');
@@ -167,7 +169,7 @@ export default function Page() {
   const [barcodeTransform, setBarcodeTransform] = useState('translate3d(18px, -10px, 0)');
   const [isBarcodeGlitch, setIsBarcodeGlitch] = useState(false);
   const [meshReady, setMeshReady] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile] = useState(detectCoarsePointer);
   const getPointSize = useCallback(() => {
     if (typeof window === 'undefined') return 1;
     const dpr = window.devicePixelRatio || 1;
@@ -229,19 +231,20 @@ export default function Page() {
     } catch {
       stored = null;
     }
+
     const media =
       typeof window.matchMedia === 'function'
         ? window.matchMedia('(prefers-color-scheme: dark)')
         : null;
-    const prefersDark = media ? media.matches : false;
-    const initialTheme =
-      stored === 'light' || stored === 'dark' ? stored : prefersDark ? 'dark' : 'light';
 
-    if (stored === 'light' || stored === 'dark') {
-      userThemeOverrideRef.current = true;
-    }
-
-    setTheme(initialTheme);
+    const frame = window.requestAnimationFrame(() => {
+      if (stored === 'light' || stored === 'dark') {
+        userThemeOverrideRef.current = true;
+        setTheme(stored);
+      } else if (media) {
+        setTheme(media.matches ? 'dark' : 'light');
+      }
+    });
 
     const handleSystemChange = (event) => {
       if (userThemeOverrideRef.current) return;
@@ -257,6 +260,7 @@ export default function Page() {
     }
 
     return () => {
+      window.cancelAnimationFrame(frame);
       if (!media) return;
       if (typeof media.removeEventListener === 'function') {
         media.removeEventListener('change', handleSystemChange);
@@ -291,11 +295,7 @@ export default function Page() {
     const container = containerRef.current;
     const wrapper = wrapperRef.current;
     const diagram = diagramRef.current;
-    const hasCoarsePointer =
-      typeof window.matchMedia === 'function'
-        ? window.matchMedia('(pointer: coarse)').matches
-        : false;
-    setIsMobile(hasCoarsePointer);
+    const hasCoarsePointer = isMobile;
     const computePointSize = () => getPointSize();
     const barcodeConfig = {
       tree: {
@@ -510,7 +510,8 @@ export default function Page() {
         const data = new Uint8Array(analyser.frequencyBinCount);
 
         const gain = ctx.createGain();
-        const muted = typeof initialMuted === 'boolean' ? initialMuted : isMuted;
+        const muted =
+          typeof initialMuted === 'boolean' ? initialMuted : isMutedRef.current;
         gain.gain.value = muted ? 0 : 1;
 
         source.connect(analyser);
@@ -690,6 +691,7 @@ export default function Page() {
       const width = wrapper.clientWidth;
       const height = wrapper.clientHeight || 1;
       const positionAttr = mesh.geometry.getAttribute('position');
+      if (!width || !height || !positionAttr) return;
       const positions = positionAttr.array;
       const vertexCount = positionAttr.count;
 
@@ -710,30 +712,43 @@ export default function Page() {
 
         const tx = (tempProjected.x * 0.5 + 0.5) * width;
         const ty = (1 - (tempProjected.y * 0.5 + 0.5)) * height;
+        const isValid = Number.isFinite(tx) && Number.isFinite(ty);
+        if (!isValid) {
+          entry.square.classList.remove('mesh-node--positioned');
+          entry.label.classList.remove('mesh-label--positioned');
+          return;
+        }
         screenPositions[i] = { x: tx, y: ty };
 
         entry.square.style.left = `${tx}px`;
         entry.square.style.top = `${ty}px`;
         entry.square.style.transform = 'translate(-50%, -50%)';
+        entry.square.classList.add('mesh-node--positioned');
 
         entry.label.style.left = `${tx}px`;
         entry.label.style.top = `${ty - 14}px`;
         entry.label.style.transform = 'translate(-50%, -100%)';
+        entry.label.classList.add('mesh-label--positioned');
       });
 
       lineEntries.forEach((line, i) => {
+        line.classList.remove('mesh-line--positioned');
         if (i + 1 >= screenPositions.length) return;
         const start = screenPositions[i];
         const end = screenPositions[i + 1];
+        if (!start || !end) return;
         const dx = end.x - start.x;
         const dy = end.y - start.y;
         const len = Math.hypot(dx, dy);
+        if (!Number.isFinite(len) || len <= 0) return;
         const angle = (Math.atan2(dy, dx) * 180) / Math.PI;
+        if (!Number.isFinite(angle)) return;
 
         line.style.left = `${start.x}px`;
         line.style.top = `${start.y}px`;
         line.style.width = `${len}px`;
         line.style.transform = `translate(0, -50%) rotate(${angle}deg)`;
+        line.classList.add('mesh-line--positioned');
       });
     };
 
@@ -1098,14 +1113,18 @@ export default function Page() {
         geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
       }
 
-      const material = new THREE.PointsMaterial({
-        vertexColors: paletteRef.current.length ? true : false,
-        color: paletteRef.current.length ? undefined : 0xe9ddc7,
+      const hasVertexColors = paletteRef.current.length > 0;
+      const materialOptions = {
+        vertexColors: hasVertexColors,
         size: computePointSize(),
         sizeAttenuation: false, // use pixel sizes for clear scaling
         transparent: true,
         opacity: 0.85,
-      });
+      };
+      if (!hasVertexColors) {
+        materialOptions.color = 0xe9ddc7;
+      }
+      const material = new THREE.PointsMaterial(materialOptions);
       mesh = new THREE.Points(geometry, material);
       mesh.scale.set(1.2, 1.2, 1.2);
       scene.add(mesh);
@@ -1285,11 +1304,12 @@ export default function Page() {
         container.removeChild(renderer.domElement);
       }
     };
-  }, []);
+  }, [getPointSize, isMobile]);
 
   const toggleMute = () => {
     if (isMobile) return; // disable audio on mobile
     const next = !isMuted;
+    isMutedRef.current = next;
 
     // Ensure audio context is started on first user interaction (desktop + mobile)
     if (!audioStartedRef.current && startAudioRef.current) {
@@ -1375,7 +1395,6 @@ export default function Page() {
                   </div>
                 </div>
                 <svg
-                  className="barcode"
                   viewBox={`0 0 ${barcode.width} 76`}
                   preserveAspectRatio="none"
                   className={isBarcodeGlitch ? 'barcode barcode--glitch' : 'barcode'}
@@ -1397,123 +1416,7 @@ export default function Page() {
         </div>
       </div>
 
-      <section className="content-section">
-        <h2>everything is a source of inspiration</h2>
-        <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum nec lectus
-          nunc. Nullam eget feugiat purus, at pulvinar odio.
-        </p>
-        <p>
-          Integer egestas, arcu eget varius scelerisque, enim enim iaculis sapien, in
-          pharetra neque mi ac arcu. Sed hendrerit justo non mi venenatis, in placerat
-          augue ultrices.
-        </p>
-      </section>
-
-      <section className="content-section">
-        <h2>your environment shapes your thoughts</h2>
-        <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque habitant
-          morbi tristique senectus et netus et malesuada fames ac turpis egestas.
-        </p>
-        <p>
-          Mauris pellentesque, ipsum ut pulvinar tincidunt, risus augue tincidunt dolor,
-          sit amet imperdiet mauris tellus ac metus. Integer aliquet faucibus tellus sed
-          dignissim.
-        </p>
-      </section>
-
-      <section className="content-section">
-        <h2>creation as wayfinding</h2>
-        <p>
-          Sed sit amet consectetur elit. Duis et leo a nunc bibendum sodales. Maecenas
-          tincidunt congue mi, nec imperdiet tortor vehicula sit amet.
-        </p>
-        <p>
-          Phasellus maximus, nibh id accumsan molestie, orci arcu faucibus elit, sed
-          faucibus nibh metus a libero. Cras non nisl quis neque congue viverra.
-        </p>
-      </section>
-
-      <section className="content-section">
-        <h2>humanity is in the imperfections</h2>
-        <p>
-          Maecenas consequat nisl id augue consequat, quis dignissim nulla sollicitudin.
-          Phasellus vitae arcu vel nisl suscipit vulputate sit amet non sem.
-        </p>
-        <p>
-          Donec id sollicitudin ipsum. Integer non dolor volutpat, bibendum dui in,
-          facilisis nisl.
-        </p>
-      </section>
-
-      <section className="content-section">
-        <h2>computation is the medium of process</h2>
-        <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent finibus, sem
-          at faucibus tempor, arcu justo condimentum lorem, nec facilisis urna odio ac
-          arcu.
-        </p>
-        <p>
-          Integer ornare, risus id vulputate aliquam, mauris erat vulputate libero, id
-          pulvinar magna ligula in diam. Proin faucibus nibh in elit lacinia, sit amet
-          feugiat tortor viverra.
-        </p>
-      </section>
-
-      <section className="content-section">
-        <h2>we adapt to technology, then it adapts to us</h2>
-        <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec dictum luctus
-          mauris, id rhoncus velit malesuada vel. Pellentesque a lacus nec dui tempor
-          scelerisque.
-        </p>
-        <p>
-          Aliquam erat volutpat. Cras a velit mi. In vitae nunc efficitur, ultricies
-          ipsum non, faucibus eros. Vivamus ac nisl non augue vestibulum tincidunt.
-        </p>
-      </section>
-
-      <section className="content-section">
-        <h2>stories, archetypes &amp; symbols carry meaning with high fidelity</h2>
-        <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras eu sem a urna
-          accumsan hendrerit. Integer tincidunt, sapien non luctus mollis, justo mauris
-          pulvinar nisl, eget dapibus massa purus at justo.
-        </p>
-        <p>
-          Vivamus finibus, est quis molestie elementum, enim nulla pharetra lacus, vel
-          volutpat dolor arcu id felis. Donec fringilla, erat eget aliquam accumsan,
-          ligula urna interdum est, et euismod erat arcu a enim.
-        </p>
-      </section>
-
-      <section className="content-section">
-        <h2>history is beautiful</h2>
-        <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer auctor, lectus
-          vitae laoreet luctus, tortor lacus cursus nisl, vitae gravida arcu erat at
-          lectus.
-        </p>
-        <p>
-          Donec a sollicitudin orci. Vestibulum ante ipsum primis in faucibus orci luctus
-          et ultrices posuere cubilia curae; Sed rhoncus quis lectus non congue.
-        </p>
-      </section>
-
-      <section className="content-section">
-        <h2>and so is what is lost</h2>
-        <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed congue elit id
-          sapien venenatis, ac tincidunt sapien volutpat. Nunc feugiat, urna sed
-          efficitur condimentum, lorem ligula pharetra nisl, nec cursus tortor ligula ut
-          felis.
-        </p>
-        <p>
-          Curabitur ut tincidunt lorem. Praesent consequat, ipsum at dictum gravida, nisl
-          nulla commodo erat, non bibendum eros nisi ac leo.
-        </p>
-      </section>
+      {children}
 
       {!isMobile && (
         <button
@@ -1528,5 +1431,13 @@ export default function Page() {
 
       <div className="film-grain-overlay" aria-hidden="true" />
     </>
+  );
+}
+
+export default function Page() {
+  return (
+    <ShapeshiftHero>
+      <ProgressivePostList posts={homepagePosts} />
+    </ShapeshiftHero>
   );
 }

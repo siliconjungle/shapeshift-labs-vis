@@ -1,0 +1,111 @@
+HTML and CSS are easy to mistake for documents.
+
+They are not only documents.
+
+A browser turns markup, selectors, cascade, layout, focus, input state, accessibility roles, media queries, and hydration into a running system. A small class change can move a button, hide a label, alter tab order, change the accessible name, or make a component render differently after the client takes over.
+
+Layout is a runtime.
+
+<LayoutRuntimeStackChart caption="Markup enters a browser runtime where cascade, layout, focus, and accessibility all affect the resulting state." />
+
+## Markup Is Input
+
+Markup is not the final state of the interface. It is input to a larger machine.
+
+```txt
+html: element tree and attributes
+css: selectors, cascade, media rules, containment
+browser: layout, paint, focus, accessibility tree
+framework: hydration, state, event handlers
+```
+
+A text merge can know that two branches edited different lines. A semantic merge can know that two branches edited different elements. But a UI merge also has to ask what those edits do after the browser runs them.
+
+Two edits can be structurally independent and still collide in the rendered result.
+
+```txt
+branch A: adds sticky header
+branch B: adds fixed toolbar
+runtime conflict: toolbar covers header controls
+```
+
+The conflict is not in the source shape. It is in the runtime surface.
+
+## CSS Has Control Flow
+
+CSS looks declarative, but it has control flow of its own.
+
+Media queries branch by viewport. Container queries branch by parent size. Cascade layers change precedence. Pseudo-classes branch by user state. Custom properties flow through scopes. Specificity decides which declaration wins.
+
+```txt
+@media -> viewport branch
+@container -> layout branch
+:hover -> input state branch
+:focus-visible -> keyboard state branch
+var() -> dependency edge
+@layer -> precedence order
+```
+
+That is why style merging cannot stop at "these declarations are different." It has to know where the declaration lands in the cascade and what other declarations it can override.
+
+A safe merge for CSS is not just a parser problem. It is a cascade problem.
+
+## Evidence Needs To Match The Surface
+
+Different UI changes need different evidence.
+
+<LayoutRuntimeEvidenceChart caption="A UI change can need selector, viewport, interaction, and accessibility evidence before it should be admitted." />
+
+If a patch changes a class name, selector reachability matters.
+
+If a patch changes responsive layout, viewport evidence matters.
+
+If a patch changes focus or visibility, interaction evidence matters.
+
+If a patch changes labels, controls, or structure, accessibility evidence matters.
+
+```txt
+class rename -> selector and use-site graph
+media rule edit -> viewport matrix
+focus style edit -> keyboard trace
+aria edit -> accessibility tree check
+hydration edit -> server/client boundary evidence
+```
+
+The point is not to require every proof for every change. The point is to route the change to the smallest proof that matches the runtime surface it touches.
+
+## Static Shape Still Helps
+
+Runtime evidence does not make static structure useless.
+
+Element identity, keyed children, selector specificity, CSS Modules exports, and source spans all reduce the search space. They tell the system where a change might matter.
+
+```txt
+static evidence:
+  element key
+  class attribute
+  selector
+  declaration
+  cascade key
+
+runtime evidence:
+  viewport result
+  interaction trace
+  accessibility tree
+  hydration status
+```
+
+Static evidence says what changed.
+
+Runtime evidence says what the browser did with it.
+
+## The Mental Model
+
+Treat UI source as a program for a browser runtime.
+
+HTML describes structure. CSS describes constraints and branches. JSX describes a render function. The browser executes all of it into layout, interaction, and accessibility state.
+
+A serious merge system should respect that boundary.
+
+It can admit simple structural changes with static evidence. It should ask for runtime evidence when the change crosses into layout, focus, visibility, accessibility, hydration, or user interaction.
+

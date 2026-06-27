@@ -1,0 +1,149 @@
+Agents are good at producing candidates.
+
+They can write a patch, explain why it should work, summarize a trace, or say a test passed.
+
+The system should not confuse any of that with admission. Admission needs a stronger object: a candidate, a claim, a trusted surface that can check the claim, and a boundary that says what proof is required before shared state changes.
+
+<EvidenceAdmissionChart caption="A candidate becomes useful when it carries evidence into an admission decision." />
+
+## Claims Need Surfaces
+
+This is a claim:
+
+```txt
+I fixed the issue and tests pass.
+```
+
+This is an admissible shape:
+
+```txt
+candidate: changed parser recovery
+claim: malformed input now reports a span
+oracle: parser fixture malformed-03 passed
+boundary: private parser behavior
+limit: does not cover streaming parser
+route: apply or review
+```
+
+The second form can be inspected. It can be compared with other attempts. It can be invalidated if the code moves.
+
+Evidence is not a longer explanation. It is the material that lets the system decide what the explanation is allowed to prove.
+
+## Oracles Decide Trust
+
+An oracle is a surface the system agrees to trust more than the agent's confidence.
+
+It might be a compiler, a test, a trace, a golden output, a reference implementation, a product invariant, or a human decision.
+
+<OracleStackChart caption="A claim becomes useful when it is checked against oracles the system has agreed to trust." />
+
+Different oracles have different jurisdictions:
+
+```txt
+type checker -> static compatibility
+unit fixture -> focused behavior
+browser trace -> observed workflow
+declaration diff -> exported shape
+human answer -> chosen intent
+reference implementation -> expected semantics
+```
+
+No oracle proves everything. That is the point. A good system remembers what each oracle can and cannot decide.
+
+## Admission Is A Type Check
+
+A patch is not ready because it applies.
+
+It is ready when its claim, region, and evidence match the boundary it wants to cross.
+
+<PatchAdmissionTypeCheckChart caption="Admission checks the candidate, claims, regions, and evidence before shared state can change." />
+
+The same text edit can require different evidence depending on where it lands:
+
+```txt
+private helper edit
+  requires: local call-site proof
+
+public type edit
+  requires: declaration proof, type gate, consumer impact
+
+runtime-order edit
+  requires: effect graph, trace, replay
+
+product behavior edit
+  requires: interaction evidence, accepted decision
+```
+
+That is why admission feels like a type system. The patch is the value. The boundary is the expected type. The evidence is the proof that the value is assignable to that position.
+
+## Evidence Has Types
+
+Evidence is not one flat substance called proof.
+
+A type check proves static compatibility. A browser trace proves one rendered workflow. A declaration diff proves exported shape. A screenshot proves one viewport. None of those should be silently widened into a stronger claim.
+
+<PatchAdmissionEvidenceSubtypeChart caption="Stronger evidence can satisfy weaker proof requirements, but weak evidence should not be widened into stronger claims." />
+
+```txt
+project type gate
+  can satisfy: single-file type gate
+
+single-file type gate
+  cannot satisfy: project type gate
+
+workflow trace
+  can satisfy: rendered-state proof
+
+rendered screenshot
+  cannot satisfy: workflow proof
+```
+
+Agent confidence is not a subtype of evidence. It can be a reviewer note, a hypothesis, or a reason to run a check. It should not be assignable to a gate result, source hash, trace, or accepted decision.
+
+## Disagreement Becomes Work
+
+The useful moment is often when a claim and an oracle disagree.
+
+<OracleDisagreementChart caption="When claim and oracle disagree, the mismatch should become a route instead of a debate over confidence." />
+
+```txt
+claim: public API preserved
+oracle: declaration changed
+route: review or update claim
+
+claim: behavior unchanged
+oracle: trace diverged
+route: rerun with narrower patch
+
+claim: product choice is obvious
+oracle: no accepted decision
+route: ask
+```
+
+The candidate is not necessarily worthless. The system just learned which proof is missing or which claim was too broad.
+
+## Type Errors Become Tasks
+
+A failed admission should produce a precise task, not a vague rejection.
+
+<PatchAdmissionFailClosedChart caption="A failed admission can become a narrower task with the missing contract made explicit." />
+
+```txt
+candidate: add displayName helper
+claim: safe public-type rebase
+expected: symbol rename evidence, declaration proof, type gate
+received: text patch, focused unit test
+route: request stronger evidence
+```
+
+That route preserves progress while keeping the boundary honest.
+
+## The Mental Model
+
+Agents produce candidates.
+
+Oracles produce trusted observations.
+
+Admission decides whether the candidate's claim is proven enough for the boundary it wants to cross.
+
+The system becomes more reliable when it stops asking whether a model sounds convincing and starts asking which oracle can prove the claim, which boundary the patch is crossing, and what route follows from the mismatch.

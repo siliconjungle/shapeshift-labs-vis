@@ -1,0 +1,76 @@
+Files are where code lives.
+
+Semantic regions are where work happens.
+
+A semantic region is a meaningful slice of a system: an export, route, schema, prop contract, test fixture, command, document section, migration, or invariant.
+
+Agents need regions because parallel work needs something better than line numbers.
+
+<SemanticRegionIndexChart caption="A semantic region index turns files into claimable and reviewable units like exports, routes, types, tests, and invariants." />
+
+## Regions Have Identity
+
+A good region can be named and tracked.
+
+```txt
+region: export parseInvoice
+kind: function
+file: src/billing/parseInvoice.ts
+public: true
+tests: parseInvoice edge cases
+owners: billing validation
+```
+
+That identity lets the system ask whether two edits are truly separate.
+
+Two patches in one file might touch different regions. Two patches in different files might touch the same public contract.
+
+## Regions Carry Evidence
+
+Regions should collect evidence around themselves.
+
+```txt
+source span
+symbol identity
+imports and exports
+type signature
+tests that cover it
+runtime effects
+known invariants
+```
+
+The evidence does not need to prove everything. It needs to be honest about what it can prove.
+
+An export signature can prove a public shape. A runtime trace can prove one path. A fixture can prove one edge case. Together, they make the region reviewable.
+
+## Overlap
+
+Regions overlap.
+
+That is not a problem. It is the point.
+
+<SemanticRegionOverlapChart caption="Overlapping regions can be parallel, review-required, or blocked depending on what meaning they share." />
+
+One edit can touch a function body. Another can touch a test for that function. That overlap is probably useful.
+
+One edit can rename a public type. Another can add new callers of that type. That overlap requires review.
+
+One edit can change a route contract. Another can change it differently. That overlap should block until the system has a decision.
+
+## Regions Make Leases Possible
+
+Semantic leases need regions.
+
+Without regions, a lease can only say "I own this file." With regions, a lease can say "I own this export while changing validation behavior" or "I own this route while updating the loading state."
+
+That distinction creates more safe parallelism.
+
+It also creates better conflicts. The coordinator can see whether the conflict is about text, symbol identity, public API, runtime behavior, or evidence coverage.
+
+## The Mental Model
+
+Semantic regions are the atoms of coordinated agent work.
+
+They let the system split work by meaning, not by accident of file layout.
+
+Once regions exist, leases, evidence, merge admission, stale checks, and dashboards all have a shared object to point at.

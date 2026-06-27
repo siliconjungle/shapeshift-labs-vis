@@ -1,0 +1,137 @@
+When several agents work in the same codebase, the first coordination instinct is to lock files.
+
+That helps a little. It prevents two agents from rewriting the same text at the same time.
+
+But the thing that matters is rarely the file. The thing that matters is the meaning inside it: an export, a route, a data contract, a migration invariant, a test fixture, a public prop, a CLI command, or a behavior that spans several files.
+
+A semantic lease is a temporary claim over that meaning.
+
+<SemanticLeaseClaimChart caption="A lease can cover a file, but it can also cover an export, route, invariant, or other semantic region." />
+
+## The Shape Of A Lease
+
+A useful lease says what kind of meaning is being touched.
+
+```txt
+lease
+  owner: worker-17
+  region: export createInvoice
+  scope: src/billing/createInvoice.ts
+  intent: change validation rules
+  token: 7
+  expires: soon
+```
+
+That is different from saying "worker-17 owns billing.ts." A file lock is a physical claim. A semantic lease is a claim about the program.
+
+The lease does not say the worker is right. It says other workers and the coordinator should treat that region as active work until the lease is released, expires, or is superseded.
+
+## Why Files Are Too Small And Too Large
+
+Files are the wrong size in both directions.
+
+They are too small because a single behavior can cross an implementation file, a type file, a test, and a fixture.
+
+They are too large because a single file can contain unrelated exports that agents could safely work on in parallel.
+
+Semantic leases let the system express the real boundary:
+
+```txt
+safe to work in parallel
+  export parseDate
+  export formatCurrency
+
+not safe to work in parallel
+  route /checkout
+  cart schema
+  payment validation tests
+```
+
+The claim follows the behavior, not the folder layout.
+
+## Fencing
+
+Leases need fencing tokens.
+
+Without a token, an old worker can wake up late and apply a patch based on an outdated claim. With a token, the coordinator can reject work that was produced under an older view of the world.
+
+<SemanticLeaseFencingChart caption="A fencing token makes stale work visible. The patch has to match the current claim and the current head." />
+
+The token is not about trust. It is about causality.
+
+```txt
+worker reads head at lease token 7
+another worker commits under token 8
+worker returns with token 7
+coordinator rejects or rebases
+```
+
+The system can still use the worker's diagnosis, tests, or partial patch. It just should not silently apply the result as if nothing changed.
+
+## Leases Are Not Permission To Merge
+
+A lease protects the work area. It does not admit the output.
+
+The output still needs evidence.
+
+```txt
+lease: export createInvoice
+patch: validation accepts taxId
+evidence: tests pass
+evidence: public type unchanged
+evidence: checkout route still renders
+decision: apply
+```
+
+That distinction matters. A lease reduces collision while the work is happening. Admission decides whether the work should become part of the system.
+
+<SemanticLeaseMergeChart caption="Lease claims narrow the conflict surface, but evidence still decides whether the result merges, rebases, or blocks." />
+
+## Overlap Is A Signal
+
+Two leases can overlap.
+
+That is not automatically bad. It is information.
+
+If one worker owns an export and another owns a test that covers it, the overlap might be useful. If two workers both claim the same public contract with different intents, the coordinator should notice before both patches arrive.
+
+```txt
+compatible overlap
+  worker A: implementation of search()
+  worker B: benchmark for search()
+
+risky overlap
+  worker A: rename search()
+  worker B: add callers of search()
+
+conflict overlap
+  worker A: change search() return type
+  worker B: change search() return type differently
+```
+
+A semantic lease makes that distinction expressible. A file lock usually collapses it into busy or free.
+
+## Expiry
+
+Leases should expire.
+
+An agent can crash, run out of context, wait on a human answer, or keep working from a stale assumption. If the claim never expires, the system becomes less parallel over time.
+
+Expiry does not erase history. It just says the claim is no longer active.
+
+The old work can still return later, but it must pass through admission with stale evidence attached.
+
+## The Mental Model
+
+A semantic lease is a coordination promise:
+
+```txt
+this worker is touching this meaning
+under this head
+with this token
+until this deadline
+```
+
+It is smaller than ownership and stronger than a comment in a chat transcript.
+
+That is what makes parallel agent work less chaotic. Agents can move at the same time, but their claims become visible, bounded, and reviewable before the merge happens.

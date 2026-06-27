@@ -1,0 +1,167 @@
+const postEntries = [
+  {
+    slug: 'matrix-is-the-system',
+    title: 'The Matrix Is The System',
+    publishedAt: '2026-06-28T07:33:00+10:00',
+    graphType: null,
+    excerpt:
+      'A semantic merge matrix is not a checklist. It is the routing table that turns surfaces, claims, proofs, and missing evidence into decisions.',
+  },
+  {
+    slug: 'css-is-a-dependency-graph',
+    title: 'CSS Is A Dependency Graph',
+    publishedAt: '2026-06-28T07:32:00+10:00',
+    graphType: null,
+    excerpt:
+      'CSS merging has to see selectors, cascade scopes, variables, fallbacks, assets, descriptors, and build edges as one dependency graph.',
+  },
+  {
+    slug: 'four-versions-in-every-merge',
+    title: 'The Four Versions In Every Merge',
+    publishedAt: '2026-06-28T07:31:00+10:00',
+    graphType: null,
+    excerpt:
+      'A merge proof has to bind base, worker, head, and output. Without all four, evidence can be correct and still unsafe.',
+  },
+  {
+    slug: 'text-is-the-substrate',
+    title: 'Text Is The Substrate',
+    publishedAt: '2026-06-28T07:30:00+10:00',
+    graphType: null,
+    excerpt:
+      'Semantic merge should stand on exact source text, hashes, spans, comments, and trivia rather than pretending text diffs are obsolete.',
+  },
+  {
+    slug: 'agent-readable-capabilities',
+    title: 'Agent-Readable Capabilities',
+    publishedAt: '2026-06-26T14:06:00+10:00',
+    graphType: null,
+    excerpt:
+      'Agent-readable software exposes state, actions, invariants, and feedback; capabilities turn those surfaces into enforceable authority.',
+  },
+  {
+    slug: 'workspaces-before-mutation',
+    title: 'Workspaces Before Mutation',
+    publishedAt: '2026-06-26T14:05:00+10:00',
+    graphType: null,
+    excerpt:
+      'Workspaces are possible worlds where agents can mutate, simulate, fail, and return evidence before shared state moves.',
+  },
+  {
+    slug: 'evidence-oracles-and-admission',
+    title: 'Evidence, Oracles, And Admission',
+    publishedAt: '2026-06-26T14:04:00+10:00',
+    graphType: null,
+    excerpt:
+      'Agents produce candidates, oracles produce trusted observations, and admission decides whether the evidence matches the boundary.',
+  },
+  {
+    slug: 'layout-is-a-runtime',
+    title: 'Layout Is A Runtime',
+    publishedAt: '2026-06-26T13:47:00+10:00',
+    graphType: null,
+    excerpt:
+      'HTML, CSS, and JSX are not only source shapes. The browser runs them into cascade, layout, focus, accessibility, and hydration state.',
+  },
+  {
+    slug: 'interfaces-for-parallel-work',
+    title: 'Interfaces For Parallel Work',
+    publishedAt: '2026-06-25T11:04:00+10:00',
+    graphType: null,
+    excerpt:
+      'Parallel work is not created by starting more workers. It is created by giving agents APIs, regions, tests, docs, and contracts they can safely rejoin through.',
+  },
+  {
+    slug: 'merging-is-routing',
+    title: 'Merging Is Routing',
+    publishedAt: '2026-06-26T14:03:00+10:00',
+    graphType: null,
+    excerpt:
+      'A merge is a review object first and a routing decision second: apply, review, rebase, rerun, split, ask, or block.',
+  },
+  {
+    slug: 'coordinator-work',
+    title: 'Coordinator Work',
+    publishedAt: '2026-06-26T14:02:00+10:00',
+    graphType: null,
+    excerpt:
+      'The coordinator turns many candidate futures into one reviewable decision without letting review bandwidth collapse.',
+  },
+  {
+    slug: 'human-questions-are-control-flow',
+    title: 'Human Questions Are Control Flow',
+    publishedAt: '2026-06-24T22:42:00+10:00',
+    graphType: null,
+    excerpt:
+      'A question should be a typed blocker in the run graph, not an interruption lost inside the transcript.',
+  },
+  {
+    slug: 'semantic-regions',
+    title: 'Semantic Regions',
+    publishedAt: '2026-06-24T22:41:00+10:00',
+    graphType: null,
+    excerpt:
+      'Semantic regions are the units agents can claim, compare, review, and merge: exports, routes, types, tests, and invariants.',
+  },
+  {
+    slug: 'stale-work',
+    title: 'Stale Work',
+    publishedAt: '2026-06-24T22:40:00+10:00',
+    graphType: null,
+    excerpt:
+      'Old work can still be useful, but it needs to carry the head, evidence, and assumptions it was built against.',
+  },
+  {
+    slug: 'semantic-leases',
+    title: 'Semantic Leases',
+    publishedAt: '2026-06-24T22:25:00+10:00',
+    graphType: null,
+    excerpt:
+      'A lease should protect a meaning: an export, invariant, route, contract, or region of behavior, not only the file that happens to contain it.',
+  },
+  {
+    slug: 'runs-are-causal-graphs',
+    title: 'Runs Are Causal Graphs',
+    publishedAt: '2026-06-24T22:12:00+10:00',
+    graphType: null,
+    excerpt:
+      'A run is not a transcript or a status row. It is a causal graph of attempts, evidence, questions, decisions, retries, and applied work.',
+  },
+  {
+    slug: 'universal-semantic-merging',
+    title: 'Universal Semantic Merging',
+    publishedAt: '2026-06-24T16:45:00+10:00',
+    graphType: null,
+    excerpt:
+      'Semantic merging treats edits as symbols, imports, types, and evidence gates before writing the final text back to disk.',
+  },
+  {
+    slug: 'agent-loop-patterns',
+    title: 'Agent Loop Patterns',
+    publishedAt: '2026-06-21T12:00:00+10:00',
+    graphType: null,
+    excerpt:
+      'A vocabulary for agent workflows: chain work, branch attempts, join results, reduce evidence, gate decisions, and loop until the system is ready.',
+  },
+];
+
+const publishedAtTimestamp = (post) => {
+  const timestamp = Date.parse(post.publishedAt);
+  return Number.isFinite(timestamp) ? timestamp : Number.NEGATIVE_INFINITY;
+};
+
+export const comparePostsByMostRecent = (left, right) => {
+  const byPublishedAt = publishedAtTimestamp(right) - publishedAtTimestamp(left);
+  return byPublishedAt || left.slug.localeCompare(right.slug);
+};
+
+export const sortPostsByMostRecent = (items) => [...items].sort(comparePostsByMostRecent);
+
+export const postsByMostRecent = sortPostsByMostRecent(postEntries);
+
+export const homepagePosts = postsByMostRecent;
+
+export const posts = postsByMostRecent;
+
+export const getPostBySlug = (slug) =>
+  posts.find((post) => post.slug === slug || post.aliases?.includes(slug)) || null;

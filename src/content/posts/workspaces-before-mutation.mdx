@@ -1,0 +1,117 @@
+A mutation is expensive because it changes shared reality.
+
+A workspace is cheaper because it is a possible world. An agent can explore, patch, fail, rerun, and narrow there without corrupting the state everyone else depends on.
+
+Good agent systems make that difference structural. Work happens inside isolated worlds. Evidence crosses the boundary. Shared state moves only after admission.
+
+<WorkspaceIsolationWorldsChart caption="Each workspace is a possible world where an agent can mutate safely before returning evidence." />
+
+## Worlds Are Boundaries
+
+A workspace is not just a folder.
+
+It is a boundary around mutation:
+
+```txt
+enters: task, current head, claimed region
+mutates: files, fixtures, local state
+produces: patch, evidence, failed checks, questions
+exits: review object
+```
+
+Inside the workspace, failure is useful. A patch can be wrong. A fixture can expose a missing oracle. A worker can discover that the task is too broad.
+
+The point is that discovery happens before shared state changes.
+
+## Simulation Buys Time
+
+Before a candidate mutates shared state, it should survive a smaller world: a fixture, dry run, replay, browser trace, shadow environment, or model of expected behavior.
+
+<SimulationSandboxChart caption="A candidate should pass through a sandbox with fixtures, traces, and oracles before it mutates shared state." />
+
+Dry runs are not ceremony for agent work. They are the control surface between a plausible patch and an admissible patch.
+
+```txt
+format dry run
+type dry run
+patch apply dry run
+migration dry run
+browser interaction dry run
+semantic merge dry run
+```
+
+Each run narrows uncertainty. None of them proves everything. That is fine. The point is to make uncertainty smaller while being wrong is still cheap.
+
+## Build A Ladder
+
+Not every change needs the same simulation.
+
+Small private edits may only need a focused fixture. A public API change needs declaration evidence. A runtime order change may need an effect trace. A risky migration may need a shadow run against representative data.
+
+<SimulationLadderChart caption="Simulation can escalate from dry runs to fixtures, shadow runs, and replay before a change is applied." />
+
+```txt
+private helper edit -> focused unit fixture
+public type edit -> type gate and declaration boundary
+runtime order edit -> effect trace and replay
+data migration -> dry run and rollback proof
+product behavior edit -> browser trace and accepted decision
+```
+
+The ladder keeps the system proportional. It should not ask every patch to prove the universe. It should ask for the smallest world that matches the risk of the boundary.
+
+## Admission Is The Bridge
+
+The workspace is where mutation is allowed.
+
+Admission is what decides whether any of that mutation can leave.
+
+<WorkspaceIsolationAdmissionChart caption="Patches and evidence cross from isolated workspaces into shared state through admission." />
+
+```txt
+workspace output
+  patch: candidate
+  evidence: gates, traces, fixtures
+  limits: what was not proven
+  route: apply, review, rerun, split, ask, block
+```
+
+That bridge matters more than the workspace itself. Without admission, isolated work is just delayed risk. With admission, isolated work becomes a reliable way to explore candidate futures.
+
+## Distributed Work Is Still Workspaces
+
+The workspace does not have to be local.
+
+It can be a branch, a container, a copied checkout, a cloud worker, or a machine in another room. What matters is that mutation has a boundary and the output returns as a reviewable object.
+
+```txt
+same machine: copy workspace
+remote machine: leased workspace
+cloud worker: sealed workspace
+shared branch: only after admission
+```
+
+Distributed agents make the boundary more important, not less. The system needs to know which head the worker saw, which region it claimed, what it changed, and what evidence came back.
+
+## Failure Becomes Information
+
+A failed workspace run is not wasted work.
+
+It is a sharper next task:
+
+```txt
+fixture failed -> patch is too broad
+trace diverged -> behavior changed
+oracle missing -> system cannot judge yet
+dry run stale -> rebase before continuing
+```
+
+The next worker should inherit that information instead of restarting from a blank prompt.
+
+## The Mental Model
+
+Let agents mutate possible worlds.
+
+Let shared state move only when a workspace returns a candidate with evidence that matches the boundary being crossed.
+
+The system gets faster not because it skips review, but because it moves exploration and failure into places where being wrong is still cheap.
