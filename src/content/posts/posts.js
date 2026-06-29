@@ -1,5 +1,21 @@
 const postEntries = [
   {
+    slug: 'tournaments-are-feedback-loops',
+    title: 'Tournaments Are Feedback Loops',
+    publishedAt: '2026-06-29T13:58:00+10:00',
+    graphType: null,
+    excerpt:
+      'Model choice should be routed by evidence: cost, latency, gate results, review effort, question quality, and accepted work.',
+  },
+  {
+    slug: 'hotspots-are-feedback',
+    title: 'Hotspots Are Feedback',
+    publishedAt: '2026-06-29T13:57:00+10:00',
+    graphType: null,
+    excerpt:
+      'Hotspots are where parallel work turns into coordination cost. Measurement should feed routing, leases, gates, task splitting, and refactoring.',
+  },
+  {
     slug: 'queue-is-a-contract',
     title: 'The Queue Is A Contract',
     publishedAt: '2026-06-29T11:59:00+10:00',

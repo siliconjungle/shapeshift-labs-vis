@@ -1,0 +1,189 @@
+Picking a model should not be a belief.
+
+It should be a routing decision based on evidence.
+
+Different models are good at different work. Some are cheaper. Some are faster. Some produce cleaner patches. Some ask better questions. Some are worth using only when the task is hard enough to justify the cost. A tournament is how the system learns that boundary.
+
+<ModelTournamentFeedbackChart caption="A tournament turns candidate outputs, costs, gates, and review effort into routing evidence for future tasks." />
+
+## The Prize Is Not Winning
+
+A tournament is easy to misunderstand.
+
+It is not about finding one permanent best model. It is about learning which model should receive which kind of task under which constraints.
+
+The useful output is a policy:
+
+```txt
+small mechanical patch -> cheap fast model
+ambiguous architecture task -> stronger planner
+UI runtime proof -> browser-capable worker
+semantic rebase -> model with low review correction rate
+high-risk public API change -> panel or tournament
+```
+
+The winner of one task is less important than the pattern across many tasks.
+
+## Score The Whole Attempt
+
+Model selection should not score only the final answer.
+
+It should score the attempt as a system event:
+
+```txt
+did the patch apply
+did gates pass
+how much review was needed
+how often was evidence missing
+how many tokens were spent
+how long did it take
+did it ask a useful question
+did it create follow-up work
+```
+
+A cheap answer that creates review debt may be more expensive than the expensive model. A slow model that produces admissible work may be cheaper than three fast reruns.
+
+<ClaimProofMatrix
+  eyebrow="Tournament Score"
+  title="Model Choice Needs System Metrics"
+  rows={[
+    {
+      surface: 'Patch quality',
+      claim: 'Candidate is easier to admit',
+      proof: 'Apply and gate evidence',
+      evidence: 'Clean apply, focused tests passed',
+      route: 'Increase routing weight',
+      status: 'proved',
+    },
+    {
+      surface: 'Cost',
+      claim: 'Model is efficient for this task kind',
+      proof: 'Cost per accepted patch',
+      evidence: 'Tokens plus retries plus review time',
+      route: 'Prefer when cheap enough',
+      status: 'required',
+    },
+    {
+      surface: 'Uncertainty',
+      claim: 'Model knows when to ask',
+      proof: 'Question usefulness',
+      evidence: 'Human answer unblocked dependents',
+      route: 'Use on ambiguous lanes',
+      status: 'required',
+    },
+    {
+      surface: 'Risk',
+      claim: 'Task needs stronger review',
+      proof: 'Impact and proof gap',
+      evidence: 'Public API or runtime surface',
+      route: 'Escalate to panel',
+      status: 'missing',
+    },
+  ]}
+  caption="The system should score the work outcome, not just whether a generated answer looked plausible."
+/>
+
+## Tournaments Are For Boundaries
+
+Most tasks should not be tournaments.
+
+If the task is low risk and routine, a tournament wastes budget. If the task is broad, under-specified, or high-impact, a tournament can be cheaper than picking wrong once and paying for review, rework, and debugging later.
+
+The system should use tournaments where the route is uncertain:
+
+```txt
+new task kind
+high conflict history
+large public surface
+weak existing gate
+unclear human intent
+model telemetry disagrees
+previous workers failed differently
+```
+
+That means tournaments are a boundary tool. They are used when the system is learning where its routing policy is still weak.
+
+## Feedback Changes The Router
+
+The tournament should feed the next decision.
+
+If a cheap model keeps passing parser fixture tasks, it should get more of them. If it keeps failing semantic rebases, those tasks should move up a tier. If a strong model does not improve admission rate for a class of work, the system should stop paying for it there.
+
+<ModelRoutingBudgetLoopChart caption="Routing should change as models produce evidence about cost, latency, quality, and review burden." />
+
+This creates a loop:
+
+```txt
+route task
+run model or panel
+collect patch, proof, cost, time, review effort
+admit, rerun, split, or reject
+update model-task policy
+route the next task better
+```
+
+The router is not a hard-coded leaderboard. It is a policy that keeps being corrected by outcomes.
+
+## Panels Are Expensive Evidence
+
+Sometimes the best use of a tournament is not to pick a patch.
+
+It is to produce disagreement.
+
+If three models solve the same task in three incompatible ways, that is evidence that the task is underspecified. The correct next step may be a human question, a narrower task, or a stronger oracle. The tournament did not fail. It revealed uncertainty before shared state moved.
+
+<SemanticRecord
+  eyebrow="Tournament Result"
+  title="Semantic Rebase Panel"
+  status="Route changed"
+  fields={[
+    {
+      label: 'Candidates',
+      value: 'Three rebases',
+      detail: 'Each model adapted the patch through the new head.',
+    },
+    {
+      label: 'Agreement',
+      value: 'Two preserve type shape, one changes public API',
+      detail: 'Disagreement is itself evidence.',
+    },
+    {
+      label: 'Cost',
+      value: 'Panel cost exceeded single worker',
+      detail: 'Worth it only because the public boundary was risky.',
+    },
+    {
+      label: 'Route',
+      value: 'Ask human, then rerun narrow gate',
+      detail: 'The tournament produced the next decision, not an automatic merge.',
+      tone: 'route',
+    },
+  ]}
+  caption="A tournament can reveal missing intent before the system spends review time on the wrong patch."
+/>
+
+## Optimize For Accepted Work
+
+The cost unit should not be tokens.
+
+Tokens matter, but they are only one part of the bill. The real unit is accepted work under evidence.
+
+```txt
+cost per accepted patch
+cost per useful question
+cost per proof bundle
+cost per avoided human review
+cost per correctly rejected change
+```
+
+That changes the optimization target.
+
+The system should not simply minimize model spend. It should minimize total coordination cost while keeping throughput and safety high.
+
+## The Mental Model
+
+Model choice is part of the merge system.
+
+The same evidence that decides whether work can be admitted should also teach the system which model should attempt that kind of work next time.
+
+A tournament is not a spectacle. It is a controlled way to learn routing policy.

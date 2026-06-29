@@ -1820,5 +1820,116 @@
       ["human", "answer"],
       { "from": "human", "to": "reroute", "kind": "compensate" }
     ]
+  },
+  {
+    "id": "merge-hotspot-measurement",
+    "title": "Merge Hotspot Measurement",
+    "aliases": ["hotspots-are-feedback"],
+    "maxColumnGap": 16,
+    "nodes": [
+      { "id": "attempts", "label": "ATTEMPTS", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "paths", "label": "PATHS", "x": 36, "y": 24, "type": "event", "wide": true },
+      { "id": "regions", "label": "REGIONS", "x": 36, "y": 50, "type": "event", "wide": true },
+      { "id": "outcomes", "label": "OUTCOMES", "x": 36, "y": 76, "type": "gate", "wide": true },
+      { "id": "measure", "label": "MEASURE", "x": 74, "y": 50, "type": "synthesis", "wide": true },
+      { "id": "hotspots", "label": "HOTSPOTS", "x": 110, "y": 32, "type": "conflict", "wide": true },
+      { "id": "pairs", "label": "CORRELATION", "x": 110, "y": 68, "type": "select", "wide": true },
+      { "id": "refill", "label": "NEXT REFILL", "x": 146, "y": 50, "type": "result", "wide": true }
+    ],
+    "edges": [
+      ["attempts", "paths"],
+      ["attempts", "regions"],
+      ["attempts", "outcomes"],
+      ["paths", "measure"],
+      ["regions", "measure"],
+      ["outcomes", "measure"],
+      ["measure", "hotspots"],
+      ["measure", "pairs"],
+      ["hotspots", "refill"],
+      ["pairs", "refill"]
+    ]
+  },
+  {
+    "id": "hotspot-routing-feedback",
+    "title": "Hotspot Routing Feedback",
+    "aliases": ["hotspot-routing"],
+    "maxColumnGap": 16,
+    "nodes": [
+      { "id": "hotspot", "label": "HOTSPOT", "x": 8, "y": 50, "type": "conflict", "wide": true },
+      { "id": "classify", "label": "CLASSIFY", "x": 36, "y": 50, "type": "synthesis", "wide": true },
+      { "id": "lease", "label": "LEASE", "x": 70, "y": 18, "type": "gate", "wide": true },
+      { "id": "split", "label": "SPLIT TASK", "x": 70, "y": 38, "wide": true },
+      { "id": "gate", "label": "ADD GATE", "x": 70, "y": 58, "type": "gate", "wide": true },
+      { "id": "refactor", "label": "REFACTOR", "x": 70, "y": 78, "type": "event", "wide": true },
+      { "id": "policy", "label": "ROUTING", "x": 110, "y": 50, "type": "select", "wide": true },
+      { "id": "backlog", "label": "BACKLOG", "x": 146, "y": 50, "type": "result", "wide": true }
+    ],
+    "edges": [
+      ["hotspot", "classify"],
+      ["classify", "lease"],
+      ["classify", "split"],
+      ["classify", "gate"],
+      ["classify", "refactor"],
+      ["lease", "policy"],
+      ["split", "policy"],
+      ["gate", "policy"],
+      ["refactor", "policy"],
+      ["policy", "backlog"]
+    ]
+  },
+  {
+    "id": "model-tournament-feedback",
+    "title": "Model Tournament Feedback",
+    "aliases": ["tournaments-are-feedback-loops"],
+    "maxColumnGap": 16,
+    "nodes": [
+      { "id": "task", "label": "TASK", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "route", "label": "ROUTE", "x": 34, "y": 50, "type": "select", "wide": true },
+      { "id": "m1", "label": "MODEL A", "x": 66, "y": 22, "wide": true },
+      { "id": "m2", "label": "MODEL B", "x": 66, "y": 50, "wide": true },
+      { "id": "m3", "label": "MODEL C", "x": 66, "y": 78, "wide": true },
+      { "id": "score", "label": "SCORE", "x": 104, "y": 50, "type": "gate", "wide": true },
+      { "id": "policy", "label": "POLICY", "x": 140, "y": 34, "type": "result", "wide": true },
+      { "id": "question", "label": "QUESTION", "x": 140, "y": 66, "type": "event", "wide": true }
+    ],
+    "edges": [
+      ["task", "route"],
+      ["route", "m1"],
+      ["route", "m2"],
+      ["route", "m3"],
+      ["m1", "score"],
+      ["m2", "score"],
+      ["m3", "score"],
+      ["score", "policy"],
+      ["score", "question"]
+    ]
+  },
+  {
+    "id": "model-routing-budget-loop",
+    "title": "Model Routing Budget Loop",
+    "aliases": ["model-routing-budget"],
+    "maxColumnGap": 16,
+    "nodes": [
+      { "id": "route", "label": "ROUTE", "x": 8, "y": 50, "type": "select", "wide": true },
+      { "id": "work", "label": "WORK", "x": 34, "y": 50, "type": "event", "wide": true },
+      { "id": "cost", "label": "COST", "x": 66, "y": 20, "wide": true },
+      { "id": "quality", "label": "QUALITY", "x": 66, "y": 40, "type": "gate", "wide": true },
+      { "id": "latency", "label": "LATENCY", "x": 66, "y": 60, "wide": true },
+      { "id": "review", "label": "REVIEW", "x": 66, "y": 80, "type": "gate", "wide": true },
+      { "id": "accept", "label": "ACCEPTED WORK", "x": 106, "y": 50, "type": "synthesis", "wide": true },
+      { "id": "policy", "label": "UPDATE ROUTER", "x": 146, "y": 50, "type": "result", "wide": true }
+    ],
+    "edges": [
+      ["route", "work"],
+      ["work", "cost"],
+      ["work", "quality"],
+      ["work", "latency"],
+      ["work", "review"],
+      ["cost", "accept"],
+      ["quality", "accept"],
+      ["latency", "accept"],
+      ["review", "accept"],
+      ["accept", "policy"]
+    ]
   }
 ]

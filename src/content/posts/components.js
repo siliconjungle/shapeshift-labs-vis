@@ -24,8 +24,12 @@ import SmallTasksAreAScalingPrimitive from './small-tasks-are-a-scaling-primitiv
 import SemanticMergeIsConservativeByDesign from './semantic-merge-is-conservative-by-design.mdx';
 import RuntimeProofsForInterfaces from './runtime-proofs-for-interfaces.mdx';
 import HumanIsAHighCostOracle from './human-is-a-high-cost-oracle.mdx';
+import HotspotsAreFeedback from './hotspots-are-feedback.mdx';
+import TournamentsAreFeedbackLoops from './tournaments-are-feedback-loops.mdx';
 
 export const postComponents = {
+  'tournaments-are-feedback-loops': TournamentsAreFeedbackLoops,
+  'hotspots-are-feedback': HotspotsAreFeedback,
   'queue-is-a-contract': QueueIsAContract,
   'distributed-agents-need-receipts': DistributedAgentsNeedReceipts,
   'gates-are-interfaces': GatesAreInterfaces,

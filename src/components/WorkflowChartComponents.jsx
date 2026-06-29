@@ -77,6 +77,10 @@ export const SmallTaskScalingChart = makeWorkflowChart('small-task-scaling');
 export const SemanticMergeConservativeChart = makeWorkflowChart('semantic-merge-conservative');
 export const RuntimeProofInterfaceChart = makeWorkflowChart('runtime-proof-interface');
 export const HumanHighCostOracleChart = makeWorkflowChart('human-high-cost-oracle');
+export const MergeHotspotMeasurementChart = makeWorkflowChart('merge-hotspot-measurement');
+export const HotspotRoutingFeedbackChart = makeWorkflowChart('hotspot-routing-feedback');
+export const ModelTournamentFeedbackChart = makeWorkflowChart('model-tournament-feedback');
+export const ModelRoutingBudgetLoopChart = makeWorkflowChart('model-routing-budget-loop');
 
 export const workflowChartComponents = {
   ChainChart,
@@ -148,4 +152,8 @@ export const workflowChartComponents = {
   SemanticMergeConservativeChart,
   RuntimeProofInterfaceChart,
   HumanHighCostOracleChart,
+  MergeHotspotMeasurementChart,
+  HotspotRoutingFeedbackChart,
+  ModelTournamentFeedbackChart,
+  ModelRoutingBudgetLoopChart,
 };

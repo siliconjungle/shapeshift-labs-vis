@@ -1,0 +1,165 @@
+Parallel work creates evidence even when it fails.
+
+Every conflict, stale patch, failed gate, and human question says something about the shape of the system. The mistake is treating those signals as after-the-fact analytics. In an agent system, measurement should feed the next wave of work.
+
+A hotspot is not just a busy file. It is a place where the system keeps paying coordination cost.
+
+<MergeHotspotMeasurementChart caption="Attempts, regions, outcomes, and evidence become hotspot signals the coordinator can use on the next refill." />
+
+## Measure The Work Surface
+
+The useful unit is not only the file.
+
+A file can be hot because many workers touched unrelated exports. That is less interesting than it looks. A quiet file can be risky because two workers keep touching the same public type, route, selector, fixture family, or parser recovery rule. That is more interesting than the file count suggests.
+
+The system should measure both:
+
+```txt
+changed paths
+changed semantic regions
+tasks that touched them
+agents that touched them
+outcomes they produced
+proof that was missing
+questions they triggered
+```
+
+The goal is not to create a prettier report. The goal is to discover where parallelism is being converted into review debt.
+
+## Hotspots Are Not Blame
+
+A hotspot does not mean the code is bad.
+
+It means the current architecture, task shape, or proof boundary is forcing many changes through the same place. Sometimes the right answer is a semantic lease. Sometimes it is a generated registry. Sometimes it is a smaller task. Sometimes it is a focused gate.
+
+The same measurement can route in different ways:
+
+<ClaimProofMatrix
+  eyebrow="Hotspot Routes"
+  title="Signal Becomes Work"
+  rows={[
+    {
+      surface: 'Central registry',
+      claim: 'Many features edit one list',
+      proof: 'Repeated same-region touches',
+      evidence: 'Hot file plus correlated tasks',
+      route: 'Generate or shard',
+      status: 'required',
+    },
+    {
+      surface: 'Parser rule',
+      claim: 'Workers collide on one behavior',
+      proof: 'Region outcomes',
+      evidence: 'Conflict, stale proof, failed fixture',
+      route: 'Lease and gate',
+      status: 'missing',
+    },
+    {
+      surface: 'Global style',
+      claim: 'Selector ownership is ambient',
+      proof: 'Cascade/runtime evidence',
+      evidence: 'Shared selector plus browser failure',
+      route: 'Scope style region',
+      status: 'missing',
+    },
+    {
+      surface: 'Fixture family',
+      claim: 'One fixture carries too many meanings',
+      proof: 'Fixture touch correlation',
+      evidence: 'Many unrelated tasks update it',
+      route: 'Split fixture',
+      status: 'required',
+    },
+  ]}
+  caption="A hotspot is useful only when it turns into a route the system can act on."
+/>
+
+## Correlation Beats Counts
+
+Counting touches is a start.
+
+Correlation is stronger.
+
+If two regions keep appearing together, the system has learned something. Maybe those regions are truly coupled and should be routed together. Maybe they are accidentally coupled and should be split. Maybe a task template is too broad and keeps dragging unrelated surfaces into the same patch.
+
+That is why a work event should carry the region and the outcome:
+
+<SemanticRecord
+  eyebrow="Work Event"
+  title="Parser Recovery Attempt"
+  status="Measured"
+  fields={[
+    {
+      label: 'Region',
+      value: 'src/parser.ts#parseNode',
+      detail: 'The semantic region, not only the file path.',
+    },
+    {
+      label: 'Task',
+      value: 'parser recovery rule',
+      detail: 'The intended unit of work.',
+    },
+    {
+      label: 'Outcome',
+      value: 'stale proof',
+      detail: 'The candidate was real, but the evidence no longer matched head.',
+      tone: 'warning',
+    },
+    {
+      label: 'Signal',
+      value: 'prefer lease and rerun fixture gate',
+      detail: 'The measurement already suggests the next route.',
+      tone: 'route',
+    },
+  ]}
+  caption="A measured work event lets the coordinator learn from attempts without reading every transcript."
+/>
+
+The event does not need to understand the whole project. It needs to bind a task, a region, and an outcome tightly enough that later decisions can use it.
+
+## The Feedback Loop
+
+The loop should be operational:
+
+```txt
+workers attempt tasks
+workers return changed regions and evidence
+admission records outcomes
+measurement finds hot and correlated regions
+the next refill changes routing, leases, gates, or task shape
+```
+
+<HotspotRoutingFeedbackChart caption="Measurement should produce routing pressure: serialize, split, gate, refactor, or observe." />
+
+This is how the system gets better while it runs.
+
+It does not wait for a weekly report. It watches where work is repeatedly becoming expensive and changes the next batch.
+
+## Fewer Conflicts Is The Wrong Only Metric
+
+The obvious number is conflict rate.
+
+That number matters, but it is not enough. A system can reduce conflicts by doing less parallel work. That is not success. The better question is whether coordination cost falls while useful work stays in motion.
+
+Good measurements look like:
+
+```txt
+auto-admitted changes
+stale proof rate
+rerun rate
+gate failure concentration
+human-question rate
+review time per accepted patch
+same-region task pressure
+correlated-region pairs
+```
+
+Those numbers tell the coordinator whether to add workers, shrink tasks, strengthen gates, create leases, or refactor a surface.
+
+## The Mental Model
+
+Semantic merging should not only merge code.
+
+It should measure why code did not merge, feed that back into how work is shaped, and gradually make the project easier to parallelize.
+
+Hotspots are the system teaching itself where coordination is being spent.
