@@ -1,0 +1,165 @@
+Passing a test is useful.
+
+It is not enough.
+
+In an agent merge, the system does not only need to know that something passed. It needs to know what was run, what source it was bound to, what surface it observed, what claim it is allowed to support, and what it did not measure.
+
+Proof shape matters because a vague pass can accidentally become a broad claim.
+
+<RuntimeProofInterfaceChart caption="A runtime proof should bind source, command, probe, observed signals, and claim boundary before admission." />
+
+## A Pass Is Not A Claim
+
+This is too weak:
+
+```txt
+tests passed
+browser looked fine
+layout unchanged
+runtime proof attached
+```
+
+Each sentence hides the important part.
+
+Which tests passed? Against which output? With which viewport? Which selector? Which event path? Which source hashes? Which browser state? Which claims are still false?
+
+The merge system should not have to infer that from a transcript.
+
+It should receive a shaped proof.
+
+## The Capsule
+
+A runtime proof capsule is the envelope around the observation.
+
+<SemanticRecord
+  eyebrow="Runtime Proof"
+  title="Output-Bound Capsule"
+  status="Bounded claim"
+  fields={[
+    {
+      label: 'Command',
+      value: 'playwright test save-button.spec.ts',
+      detail: 'The exact way the observation was produced.',
+    },
+    {
+      label: 'Probe',
+      value: 'button:save:event-runtime',
+      detail: 'The named surface the command was checking.',
+    },
+    {
+      label: 'Source binding',
+      value: 'base, worker, head, output hashes',
+      detail: 'The proof belongs to four concrete source states.',
+    },
+    {
+      label: 'Telemetry',
+      value: 'DOM, style, layout, event, focus, accessibility',
+      detail: 'Structured observations, not only a screenshot.',
+    },
+    {
+      label: 'Limit',
+      value: 'desktop fixture, save flow only',
+      detail: 'The proof does not become whole-app equivalence.',
+      tone: 'warning',
+    },
+    {
+      label: 'Route',
+      value: 'admit runtime claim for this boundary',
+      detail: 'Admission is scoped to the measured surface.',
+      tone: 'route',
+    },
+  ]}
+  caption="A proof capsule is useful because it is narrow enough to trust and explicit enough to reject."
+/>
+
+The capsule is not ceremony.
+
+It prevents the system from treating one observation as a universal runtime guarantee.
+
+## Evidence Needs Coordinates
+
+Runtime evidence should have coordinates:
+
+```txt
+source path
+base hash
+worker hash
+head hash
+output hash
+command
+probe id
+evidence hash
+required signals
+observed snapshots
+claim flags
+```
+
+Without coordinates, evidence drifts.
+
+A browser trace from the worker output might be true and still irrelevant to the final merged output. A fixture might prove a component in isolation and still not prove the route shell. A screenshot might show the right pixels and still miss focus order or accessible names.
+
+Coordinates make those limits visible.
+
+## Proof Strength
+
+Different observations support different claims.
+
+<ClaimProofMatrix
+  eyebrow="Proof Shape"
+  title="Observation To Claim"
+  rows={[
+    {
+      surface: 'Command',
+      claim: 'The proof is replayable',
+      proof: 'Exact command and environment',
+      evidence: 'Command, probe id, fixture mode',
+      route: 'Accept as evidence object',
+      status: 'proved',
+    },
+    {
+      surface: 'Source',
+      claim: 'The proof belongs to this merge',
+      proof: 'Four source hashes',
+      evidence: 'Base, worker, head, output binding',
+      route: 'Bind to candidate',
+      status: 'required',
+    },
+    {
+      surface: 'Browser',
+      claim: 'The measured behavior held',
+      proof: 'Structured runtime telemetry',
+      evidence: 'DOM, computed style, layout, event, focus, a11y',
+      route: 'Admit scoped runtime claim',
+      status: 'proved',
+    },
+    {
+      surface: 'Whole product',
+      claim: 'Everything is equivalent',
+      proof: 'Unbounded product oracle',
+      evidence: 'Not provided',
+      route: 'Keep broad claim false',
+      status: 'missing',
+    },
+  ]}
+  caption="A shaped proof lets the system admit the narrow claim while refusing the broad one."
+/>
+
+The important distinction is not pass or fail.
+
+It is what the pass is allowed to mean.
+
+## The Mental Model
+
+A proof is not a note that says the work is good.
+
+It is a bounded object that says:
+
+```txt
+this exact output
+under these exact conditions
+produced these observations
+for this exact claim
+and no larger claim
+```
+
+When proof shape is explicit, semantic merge can trust more without guessing more.

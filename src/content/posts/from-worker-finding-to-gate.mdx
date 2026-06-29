@@ -1,0 +1,172 @@
+A worker finding is not automatically a fix.
+
+It is a signal.
+
+The useful path is longer: a worker finds a gap, the coordinator checks it, the system turns it into a fixture, the matrix gets a row or stronger expectation, the gate runs, and only then does the rule become part of admission.
+
+That lifecycle is how swarms improve the system without turning review into chaos.
+
+<CoordinatorWaveLoopChart caption="A worker finding becomes valuable when the coordinator turns it into a reviewed gate and feeds it back into the next wave." />
+
+## The Worker Finds A Gap
+
+A good worker output is not just a patch.
+
+It should say:
+
+```txt
+what world it saw
+what surface it inspected
+what gap it found
+what evidence supports the finding
+what change would catch the gap next time
+```
+
+<SemanticRecord
+  eyebrow="Worker Finding"
+  title="Runtime Proof Gap"
+  status="Needs coordinator review"
+  fields={[
+    {
+      label: 'Surface',
+      value: 'CSS cascade runtime proof',
+      detail: 'The gap belongs to a named merge surface.',
+    },
+    {
+      label: 'Finding',
+      value: 'Legacy proof shape can overclaim',
+      detail: 'The worker found a bypass, not a general failure.',
+      tone: 'warning',
+    },
+    {
+      label: 'Evidence',
+      value: 'Minimal proof object and expected refusal',
+      detail: 'The finding is reproducible.',
+    },
+    {
+      label: 'Route',
+      value: 'Add fail-closed fixture and gate',
+      detail: 'The next step is a system rule, not a chat summary.',
+      tone: 'route',
+    },
+  ]}
+  caption="A finding is useful when it names the surface, the gap, the evidence, and the next admission route."
+/>
+
+The coordinator should not blindly merge the worker output.
+
+The coordinator should extract the useful claim.
+
+## The Coordinator Turns It Into A Case
+
+The next step is usually a focused case:
+
+```txt
+base source
+worker source
+head source
+candidate output
+proof object
+expected route
+expected admission result
+```
+
+That case should be small enough that future workers and humans can understand it without reading the original transcript.
+
+The transcript found the problem.
+
+The fixture preserves it.
+
+## The Gate Makes It Durable
+
+Once the case exists, the gate decides whether the system now knows how to handle it.
+
+<GateInterfaceContractChart caption="A gate turns one reviewed finding into comparable evidence future candidates have to satisfy." />
+
+A useful gate does not only say pass or fail.
+
+It says:
+
+```txt
+which claim was checked
+which evidence was required
+which artifact was produced
+which route happens on failure
+```
+
+That is how one swarm finding becomes part of the admission contract.
+
+## The Matrix Learns
+
+The matrix should change when the finding changes the denominator.
+
+<ClaimProofMatrix
+  eyebrow="Finding To Matrix"
+  title="A Gap Becomes A Row"
+  rows={[
+    {
+      surface: 'Finding',
+      claim: 'There is an uncounted risk',
+      proof: 'Worker evidence',
+      evidence: 'Reproducible gap',
+      route: 'Coordinator review',
+      status: 'required',
+    },
+    {
+      surface: 'Fixture',
+      claim: 'The case has an expected outcome',
+      proof: 'Minimal source pair',
+      evidence: 'Pass or fail expected',
+      route: 'Run focused gate',
+      status: 'proved',
+    },
+    {
+      surface: 'Matrix',
+      claim: 'The denominator includes the risk',
+      proof: 'Named row or proof condition',
+      evidence: 'Missing route or fail-closed rule',
+      route: 'Update admission',
+      status: 'required',
+    },
+    {
+      surface: 'Admission',
+      claim: 'Future candidates obey the rule',
+      proof: 'Gate and decision record',
+      evidence: 'Blocked unsafe proof or admitted bounded proof',
+      route: 'Apply when proved',
+      status: 'proved',
+    },
+  ]}
+  caption="The worker does not make the system smarter by being right. It makes the system smarter when the finding becomes a durable rule."
+/>
+
+## The Next Wave Uses It
+
+The point is feedback.
+
+After the gate exists, future agents get better task boundaries:
+
+```txt
+attach this proof shape
+avoid this broad claim
+expect this fail-closed route
+run this focused gate
+report this evidence object
+```
+
+The system becomes easier to parallelize because the review standard is no longer hidden in the coordinator's head.
+
+## The Mental Model
+
+A swarm finding should move through four states:
+
+```txt
+observation
+fixture
+gate
+admission rule
+```
+
+Only the last state changes production behavior.
+
+That is the difference between agent output and system learning.

@@ -26,8 +26,20 @@ import RuntimeProofsForInterfaces from './runtime-proofs-for-interfaces.mdx';
 import HumanIsAHighCostOracle from './human-is-a-high-cost-oracle.mdx';
 import HotspotsAreFeedback from './hotspots-are-feedback.mdx';
 import TournamentsAreFeedbackLoops from './tournaments-are-feedback-loops.mdx';
+import ProofShapeMatters from './proof-shape-matters.mdx';
+import IdentityIsTheMergePrimitive from './identity-is-the-merge-primitive.mdx';
+import TheDenominatorProblem from './the-denominator-problem.mdx';
+import StaticShapeRuntimeMeaning from './static-shape-runtime-meaning.mdx';
+import FailClosedThenLearn from './fail-closed-then-learn.mdx';
+import FromWorkerFindingToGate from './from-worker-finding-to-gate.mdx';
 
 export const postComponents = {
+  'proof-shape-matters': ProofShapeMatters,
+  'identity-is-the-merge-primitive': IdentityIsTheMergePrimitive,
+  'the-denominator-problem': TheDenominatorProblem,
+  'static-shape-runtime-meaning': StaticShapeRuntimeMeaning,
+  'fail-closed-then-learn': FailClosedThenLearn,
+  'from-worker-finding-to-gate': FromWorkerFindingToGate,
   'tournaments-are-feedback-loops': TournamentsAreFeedbackLoops,
   'hotspots-are-feedback': HotspotsAreFeedback,
   'queue-is-a-contract': QueueIsAContract,

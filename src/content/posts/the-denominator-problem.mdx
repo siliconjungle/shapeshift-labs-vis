@@ -1,0 +1,151 @@
+A green matrix can lie.
+
+Not because the rows are wrong. Because the denominator is missing.
+
+If the system only counts the cases it already knows how to prove, it can look complete while entire classes of risk sit outside the table. Completeness only means something when the matrix names the surfaces, the missing rows, the fail-closed cases, and the claims that are deliberately still false.
+
+The denominator is the set of things the system promises to account for.
+
+<MatrixRoutingSystemChart caption="A matrix is only trustworthy when the rows cover the real surfaces, not only the easy wins." />
+
+## Green Rows Are Not Enough
+
+This looks good:
+
+```txt
+parser evidence: passed
+scope graph: passed
+type check: passed
+runtime proof: passed
+```
+
+But the useful question is:
+
+```txt
+passed out of what?
+```
+
+Did the runtime proof include focus? Did it include accessibility? Did it bind the output source? Did it reject broad self-claims? Did the JSX row include duplicate keys? Did CSS Modules include the bundler transform? Did HTML token lists include both branches?
+
+If those cases are not counted, the matrix is measuring confidence in the known subset.
+
+It is not measuring completeness.
+
+## Rows Need Negative Space
+
+A strong matrix includes proof and absence.
+
+<ClaimProofMatrix
+  eyebrow="Denominator"
+  title="What Counts As Covered"
+  rows={[
+    {
+      surface: 'Known positive',
+      claim: 'This case can merge',
+      proof: 'Fixture and gate pass',
+      evidence: 'Admitted output',
+      route: 'Apply',
+      status: 'proved',
+    },
+    {
+      surface: 'Known negative',
+      claim: 'This case must refuse',
+      proof: 'Fail-closed fixture',
+      evidence: 'Blocked output',
+      route: 'Record refusal',
+      status: 'proved',
+    },
+    {
+      surface: 'Missing proof',
+      claim: 'The system knows what it lacks',
+      proof: 'Matrix row and route',
+      evidence: 'Typed missing evidence',
+      route: 'Create proof task',
+      status: 'required',
+    },
+    {
+      surface: 'Unknown surface',
+      claim: 'Completeness is not established',
+      proof: 'Discovery row',
+      evidence: 'Absent',
+      route: 'Expand denominator',
+      status: 'missing',
+    },
+  ]}
+  caption="A complete-looking matrix is weak unless it counts positive cases, refusals, missing proof, and unknown surface area."
+/>
+
+The negative rows matter as much as the positive rows.
+
+A system that cannot prove it refuses bad evidence is not production grade.
+
+## Overclaiming Is A Denominator Bug
+
+Overclaiming usually happens when a proof row is too wide.
+
+```txt
+parser span proof becomes semantic equivalence
+source hash proof becomes runtime equivalence
+one browser trace becomes layout guarantee
+one key list becomes render equivalence
+one CSS selector proof becomes cascade equivalence
+```
+
+The fix is not only stricter code.
+
+The fix is a better denominator. The matrix should make broad claims visible as their own rows. If the row is missing, the claim stays false.
+
+## Denominator Discipline
+
+The matrix should answer five questions:
+
+```txt
+what surfaces exist?
+what claims can each surface support?
+what proof is required?
+what fail-closed cases are expected?
+what work remains outside the proof boundary?
+```
+
+<SemanticRecord
+  eyebrow="Matrix Row"
+  title="Browser Runtime Proof"
+  status="Counted"
+  fields={[
+    {
+      label: 'Positive',
+      value: 'Output-bound probe passes',
+      detail: 'The row counts the admitted case.',
+    },
+    {
+      label: 'Negative',
+      value: 'Missing capsule blocks',
+      detail: 'The row counts the refusal case.',
+      tone: 'warning',
+    },
+    {
+      label: 'Scope',
+      value: 'Declared viewport and workflow',
+      detail: 'The row does not become whole-product equivalence.',
+    },
+    {
+      label: 'Route',
+      value: 'Produce stronger runtime proof',
+      detail: 'Missing evidence has a next action.',
+      tone: 'route',
+    },
+  ]}
+  caption="A counted row says what success means, what failure means, and what remains outside the claim."
+/>
+
+This keeps progress honest.
+
+It also makes the system easier to improve. Every missing row is a concrete task instead of an argument about confidence.
+
+## The Mental Model
+
+Completeness is not how many boxes are green.
+
+Completeness is whether the table names the real world it claims to cover.
+
+The denominator is the safety boundary around the matrix.

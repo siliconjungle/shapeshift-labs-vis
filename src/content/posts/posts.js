@@ -1,5 +1,53 @@
 const postEntries = [
   {
+    slug: 'proof-shape-matters',
+    title: 'Proof Shape Matters',
+    publishedAt: '2026-06-29T22:10:00+10:00',
+    graphType: null,
+    excerpt:
+      'A passed test is not enough. Runtime proof needs source binding, probe identity, telemetry, snapshots, and bounded claims.',
+  },
+  {
+    slug: 'identity-is-the-merge-primitive',
+    title: 'Identity Is The Merge Primitive',
+    publishedAt: '2026-06-29T22:09:00+10:00',
+    graphType: null,
+    excerpt:
+      'Semantic merge works when the system can prove stable identity across exports, bindings, React keys, selectors, class maps, ids, and tokens.',
+  },
+  {
+    slug: 'the-denominator-problem',
+    title: 'The Denominator Problem',
+    publishedAt: '2026-06-29T22:08:00+10:00',
+    graphType: null,
+    excerpt:
+      'A green matrix can lie unless it counts the real denominator: missing rows, fail-closed cases, skipped surfaces, and over-broad claims.',
+  },
+  {
+    slug: 'static-shape-runtime-meaning',
+    title: 'Static Shape, Runtime Meaning',
+    publishedAt: '2026-06-29T22:07:00+10:00',
+    graphType: null,
+    excerpt:
+      'UI code has source shape and runtime meaning. Semantic merge has to keep AST, DOM, cascade, layout, focus, events, and accessibility claims separate.',
+  },
+  {
+    slug: 'fail-closed-then-learn',
+    title: 'Fail Closed, Then Learn',
+    publishedAt: '2026-06-29T22:06:00+10:00',
+    graphType: null,
+    excerpt:
+      'A blocked merge should not be dead air. It should become a sharper row, fixture, gate, question, route, or admission rule.',
+  },
+  {
+    slug: 'from-worker-finding-to-gate',
+    title: 'From Worker Finding To Gate',
+    publishedAt: '2026-06-29T22:05:00+10:00',
+    graphType: null,
+    excerpt:
+      'A swarm finding becomes durable only when the coordinator turns it into a focused fixture, matrix expectation, gate, and admission rule.',
+  },
+  {
     slug: 'tournaments-are-feedback-loops',
     title: 'Tournaments Are Feedback Loops',
     publishedAt: '2026-06-29T13:58:00+10:00',

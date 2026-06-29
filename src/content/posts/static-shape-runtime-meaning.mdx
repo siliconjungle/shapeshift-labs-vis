@@ -1,0 +1,139 @@
+UI code has two lives.
+
+It exists as source shape: files, syntax, imports, elements, selectors, attributes, props, and types.
+
+Then the browser runs it into another thing: DOM, cascade, layout, focus, accessibility, events, hydration, media state, and user-visible behavior.
+
+Semantic merge has to respect both lives.
+
+<LayoutRuntimeStackChart caption="Static shape feeds a runtime surface. The merge claim has to say which layer it proved." />
+
+## Static Shape Still Matters
+
+Static shape is not weak.
+
+It can prove many things:
+
+```txt
+the parser understood the file
+the import still resolves
+the prop name is stable
+the element identity is present
+the selector target can be traced
+the type surface still compiles
+```
+
+Those proofs are valuable because they are cheap, deterministic, and source-bound.
+
+They also stop before runtime meaning.
+
+Knowing that a button still exists is not the same as knowing it is visible, focusable, labeled, clickable, hydrated, and not overlapped.
+
+## Runtime Meaning Is A Different Surface
+
+The runtime surface needs its own probes.
+
+<RuntimeProbeMatrix
+  rows={[
+    {
+      surface: 'DOM shape',
+      scope: 'HTML element, JSX output, hydrated tree',
+      probe: 'DOM snapshot',
+      probeDetail: 'Inspect the output tree after render.',
+      signal: 'Tags, attributes, text, relationships, hidden state',
+      claim: 'The structural target exists in the rendered output.',
+      route: 'Admit structural runtime claim',
+      tone: 'apply',
+    },
+    {
+      surface: 'Cascade',
+      scope: 'selectors, layers, variables, media and container state',
+      probe: 'Computed style probe',
+      probeDetail: 'Read browser-computed values for declared targets.',
+      signal: 'Matched rules, computed properties, override source',
+      claim: 'The intended style wins under the measured condition.',
+      route: 'Gate cascade',
+      tone: 'gate',
+    },
+    {
+      surface: 'Layout',
+      scope: 'viewport, scroll, overlap, visibility',
+      probe: 'Layout snapshot',
+      probeDetail: 'Compare geometry after style and layout.',
+      signal: 'Rects, visibility, overflow, layout shift',
+      claim: 'The layout remains inside declared bounds.',
+      route: 'Require layout proof',
+      tone: 'review',
+    },
+    {
+      surface: 'Interaction',
+      scope: 'click, input, focus, keyboard path',
+      probe: 'Event trace',
+      probeDetail: 'Replay the smallest user path.',
+      signal: 'Target reached, event fired, state changed, focus moved',
+      claim: 'The workflow still works for the traced path.',
+      route: 'Gate workflow',
+      tone: 'gate',
+    },
+    {
+      surface: 'Accessibility',
+      scope: 'role, name, state, relationships',
+      probe: 'Accessibility snapshot',
+      probeDetail: 'Read the accessibility tree.',
+      signal: 'Role, accessible name, tab stop, aria links',
+      claim: 'The user-facing semantic target is preserved.',
+      route: 'Require a11y proof',
+      tone: 'missing',
+    },
+  ]}
+  caption="Runtime proof is not one check. It is a set of measured surfaces with bounded claims."
+/>
+
+HTML, CSS, and JSX are not easier than TypeScript.
+
+They are different.
+
+Their meaning often appears after the browser evaluates several systems together.
+
+## Static And Runtime Should Compose
+
+The runtime proof should not float away from the source proof.
+
+It should bind back to the static shape:
+
+```txt
+source span -> element identity
+element identity -> selector target
+selector target -> computed style
+computed style -> layout
+layout -> interaction
+interaction -> accessibility and focus
+```
+
+The browser observation is strongest when it is source-bound.
+
+The static proof is strongest when it knows when to stop.
+
+## Do Not Collapse The Layers
+
+The mistake is turning one layer into another.
+
+```txt
+AST proof does not prove layout
+type proof does not prove click behavior
+selector proof does not prove cascade under media state
+DOM proof does not prove accessibility
+one viewport does not prove every viewport
+```
+
+The system can still admit useful work.
+
+It just needs to admit the claim that was actually proven.
+
+## The Mental Model
+
+Static shape tells the system what the code says.
+
+Runtime meaning tells the system what the interface became.
+
+Semantic merge gets stronger when it keeps those layers separate and lets evidence climb only as high as it actually reaches.

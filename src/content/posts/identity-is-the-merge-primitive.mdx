@@ -1,0 +1,208 @@
+Semantic merge is often described as understanding code.
+
+That is too vague.
+
+The practical primitive is identity. The system needs to know whether two edits are touching the same thing, different things, or a thing whose name moved while its meaning stayed connected.
+
+Across JavaScript, TypeScript, JSX, HTML, and CSS, the useful question keeps repeating:
+
+```txt
+what is this thing?
+what points at it?
+did the identity survive the edit?
+```
+
+<SemanticRegionIndexChart caption="Semantic merge starts by turning text into named regions that can be compared across branches." />
+
+## Names Are Not Enough
+
+A name can be stable while meaning changes.
+
+A meaning can stay stable while the name changes.
+
+That is why identity needs more than text:
+
+```txt
+export name
+local binding
+module specifier
+type declaration
+React key
+HTML id
+data key
+selector target
+CSS Module class map
+token-list member
+```
+
+Each one gives the merge system a way to say whether a change is independent or overlapping.
+
+## Identity By Surface
+
+Identity looks different on different surfaces.
+
+<ClaimProofMatrix
+  eyebrow="Identity Matrix"
+  title="Stable Meaning By Surface"
+  rows={[
+    {
+      surface: 'JS import',
+      claim: 'Bindings commute',
+      proof: 'Local name plus module source',
+      evidence: 'Import set identity',
+      route: 'Admit disjoint additions',
+      status: 'proved',
+    },
+    {
+      surface: 'TypeScript API',
+      claim: 'Public shape is stable',
+      proof: 'Declaration identity',
+      evidence: 'Export, field, modifier, generic shape',
+      route: 'Gate public contract',
+      status: 'required',
+    },
+    {
+      surface: 'JSX list',
+      claim: 'Children keep identity',
+      proof: 'Static React keys',
+      evidence: 'Key values and duplicate-key check',
+      route: 'Admit or block list proof',
+      status: 'required',
+    },
+    {
+      surface: 'HTML',
+      claim: 'Element target is stable',
+      proof: 'Element identity',
+      evidence: 'id, data key, ARIA relationship, token lists',
+      route: 'Admit structural merge',
+      status: 'required',
+    },
+    {
+      surface: 'CSS',
+      claim: 'Rule reaches same target',
+      proof: 'Selector target graph',
+      evidence: 'Selector, cascade scope, CSS Module map',
+      route: 'Prove target or route runtime',
+      status: 'missing',
+    },
+  ]}
+  caption="Identity is not one field. It is the surface-specific handle the system can safely compare."
+/>
+
+When the handle is stable, parallel edits can often commute.
+
+When the handle is missing, the system should stop before pretending it knows the merge is safe.
+
+## Identity Enables Rebase
+
+A text merge sees positions.
+
+A semantic merge sees carried identity.
+
+<RegionOverlapMap
+  source={[
+    'export interface User {',
+    '  id: string;',
+    '  fullName: string;',
+    '  nickname?: string;',
+    '}',
+    '',
+    'export function displayName(user: User) {',
+    '  return user.nickname ?? user.fullName;',
+    '}',
+    '',
+    'export function Profile({ user }) {',
+    '  return <h2 data-user-id={user.id}>{displayName(user)}</h2>;',
+    '}',
+  ]}
+  regions={[
+    {
+      id: 'type',
+      label: 'User',
+      kind: 'public type',
+      line: 1,
+      text: 'User',
+      agentA: 'Adds nickname',
+      agentB: 'Renames display field',
+      relationship: 'Same public contract',
+      route: 'Typed rebase',
+      tone: 'rebase',
+    },
+    {
+      id: 'field',
+      label: 'fullName',
+      kind: 'field identity',
+      line: 3,
+      text: 'fullName',
+      agentA: 'Reads display value',
+      agentB: 'Owns field rename',
+      relationship: 'Dependency overlap',
+      route: 'Rebase read through field identity',
+      tone: 'review',
+    },
+    {
+      id: 'helper',
+      label: 'displayName',
+      kind: 'function identity',
+      line: 7,
+      text: 'displayName',
+      agentA: 'Introduces helper',
+      agentB: 'Changes field contract',
+      relationship: 'Compatible if helper adapts',
+      route: 'Gate output',
+      tone: 'gate',
+    },
+    {
+      id: 'dom-key',
+      label: 'data-user-id',
+      kind: 'HTML identity',
+      line: 12,
+      text: 'data-user-id',
+      agentA: 'Preserves element target',
+      agentB: 'Preserves user identity',
+      relationship: 'Stable rendered target',
+      route: 'Runtime proof if behavior changes',
+      tone: 'apply',
+    },
+  ]}
+  caption="Identity lets the system distinguish a true overlap from a text collision that can be carried forward."
+/>
+
+The rebase is not magic.
+
+It is the system saying: this worker edit was made against an old name, but the identity can be followed through the current head.
+
+## Identity Can Fail
+
+Some identity evidence is strong.
+
+Some is weak.
+
+Some is absent.
+
+Examples:
+
+```txt
+two JSX children share the same key
+CSS selector reaches a different element set
+HTML id is duplicated
+CSS Module export map is missing
+type alias preserves name but changes assignability
+import specifier resolves to a different module
+```
+
+Those are not edge cases.
+
+They are identity failures.
+
+The right response is not to guess. The right response is to route: require a proof, split the task, ask a question, or block the merge.
+
+## The Mental Model
+
+Semantic merge works when the system can keep hold of identity while the text moves.
+
+Text tells us where bytes changed.
+
+Identity tells us what changed.
+
+Proof tells us whether the changed thing is still allowed to join the output.
