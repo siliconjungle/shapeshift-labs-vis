@@ -1,5 +1,69 @@
 const postEntries = [
   {
+    slug: 'queue-is-a-contract',
+    title: 'The Queue Is A Contract',
+    publishedAt: '2026-06-29T11:59:00+10:00',
+    graphType: null,
+    excerpt:
+      'A durable queue is part of the system truth: task identity, claims, retries, outcomes, dead letters, and no resurrection from stale manifests.',
+  },
+  {
+    slug: 'distributed-agents-need-receipts',
+    title: 'Distributed Agents Need Receipts',
+    publishedAt: '2026-06-29T11:58:00+10:00',
+    graphType: null,
+    excerpt:
+      'Remote workers should return receipts that bind head, region, patch, proof, and assumptions before the coordinator admits work.',
+  },
+  {
+    slug: 'gates-are-interfaces',
+    title: 'Gates Are Interfaces',
+    publishedAt: '2026-06-29T11:57:00+10:00',
+    graphType: null,
+    excerpt:
+      'A gate is not just a command. It is an interface that turns candidate work into comparable evidence objects.',
+  },
+  {
+    slug: 'apply-step-is-a-review-engine',
+    title: 'The Apply Step Is A Review Engine',
+    publishedAt: '2026-06-29T11:56:00+10:00',
+    graphType: null,
+    excerpt:
+      'Applying a patch means claiming authority, re-reading head, dry-applying, running gates, writing decisions, and only then mutating shared state.',
+  },
+  {
+    slug: 'small-tasks-are-a-scaling-primitive',
+    title: 'Small Tasks Are A Scaling Primitive',
+    publishedAt: '2026-06-29T11:55:00+10:00',
+    graphType: null,
+    excerpt:
+      'Parallelism comes from independent, reviewable tasks with bounded context, not from worker count alone.',
+  },
+  {
+    slug: 'semantic-merge-is-conservative-by-design',
+    title: 'Semantic Merge Is Conservative By Design',
+    publishedAt: '2026-06-29T11:54:00+10:00',
+    graphType: null,
+    excerpt:
+      'Semantic merge should automate more only when evidence is stronger, and fail closed when meaning is missing or ambiguous.',
+  },
+  {
+    slug: 'runtime-proofs-for-interfaces',
+    title: 'Runtime Proofs For Interfaces',
+    publishedAt: '2026-06-29T11:53:00+10:00',
+    graphType: null,
+    excerpt:
+      'UI and browser-facing changes need runtime proof for layout, focus, accessibility, hydration, and event behavior.',
+  },
+  {
+    slug: 'human-is-a-high-cost-oracle',
+    title: 'The Human Is A High-Cost Oracle',
+    publishedAt: '2026-06-29T11:52:00+10:00',
+    graphType: null,
+    excerpt:
+      'Human attention should be treated as scarce evidence: shaped questions, batched uncertainty, durable answers, and routed continuations.',
+  },
+  {
     slug: 'matrix-is-the-system',
     title: 'The Matrix Is The System',
     publishedAt: '2026-06-28T07:33:00+10:00',

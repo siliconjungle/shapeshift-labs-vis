@@ -1,0 +1,64 @@
+More agents do not automatically create more progress.
+
+They create more attempts.
+
+Progress comes from making those attempts easy to review, merge, and learn from. That is why task size is a scaling primitive. A small, bounded task can move through the system. A broad task becomes review debt.
+
+<SmallTaskScalingChart caption="Scaling starts by splitting a goal into narrow tasks whose bundles can be reviewed and merged independently." />
+
+## Broad Work Hides Risk
+
+A broad task asks the worker to decide too much:
+
+```txt
+fix the dashboard
+improve semantic merge
+make the browser proof better
+clean up the queue
+```
+
+Those tasks may produce useful work, but the output is hard to admit. The coordinator has to separate diagnosis from patch, safe hunk from risky hunk, current evidence from stale evidence, and implementation from unrelated cleanup.
+
+That review cost is where parallelism dies.
+
+## Small Work Has Edges
+
+A useful task has boundaries:
+
+```txt
+allowed files or regions
+expected output
+required gates
+known non-goals
+handoff format
+```
+
+Those edges make it possible for different workers to move without colliding. They also make failure cheaper. If a small task fails, the system learns something local.
+
+## Context Is Part Of The Task
+
+Small tasks are not only about fewer files.
+
+They are about bounded context. A worker should receive the source slices, fixtures, traces, and expectations needed for the task, not the whole system as a vague prompt.
+
+The less context a worker has to rediscover, the more likely its output is reviewable.
+
+## Reviewable Bundles Beat Big Patches
+
+A good worker bundle can be inspected quickly:
+
+```txt
+what changed
+why it changed
+which region it touched
+what evidence was produced
+what remains uncertain
+```
+
+That bundle shape is what lets the coordinator scale.
+
+## The Mental Model
+
+Parallelism is not worker count.
+
+Parallelism is the number of independent, reviewable decisions the system can safely keep in motion.

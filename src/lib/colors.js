@@ -216,9 +216,6 @@ export const polarToLab = (
   maxRadius
 ) => {
   const luminosity = radius / maxRadius;
-  const hslColor = polarToHsl(radius, angle, maxRadius);
-  const rgbColor = hslToRgb(hslColor);
-  const labColor = rgbToLab(rgbColor);
 
   // Using polar coordinates directly for a/b, fixed scaling
   return {
@@ -263,4 +260,3 @@ export const extractPalette = async (
     };
   });
 };
-

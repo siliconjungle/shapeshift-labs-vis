@@ -21,8 +21,12 @@ export const ResearchTreeSynthesisChart = makeWorkflowChart('research-tree-synth
 export const SemanticMergeTextConflictChart = makeWorkflowChart('semantic-merge-text-conflict');
 export const SemanticMergeImportSetChart = makeWorkflowChart('semantic-merge-import-set');
 export const SemanticMergeTypedRebaseChart = makeWorkflowChart('semantic-merge-typed-rebase');
+export const RunTranscriptLineChart = makeWorkflowChart('run-transcript-line');
 export const RunCausalGraphChart = makeWorkflowChart('run-causal-graph');
+export const RunEventsProjectionChart = makeWorkflowChart('run-events-projections');
 export const RunLaneConvergenceChart = makeWorkflowChart('run-lane-convergence');
+export const RunStaleEvidenceChart = makeWorkflowChart('run-stale-evidence');
+export const RunDecisionParentsChart = makeWorkflowChart('run-decision-parents');
 export const EvidenceAdmissionChart = makeWorkflowChart('evidence-admission');
 export const EvidenceComparisonChart = makeWorkflowChart('evidence-comparison');
 export const SemanticLeaseClaimChart = makeWorkflowChart('semantic-lease-claim');
@@ -65,6 +69,14 @@ export const TextSubstrateLayersChart = makeWorkflowChart('text-substrate-layers
 export const FourVersionMergeBindingChart = makeWorkflowChart('four-version-merge-binding');
 export const CssDependencyGraphChart = makeWorkflowChart('css-dependency-graph');
 export const MatrixRoutingSystemChart = makeWorkflowChart('matrix-routing-system');
+export const QueueContractLifecycleChart = makeWorkflowChart('queue-contract-lifecycle');
+export const DistributedAgentReceiptChart = makeWorkflowChart('distributed-agent-receipt');
+export const GateInterfaceContractChart = makeWorkflowChart('gate-interface-contract');
+export const ApplyReviewEngineChart = makeWorkflowChart('apply-review-engine');
+export const SmallTaskScalingChart = makeWorkflowChart('small-task-scaling');
+export const SemanticMergeConservativeChart = makeWorkflowChart('semantic-merge-conservative');
+export const RuntimeProofInterfaceChart = makeWorkflowChart('runtime-proof-interface');
+export const HumanHighCostOracleChart = makeWorkflowChart('human-high-cost-oracle');
 
 export const workflowChartComponents = {
   ChainChart,
@@ -82,8 +94,12 @@ export const workflowChartComponents = {
   SemanticMergeTextConflictChart,
   SemanticMergeImportSetChart,
   SemanticMergeTypedRebaseChart,
+  RunTranscriptLineChart,
   RunCausalGraphChart,
+  RunEventsProjectionChart,
   RunLaneConvergenceChart,
+  RunStaleEvidenceChart,
+  RunDecisionParentsChart,
   EvidenceAdmissionChart,
   EvidenceComparisonChart,
   SemanticLeaseClaimChart,
@@ -124,4 +140,12 @@ export const workflowChartComponents = {
   FourVersionMergeBindingChart,
   CssDependencyGraphChart,
   MatrixRoutingSystemChart,
+  QueueContractLifecycleChart,
+  DistributedAgentReceiptChart,
+  GateInterfaceContractChart,
+  ApplyReviewEngineChart,
+  SmallTaskScalingChart,
+  SemanticMergeConservativeChart,
+  RuntimeProofInterfaceChart,
+  HumanHighCostOracleChart,
 };

@@ -9,7 +9,6 @@
  */
 import fs from 'fs/promises';
 import path from 'path';
-import * as THREE from 'three';
 
 const INPUT_DIR = path.join(process.cwd(), 'public', 'models');
 const OUTPUT_DIR = path.join(process.cwd(), 'public', 'precomputed');

@@ -56,6 +56,8 @@ Different UI changes need different evidence.
 
 <LayoutRuntimeEvidenceChart caption="A UI change can need selector, viewport, interaction, and accessibility evidence before it should be admitted." />
 
+<RuntimeProbeMatrix caption="Runtime proof should name the exact surface being checked, the probe that observed it, and the claim that probe is strong enough to admit." />
+
 If a patch changes a class name, selector reachability matters.
 
 If a patch changes responsive layout, viewport evidence matters.
@@ -108,4 +110,3 @@ HTML describes structure. CSS describes constraints and branches. JSX describes 
 A serious merge system should respect that boundary.
 
 It can admit simple structural changes with static evidence. It should ask for runtime evidence when the change crosses into layout, focus, visibility, accessibility, hydration, or user interaction.
-

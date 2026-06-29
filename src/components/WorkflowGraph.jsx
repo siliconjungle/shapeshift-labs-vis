@@ -238,7 +238,7 @@ export default function WorkflowGraph({ type = 'diamond', graph = null, classNam
             }}
             viewBox="0 0 14 14"
           >
-            <path d="M7 2 L13 12 H1 Z" />
+            <path d="M7 2.5 L12 10.5 H2 Z" />
           </svg>
         );
       })}

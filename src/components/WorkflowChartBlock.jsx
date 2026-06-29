@@ -21,10 +21,17 @@ const estimateChartHeight = (chart) => {
   return Math.min(MAX_CHART_HEIGHT, Math.max(MIN_CHART_HEIGHT, estimated));
 };
 
-export default function WorkflowChartBlock({ type = 'diamond', caption = null, className = '' }) {
+export default function WorkflowChartBlock({
+  type = 'diamond',
+  caption = null,
+  className = '',
+  showTag = false,
+  tag = null,
+}) {
   const chart = getWorkflowChart(type);
   const figureClassName = ['workflow-chart-block', className].filter(Boolean).join(' ');
   const chartHeight = estimateChartHeight(chart);
+  const tagText = tag ?? chart.title;
 
   return (
     <figure className={figureClassName}>
@@ -34,6 +41,7 @@ export default function WorkflowChartBlock({ type = 'diamond', caption = null, c
         role="img"
         style={{ '--workflow-chart-height': `${chartHeight}px` }}
       >
+        {showTag && tagText ? <span className="workflow-chart-tag">{tagText}</span> : null}
         <WorkflowGraph type={type} />
       </div>
       {caption ? <figcaption className="workflow-chart-caption">{caption}</figcaption> : null}

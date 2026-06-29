@@ -1,0 +1,58 @@
+Semantic merge should make more automatic merges possible.
+
+It should not make the system braver than its evidence.
+
+The point is not to say yes more often. The point is to say yes when the system has a better reason, and to refuse when the meaning is not proven. Semantic merge is conservative by design.
+
+<SemanticMergeConservativeChart caption="A conservative semantic merge applies only when claims and proof line up; missing meaning routes to ask or block." />
+
+## Evidence Expands The Safe Zone
+
+Text merge can safely handle many cases.
+
+Semantic merge adds more safe cases by seeing imports, bindings, scopes, public contracts, runtime surfaces, and evidence. It can admit some changes that text merge would stop, because it can prove the edits touched different meanings.
+
+That is the good expansion.
+
+## Missing Proof Is Not A Maybe
+
+The dangerous expansion is pretending that unknown meaning is probably fine.
+
+The system should not do that.
+
+If the checker cannot prove that a rename preserved call sites, it should not guess. If a layout change lacks runtime evidence, it should not infer that the browser is fine. If two workers touched overlapping regions with different assumptions, the overlap should route to review.
+
+```txt
+proof present: admit
+proof stale: rebase or rerun
+proof missing: ask or block
+proof contradictory: reject or split
+```
+
+## Conservative Does Not Mean Slow
+
+Failing closed can make the system faster.
+
+It prevents bad auto-merges from becoming human debugging work later. It also turns uncertainty into better tasks. A missing proof can become a narrow gate request. A stale proof can become a rebase task. An ambiguous region can become a human question.
+
+## Confidence Should Be Source-Bound
+
+The system should know why it is confident.
+
+Not "the model says this is fine." Instead:
+
+```txt
+binding preserved
+public declaration unchanged
+fixture passed
+runtime probe unchanged
+no overlapping semantic lease
+```
+
+Those facts can be audited later.
+
+## The Mental Model
+
+Semantic merge is not a permission slip for automation.
+
+It is a stricter admission system that can automate more because it knows when not to.

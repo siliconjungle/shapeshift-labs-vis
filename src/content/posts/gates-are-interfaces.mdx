@@ -1,0 +1,63 @@
+A gate is often treated as a command.
+
+Run the tests. Run the type checker. Run the browser.
+
+That is too small. In an agent system, a gate is an interface between candidate work and admission. It says what claim is being checked, what surface is trusted, what evidence is produced, and how the result can be compared to other results.
+
+<GateInterfaceContractChart caption="A gate interface turns many runtime and static checks into comparable evidence for admission." />
+
+## Commands Are Not Evidence
+
+The command is only the way evidence is produced.
+
+The evidence is the useful object:
+
+```txt
+claim: route still renders
+surface: browser probe
+input: checkout happy path
+output: DOM state, accessibility name, screenshot hash
+result: pass
+limits: did not cover error state
+```
+
+That shape lets the coordinator understand what the gate proved and what it did not prove.
+
+## Gates Need Manifests
+
+If each worker invents its own proof, the coordinator has to review the proof format before reviewing the work.
+
+A gate manifest makes the expectation explicit:
+
+```txt
+required input
+allowed environment
+expected artifacts
+timeout policy
+pass/fail meaning
+known limits
+```
+
+Now two workers can produce comparable evidence even if they ran on different machines.
+
+## Static And Runtime Gates Are Peers
+
+Type checks, declaration diffs, browser probes, fuzzers, visual checks, and reference oracles are different surfaces. They should not be flattened into "tests passed."
+
+They prove different claims.
+
+A type gate can say an API still compiles. A browser gate can say a button remains reachable. An oracle can say behavior matches a reference. A declaration diff can say the public contract moved.
+
+Admission needs the specific claim, not the vague comfort.
+
+## Failed Gates Produce Work
+
+A failed gate is still evidence.
+
+It can route the candidate to rebase, rerun, split, ask, or block. That only works if the gate result is structured enough to become the next task.
+
+## The Mental Model
+
+Gates are not hurdles at the end of work.
+
+They are interfaces that translate candidate work into evidence the system can compare.

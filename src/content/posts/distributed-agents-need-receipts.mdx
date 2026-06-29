@@ -1,0 +1,63 @@
+A local agent can rely on proximity.
+
+It sees the working tree. It runs commands nearby. It leaves files behind.
+
+A distributed agent cannot rely on that. It might run on another laptop, a cloud machine, a copied workspace, or a short-lived container. When the work returns, the coordinator needs more than a patch. It needs a receipt.
+
+<DistributedAgentReceiptChart caption="A remote worker returns a receipt that binds head, region, patch, and proof before the coordinator decides what to do." />
+
+## A Patch Is Not Enough
+
+A patch says what changed.
+
+It does not say what world the worker saw.
+
+For distributed work, that missing context is the dangerous part:
+
+```txt
+which head was used
+which region was claimed
+which files were read
+which evidence was produced
+which assumptions were stale
+which task caused the work
+```
+
+The receipt binds those facts to the patch. It turns "here is some code" into "here is work produced under these conditions."
+
+## Receipts Create Causality
+
+Distributed systems need causality because time is not shared cleanly.
+
+One worker may finish after another worker has already moved the repo. A cloud run may produce a valid patch against an old head. A local run may produce a test result that no longer proves the same thing.
+
+A receipt lets the coordinator ask:
+
+```txt
+is this evidence still current?
+does this region still mean the same thing?
+did another decision invalidate the proof?
+can this patch be rebased, or must it rerun?
+```
+
+That question should be mechanical. The worker should not have to explain it in prose.
+
+## The Coordinator Applies
+
+Remote workers should not mutate shared state directly.
+
+They should produce receipts. The coordinator should decide whether the receipt can be admitted, rebased, split, rerun, or rejected.
+
+That keeps distributed compute cheap while keeping shared state deliberate.
+
+## Receipts Are Portable
+
+A good receipt can move across machines.
+
+It can be written to disk, synced, inspected in a dashboard, attached to a queue outcome, or replayed into a later decision. The point is not where the worker ran. The point is that the returned object has enough shape to be trusted.
+
+## The Mental Model
+
+Distributed agents do not return answers.
+
+They return evidence-bound claims about work done in a particular world.

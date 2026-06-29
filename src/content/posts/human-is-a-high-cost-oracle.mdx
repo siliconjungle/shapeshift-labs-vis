@@ -1,0 +1,62 @@
+A human can answer questions that no test can.
+
+That does not make the human a cheap fallback.
+
+Human attention is one of the most expensive resources in an agent system. It should be treated as a high-cost oracle: invoked when the system lacks a decision it cannot honestly infer, and given a question shaped well enough to unblock work.
+
+<HumanHighCostOracleChart caption="A human oracle should receive shaped, batched uncertainty and return answers that reroute work." />
+
+## Do Not Ask For Vibes
+
+A bad question moves uncertainty from the system to the person.
+
+```txt
+bad:
+  what should I do here?
+
+better:
+  should this public API change be allowed?
+  option A keeps compatibility but adds adapter code
+  option B breaks compatibility and simplifies the core
+  two blocked tasks depend on the answer
+```
+
+The second question has scope, options, and consequences.
+
+## Ask At The Boundary
+
+The best time to ask is when the missing decision is clear.
+
+Too early, and the human has to do the agent's exploration. Too late, and the worker has already built a patch around an assumption that may be rejected.
+
+A good system asks at the boundary between evidence and authority.
+
+## Batch Related Questions
+
+Some questions share a cause.
+
+If three workers are blocked by the same product decision, the system should not ask three times. It should batch the uncertainty, ask once, and route the answer back into each dependent lane.
+
+That makes the human answer more valuable.
+
+## Answers Become State
+
+An answer should not disappear into chat.
+
+It should become a node in the run:
+
+```txt
+question asked
+options shown
+answer chosen
+dependent tasks unblocked
+decision scope recorded
+```
+
+Then future workers can use the answer without asking again.
+
+## The Mental Model
+
+The human is not an interrupt.
+
+The human is an expensive oracle whose answers should become durable control flow.

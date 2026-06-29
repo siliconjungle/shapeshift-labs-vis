@@ -16,14 +16,10 @@ I fixed the issue and tests pass.
 
 This is an admissible shape:
 
-```txt
-candidate: changed parser recovery
-claim: malformed input now reports a span
-oracle: parser fixture malformed-03 passed
-boundary: private parser behavior
-limit: does not cover streaming parser
-route: apply or review
-```
+<SemanticRecord
+  example="parser-admission"
+  caption="A semantic record makes the candidate, claim, oracle, boundary, limit, and route inspectable as one review object."
+/>
 
 The second form can be inspected. It can be compared with other attempts. It can be invalidated if the code moves.
 
@@ -84,6 +80,8 @@ A type check proves static compatibility. A browser trace proves one rendered wo
 
 <PatchAdmissionEvidenceSubtypeChart caption="Stronger evidence can satisfy weaker proof requirements, but weak evidence should not be widened into stronger claims." />
 
+<EvidenceLadder caption="An evidence ladder names what each proof level can claim, where the claim stops, and what route follows from that strength." />
+
 ```txt
 project type gate
   can satisfy: single-file type gate
@@ -128,13 +126,10 @@ A failed admission should produce a precise task, not a vague rejection.
 
 <PatchAdmissionFailClosedChart caption="A failed admission can become a narrower task with the missing contract made explicit." />
 
-```txt
-candidate: add displayName helper
-claim: safe public-type rebase
-expected: symbol rename evidence, declaration proof, type gate
-received: text patch, focused unit test
-route: request stronger evidence
-```
+<SemanticRecord
+  example="public-type-failure"
+  caption="A failed record can still preserve progress by saying exactly which proof is missing."
+/>
 
 That route preserves progress while keeping the boundary honest.
 

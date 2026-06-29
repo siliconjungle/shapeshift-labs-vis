@@ -39,19 +39,10 @@ The matrix keeps those boundaries visible.
 
 The system should say exactly what it is claiming.
 
-```txt
-claim: import additions commute
-proof level: import set evidence
-
-claim: public API preserved
-proof level: declaration output proof
-
-claim: CSS selector target preserved
-proof level: selector target graph
-
-claim: browser behavior preserved
-proof level: runtime proof bundle
-```
+<ClaimProofMatrix
+  example="semantic-merge-surfaces"
+  caption="Each row names the surface, the claim being made, the proof needed for that claim, the evidence currently available, and the next route."
+/>
 
 This prevents accidental widening.
 
@@ -65,16 +56,10 @@ The proof level is the strength of the claim.
 
 The best failure is specific.
 
-```txt
-missing: selector target graph
-route: prove selector target or review target move
-
-missing: output-bound runtime proof
-route: run browser assertion against output
-
-missing: type contract proof
-route: emit declarations and compare public shape
-```
+<ClaimProofMatrix
+  example="missing-proof-routes"
+  caption="Missing proof should not collapse into generic failure. It should produce the next useful task."
+/>
 
 That is different from saying "merge failed."
 

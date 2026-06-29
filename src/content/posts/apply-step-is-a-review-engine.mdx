@@ -1,0 +1,70 @@
+Applying a patch sounds mechanical.
+
+Take the diff. Put it on the tree. Run the tests. Commit.
+
+That model breaks when many agents are producing work against moving heads. The apply step is not just file mutation. It is the review engine that decides whether a candidate is still allowed to become shared state.
+
+<ApplyReviewEngineChart caption="The apply step claims authority, re-reads head, applies in a review workspace, runs gates, and only then mutates shared state." />
+
+## Re-Read The World
+
+The first job of apply is to distrust old context.
+
+Before touching shared state, the engine should re-read the current head, current leases, current queue state, and current decision history.
+
+That protects the system from a common failure:
+
+```txt
+worker saw head A
+worker produced patch P
+repo moved to head B
+old evidence still looks plausible
+```
+
+The apply engine makes that mismatch explicit.
+
+## Apply Is Dry First
+
+A candidate should enter a review workspace before it enters shared reality.
+
+Dry apply answers basic questions:
+
+```txt
+does the patch still apply?
+does the semantic region still exist?
+did the patch touch declared boundaries?
+does the output match the claimed change?
+```
+
+If those fail, the system should route the candidate before it mutates the main worktree.
+
+## Gates Belong Inside Apply
+
+The apply engine should run the gates that are required by the candidate's claims.
+
+That does not mean every gate every time. It means the patch cannot become shared state until the right proof objects exist.
+
+The engine should write the gate results into the same decision history as the patch. A future reviewer should see why the patch was accepted, not only that it was accepted.
+
+## Commit Is A Decision
+
+A commit is not just a storage operation.
+
+It is a decision event:
+
+```txt
+candidate accepted
+head checked
+lease valid
+gates passed
+evidence attached
+output committed
+```
+
+When the commit carries that meaning, the repo history and the run history reinforce each other.
+
+## The Mental Model
+
+Apply is the narrow bridge between possible work and shared state.
+
+That bridge should review, not merely write.

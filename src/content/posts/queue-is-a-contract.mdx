@@ -1,0 +1,64 @@
+A queue is easy to treat as plumbing.
+
+Put work in. Pull work out. Retry when it fails.
+
+That is not enough for agent systems. When many workers can observe old state, claim work, fail, retry, and produce partial evidence, the queue becomes part of the system's truth. It is not just a scheduler. It is a contract about what work exists, who owns it, what terminal outcomes mean, and what must never come back from the dead.
+
+<QueueContractLifecycleChart caption="A durable queue turns tasks, claims, attempts, outcomes, retries, and dead letters into one inspectable contract." />
+
+## Tasks Need Identity
+
+A task should not be a prompt floating in a worker log.
+
+It needs identity:
+
+```txt
+task id
+dedupe key
+declared region
+required evidence
+attempt policy
+terminal outcomes
+```
+
+That identity lets the system decide whether a new task is actually new, whether it replaces an old task, or whether it is a stale copy of work that already reached a terminal state.
+
+Without that identity, a worker can accidentally resurrect a task from an old manifest. The system thinks it is making progress, but it is replaying work that already failed, already succeeded, or no longer applies.
+
+## Outcomes Are Terminal
+
+The queue should distinguish failure from outcome.
+
+An attempt can fail. A task can be done. A task can be dead-lettered. A task can be blocked by a question. A task can be rerouted into smaller tasks.
+
+Those are not the same state.
+
+```txt
+attempt failed: this worker did not finish
+task done: the required result was accepted
+dead letter: retry policy is exhausted
+blocked: the next step needs a missing decision
+split: this task became narrower tasks
+```
+
+When those outcomes are durable, workers do not have to infer reality from old files or loose logs.
+
+## Retry Is A New Claim
+
+Retry should not mean pretending the previous attempt did not happen.
+
+A retry should carry the previous attempt as evidence. It should know what failed, what changed, and what is different about the next attempt. Otherwise the system just spends more compute on the same uncertainty.
+
+Good retries are narrower than the work they replace.
+
+## Dead Letters Matter
+
+A dead letter is not trash.
+
+It is a record that says the system tried the permitted routes and none produced admissible work. That record protects the queue from infinite motion. It also gives the coordinator a useful object to inspect later: maybe the task was too broad, maybe the gate was missing, maybe the interface was wrong.
+
+## The Mental Model
+
+The queue is the promise that work will not disappear, duplicate, or resurrect without evidence.
+
+It is how a swarm remembers what it has already learned.

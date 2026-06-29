@@ -4,7 +4,7 @@ That view works for a single model doing a single pass. It breaks as soon as the
 
 A run is better understood as a causal graph. Each node records something that happened. Each edge says what depended on what.
 
-<RunCausalGraphChart caption="A run is not just a timeline. Attempts, failures, answers, evidence, and decisions all have causal links." />
+<RunLensComparison />
 
 ## Events, Not Status
 
@@ -26,6 +26,8 @@ decision recorded
 
 The difference is that none of those events overwrites the previous one. The run accumulates history. The current state is a projection over that history.
 
+<RunEventsProjectionChart caption="Status, blockers, and readiness are projections over accumulated events, not replacements for the events themselves." />
+
 ## Why The Graph Matters
 
 Agent systems do not move in straight lines. A worker can fail while another worker succeeds. A human answer can unblock one lane but make another lane stale. A test result can justify a decision, but only if it came after the patch it claims to test.
@@ -42,11 +44,13 @@ Did a human answer unblock the work, or did the agent continue before the answer
 
 Those are graph questions, not transcript questions.
 
+<RunStaleEvidenceChart caption="A patch and test can both be real and still become stale when the repository moves to a new head." />
+
 ## Lanes
 
 Lanes are concurrent paths through the same run. One lane might produce code, another might test it, another might review risks, and another might wait for a human answer.
 
-<RunLaneConvergenceChart caption="A run can have several lanes moving at once. The decision should see how those lanes converged, not just the last message." />
+<RunLaneConvergenceChart caption="Concurrent lanes should converge into a decision bundle before the run accepts work or reruns it." />
 
 The important part is that lanes are not separate realities. They write into one causal object. When they converge, the decision can point to the exact code attempt, test result, review note, and answer it used.
 
@@ -54,13 +58,7 @@ The important part is that lanes are not separate realities. They write into one
 
 A decision is not a status flag. It is an event with parents.
 
-```txt
-decision accept patch
-  depends on patch p42
-  depends on test result t17
-  depends on review r8
-  depends on answer h3
-```
+<RunDecisionParentsChart caption="A decision points back to the exact patch, test result, review note, and answer that made it admissible." />
 
 That makes the decision inspectable later. If the test result is invalidated, the decision can be questioned. If the patch is rebased, the old evidence does not silently follow it. If the answer was ambiguous, the graph can show which work depended on that ambiguity.
 

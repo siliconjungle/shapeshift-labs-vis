@@ -8,6 +8,34 @@ If a proof does not bind all four, it can be correct and still unsafe.
 
 <FourVersionMergeBindingChart caption="A merge proof has to bind base, worker, head, and output before it can safely admit the result." />
 
+<FourVersionMergeView
+  example="import-set"
+  caption="The useful proof is not only that each branch looked valid. It is that the exact output is derived from the exact base, worker, and head versions."
+/>
+
+<AdmissionChecklist
+  title="Admission"
+  decision="Output"
+  rows={[
+    {
+      label: 'Base named',
+      detail: 'The proof starts from the common source both branches shared.',
+    },
+    {
+      label: 'Worker named',
+      detail: 'The candidate addition is tied to the worker source that produced it.',
+    },
+    {
+      label: 'Head named',
+      detail: 'The candidate is checked against the shared state that exists now.',
+    },
+    {
+      label: 'Output named',
+      detail: 'The admitted source is its own object, not an implicit side effect of applying a patch.',
+    },
+  ]}
+/>
+
 ## Base Is The Common Memory
 
 The base is where the two branches began.
@@ -87,10 +115,10 @@ this is the source we believe can enter shared state.
 That output needs its own proof.
 
 ```txt
-base hash: h_base
-worker hash: h_worker
-head hash: h_head
-output hash: h_output
+base source: named
+worker source: named
+head source: named
+output source: named
 claim: typed rebase preserved public contract
 gate: project diagnostics passed on output
 ```

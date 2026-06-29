@@ -1,0 +1,71 @@
+Static evidence can prove a lot.
+
+It can prove imports resolve, types match, declarations stay stable, and source spans still point to the same symbols.
+
+It cannot prove every interface a user experiences. HTML, CSS, JSX, hydration, focus, browser layout, and accessibility all have runtime meaning. Some merge claims need runtime proof.
+
+<RuntimeProofInterfaceChart caption="Runtime proof slices a change into observable layout, focus, accessibility, and event surfaces." />
+
+## Runtime Is A Surface
+
+A UI change can preserve source shape and still break the interface.
+
+Examples:
+
+```txt
+button still exists, but moved outside the viewport
+label text remains, but accessible name changed
+class compiles, but container query flips the layout
+handler exists, but click target is covered
+hydration succeeds, but focus order changed
+```
+
+Those are runtime claims. They need runtime evidence.
+
+## Probes Should Be Small
+
+The system should not always need the whole application.
+
+A useful runtime proof can often run against a micro-slice:
+
+```txt
+component fixture
+route shell
+CSS module fixture
+DOM state snapshot
+event sequence
+accessibility tree query
+```
+
+The real environment still matters for final gates, but micro-slices make evidence cheaper and more focused.
+
+## Browser Evidence Needs Shape
+
+A screenshot alone is not enough.
+
+Runtime proof should produce structured observations:
+
+```txt
+bounding boxes
+computed styles
+accessible names
+focus order
+event results
+layout shift windows
+console errors
+hydration status
+```
+
+The screenshot can help humans. The structured evidence helps the merge system route.
+
+## Scope Matters
+
+Runtime proof should not claim more than it measured.
+
+If a probe covers the happy path, it should say that. If it covers desktop but not mobile, it should say that. If it runs without login state, it should say that too.
+
+Honest limits make the evidence usable.
+
+## The Mental Model
+
+Runtime proof is how semantic merge talks to interfaces that only exist after code runs.

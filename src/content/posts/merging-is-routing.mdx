@@ -37,15 +37,10 @@ Most useful agent outputs are somewhere between those two states. A stale patch 
 
 The route should preserve that meaning:
 
-```txt
-apply: evidence is strong enough
-review: evidence is useful but incomplete
-rebase: the idea fits, but the head moved
-rerun: the evidence is stale, failed, or too weak
-split: one part is safe and another part is not
-ask: a decision is missing
-block: the candidate conflicts with the system
-```
+<RouteDecisionTable
+  example="merge-router"
+  caption="The router preserves useful partial work by sending each candidate to the next route supported by its evidence."
+/>
 
 The route is part of the output. A future coordinator should be able to ask why a candidate was applied, why it became a rerun, or why it turned into a human question instead of disappearing into a failed transcript.
 
@@ -71,11 +66,10 @@ One hunk updates a private helper. Another changes a public API. One file has cl
 
 The right route might be:
 
-```txt
-apply: private helper
-review: public API
-rerun: runtime effect proof
-```
+<RouteDecisionTable
+  example="split-route"
+  caption="A broad candidate can become several smaller decisions instead of one flattened verdict."
+/>
 
 That is not a partial failure. It is the merge system refusing to flatten different risks into one verdict.
 

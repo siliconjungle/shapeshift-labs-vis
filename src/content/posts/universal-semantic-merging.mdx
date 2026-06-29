@@ -8,37 +8,19 @@ Semantic merge treats the source as a graph of meaning first and a string of tex
 
 ## Example: Same-Line Imports
 
-Start with a single import.
+A line-based merge sees the same original line changed twice. A semantic merge can switch between the base, each branch, and the admitted output while keeping attention on the changed symbols.
 
-```ts
-import { readUser } from "./api";
+<LineDiffComparison
+  example="import-set"
+  caption="The text merge view only knows that line 1 was replaced by two different strings."
+/>
 
-export function run() {
-  return readUser();
-}
-```
+<SemanticCodeDiff
+  example="import-set"
+  caption="A semantic diff highlights the changed symbols and the admission reason, not only the line that changed."
+/>
 
-Agent A adds a writer.
-
-```ts
-import { readUser, writeUser } from "./api";
-```
-
-Agent B adds a deleter.
-
-```ts
-import { readUser, deleteUser } from "./api";
-```
-
-A line-based merge sees the same original line changed twice. A semantic merge can recognize that both edits are additions to the same import set.
-
-```ts
-import { readUser, deleteUser, writeUser } from "./api";
-
-export function run() {
-  return readUser();
-}
-```
+<AdmissionChecklist example="import-set" />
 
 <SemanticMergeImportSetChart caption="The conflict disappears when the line is interpreted as an import set with two independent additions." />
 
@@ -61,65 +43,20 @@ That record is what makes the merge inspectable. It says why this was safe: neit
 
 The harder case is when one branch changes a contract and the other branch builds on the old shape.
 
-```ts
-export interface User {
-  id: string;
-  name: string;
-}
-
-export function greet(user: User) {
-  return `Hello ${user.name}`;
-}
-```
-
-One branch adds a helper.
-
-```ts
-export interface User {
-  id: string;
-  name: string;
-  nickname?: string;
-}
-
-export function displayName(user: User) {
-  return user.nickname ?? user.name;
-}
-
-export function greet(user: User) {
-  return `Hello ${displayName(user)}`;
-}
-```
-
-Another branch renames the public field.
-
-```ts
-export interface User {
-  id: string;
-  fullName: string;
-}
-
-export function greet(user: User) {
-  return `Hello ${user.fullName}`;
-}
-```
-
 A useful semantic merge does not blindly concatenate those edits. It needs to understand that `name` became `fullName`, rebase the new helper through that contract change, and then run a type gate before admitting the output.
 
-```ts
-export interface User {
-  id: string;
-  fullName: string;
-  nickname?: string;
-}
+<LineDiffComparison
+  example="typed-rebase"
+  caption="The text merge view can show the overlap, but it cannot prove the semantic adaptation."
+/>
 
-export function displayName(user: User) {
-  return user.nickname ?? user.fullName;
-}
+<SemanticCodeDiff
+  example="typed-rebase"
+  caption="A semantic diff can show the helper addition, the public rename, and the admitted output as one inspectable merge claim."
+  panelMaxHeight={320}
+/>
 
-export function greet(user: User) {
-  return `Hello ${displayName(user)}`;
-}
-```
+<AdmissionChecklist example="typed-rebase" />
 
 <SemanticMergeTypedRebaseChart caption="A typed rebase is not just a text patch. The adapted output has to pass a compiler or diagnostics gate before it can be admitted." />
 

@@ -159,7 +159,7 @@
       { "id": "pass", "label": "PASS", "x": 80, "y": 40, "type": "result", "wide": true }
     ],
     "annotations": [
-      { "type": "direction-arrow", "x": 20, "y": 55, "direction": "up" }
+      { "type": "direction-arrow", "x": 20, "y": 47, "direction": "up" }
     ],
     "edges": [
       ["a", "gate"],
@@ -172,7 +172,7 @@
         "hideArrow": true,
         "labelPosition": { "x": 35, "y": 74 },
         "points": [{ "x": 50, "y": 78 }, { "x": 20, "y": 78 }],
-        "toPoint": { "x": 20, "y": 63 }
+        "toPoint": { "x": 20, "y": 46 }
       }
     ]
   },
@@ -186,7 +186,7 @@
       { "id": "pass", "label": "PASS", "x": 80, "y": 40, "type": "result", "wide": true }
     ],
     "annotations": [
-      { "type": "direction-arrow", "x": 20, "y": 55, "direction": "up" }
+      { "type": "direction-arrow", "x": 20, "y": 47, "direction": "up" }
     ],
     "edges": [
       ["v1", "gate"],
@@ -199,7 +199,7 @@
         "hideArrow": true,
         "labelPosition": { "x": 35, "y": 74 },
         "points": [{ "x": 50, "y": 78 }, { "x": 20, "y": 78 }],
-        "toPoint": { "x": 20, "y": 63 }
+        "toPoint": { "x": 20, "y": 46 }
       }
     ]
   },
@@ -218,7 +218,7 @@
       { "id": "pass", "label": "PASS", "x": 104, "y": 50, "type": "result", "wide": true }
     ],
     "annotations": [
-      { "type": "direction-arrow", "x": 10, "y": 66, "direction": "up" }
+      { "type": "direction-arrow", "x": 10, "y": 55, "direction": "up" }
     ],
     "edges": [
       ["source", "v1"],
@@ -237,7 +237,7 @@
         "hideArrow": true,
         "labelPosition": { "x": 47, "y": 82 },
         "points": [{ "x": 84, "y": 86 }, { "x": 10, "y": 86 }],
-        "toPoint": { "x": 10, "y": 74 }
+        "toPoint": { "x": 10, "y": 54 }
       }
     ]
   },
@@ -311,10 +311,10 @@
     "maxColumnGap": 18,
     "nodes": [
       { "id": "base", "label": "BASE", "x": 10, "y": 50, "type": "branch", "wide": true },
-      { "id": "a", "label": "A EDIT", "x": 36, "y": 30, "wide": true },
-      { "id": "b", "label": "B EDIT", "x": 36, "y": 70, "wide": true },
-      { "id": "conflict", "label": "TEXT CONFLICT", "x": 68, "y": 50, "type": "conflict", "wide": true },
-      { "id": "human", "label": "HUMAN", "x": 94, "y": 50, "type": "gate", "wide": true }
+      { "id": "a", "label": "AGENT A", "x": 36, "y": 30, "wide": true },
+      { "id": "b", "label": "AGENT B", "x": 36, "y": 70, "wide": true },
+      { "id": "conflict", "label": "CONFLICT", "x": 68, "y": 50, "type": "conflict", "wide": true },
+      { "id": "human", "label": "REVIEW", "x": 94, "y": 50, "type": "gate", "wide": true }
     ],
     "edges": [
       ["base", "a"],
@@ -330,12 +330,12 @@
     "aliases": ["semantic-import-set"],
     "maxColumnGap": 17,
     "nodes": [
-      { "id": "base", "label": "BASE IMPORT", "x": 8, "y": 50, "type": "branch", "wide": true },
-      { "id": "a", "label": "+ WRITE", "x": 34, "y": 28, "wide": true },
-      { "id": "b", "label": "+ DELETE", "x": 34, "y": 72, "wide": true },
+      { "id": "base", "label": "READ USER", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "a", "label": "+ WRITE USER", "x": 34, "y": 28, "wide": true },
+      { "id": "b", "label": "+ DELETE USER", "x": 34, "y": 72, "wide": true },
       { "id": "set", "label": "IMPORT SET", "x": 62, "y": 50, "type": "synthesis", "wide": true },
-      { "id": "gate", "label": "ADMISSION", "x": 88, "y": 50, "type": "gate", "wide": true },
-      { "id": "output", "label": "MERGED", "x": 112, "y": 50, "type": "result", "wide": true }
+      { "id": "gate", "label": "ADMIT", "x": 88, "y": 50, "type": "gate", "wide": true },
+      { "id": "output", "label": "OUTPUT", "x": 112, "y": 50, "type": "result", "wide": true }
     ],
     "edges": [
       ["base", "a"],
@@ -352,11 +352,11 @@
     "aliases": ["typed-rebase"],
     "maxColumnGap": 16,
     "nodes": [
-      { "id": "base", "label": "BASE CONTRACT", "x": 8, "y": 50, "type": "branch", "wide": true },
-      { "id": "head", "label": "HEAD RENAME", "x": 34, "y": 28, "wide": true },
-      { "id": "worker", "label": "WORKER HELPER", "x": 34, "y": 72, "wide": true },
-      { "id": "rebase", "label": "REBASE", "x": 62, "y": 50, "type": "synthesis", "wide": true },
-      { "id": "gate", "label": "TS GATE", "x": 88, "y": 50, "type": "gate", "wide": true },
+      { "id": "base", "label": "BASE", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "head", "label": "AGENT B", "x": 34, "y": 28, "wide": true },
+      { "id": "worker", "label": "AGENT A", "x": 34, "y": 72, "wide": true },
+      { "id": "rebase", "label": "TYPED REBASE", "x": 62, "y": 50, "type": "synthesis", "wide": true },
+      { "id": "gate", "label": "TYPE GATE", "x": 88, "y": 50, "type": "gate", "wide": true },
       { "id": "pass", "label": "OUTPUT", "x": 112, "y": 34, "type": "result", "wide": true },
       { "id": "fail", "label": "BLOCK", "x": 112, "y": 66, "type": "compensation", "wide": true }
     ],
@@ -371,10 +371,35 @@
     ]
   },
   {
+    "id": "run-transcript-line",
+    "title": "Transcript Line",
+    "aliases": ["transcript-line"],
+    "maxColumnGap": 8,
+    "nodes": [
+      { "id": "task", "label": "TASK", "x": 8, "y": 50, "type": "event", "wide": true },
+      { "id": "attempt", "label": "ATTEMPT", "x": 28, "y": 50, "wide": true },
+      { "id": "patch", "label": "PATCH", "x": 48, "y": 50, "wide": true },
+      { "id": "fail", "label": "FAIL", "x": 68, "y": 50, "type": "compensation", "wide": true },
+      { "id": "retry", "label": "RETRY", "x": 88, "y": 50, "wide": true },
+      { "id": "answer", "label": "ANSWER", "x": 108, "y": 50, "type": "event", "wide": true },
+      { "id": "evidence", "label": "EVIDENCE", "x": 128, "y": 50, "type": "synthesis", "wide": true },
+      { "id": "decision", "label": "DECISION", "x": 148, "y": 50, "type": "gate", "wide": true }
+    ],
+    "edges": [
+      ["task", "attempt"],
+      ["attempt", "patch"],
+      ["patch", "fail"],
+      ["fail", "retry"],
+      ["retry", "answer"],
+      ["answer", "evidence"],
+      ["evidence", "decision"]
+    ]
+  },
+  {
     "id": "run-causal-graph",
     "title": "Run Causal Graph",
     "aliases": ["causal-run"],
-    "maxColumnGap": 15,
+    "maxColumnGap": 12,
     "nodes": [
       { "id": "task", "label": "TASK", "x": 8, "y": 50, "type": "branch", "wide": true },
       { "id": "a", "label": "ATTEMPT A", "x": 30, "y": 26, "wide": true },
@@ -403,6 +428,39 @@
     ]
   },
   {
+    "id": "run-events-projections",
+    "title": "Events Become Projections",
+    "aliases": ["events-become-projections"],
+    "maxColumnGap": 8,
+    "nodes": [
+      { "id": "task", "label": "TASK", "x": 4, "y": 42, "type": "branch", "wide": true },
+      { "id": "attempt1", "label": "ATTEMPT 1", "x": 22, "y": 42, "wide": true },
+      { "id": "patch1", "label": "PATCH 1", "x": 40, "y": 42, "wide": true },
+      { "id": "test1", "label": "TEST FAIL", "x": 58, "y": 42, "type": "compensation", "wide": true },
+      { "id": "retry", "label": "RETRY", "x": 58, "y": 76, "type": "compensation", "wide": true },
+      { "id": "attempt2", "label": "ATTEMPT 2", "x": 78, "y": 76, "wide": true },
+      { "id": "patch2", "label": "PATCH 2", "x": 98, "y": 76, "wide": true },
+      { "id": "evidence", "label": "EVIDENCE", "x": 118, "y": 50, "type": "synthesis", "wide": true },
+      { "id": "decision", "label": "DECISION", "x": 138, "y": 50, "type": "gate", "wide": true },
+      { "id": "status", "label": "CURRENT STATUS", "x": 156, "y": 22, "type": "result", "wide": true },
+      { "id": "blockers", "label": "OPEN BLOCKERS", "x": 156, "y": 50, "type": "conflict", "wide": true },
+      { "id": "ready", "label": "READY TO APPLY", "x": 156, "y": 78, "type": "result", "wide": true }
+    ],
+    "edges": [
+      ["task", "attempt1"],
+      ["attempt1", "patch1"],
+      { "from": "patch1", "to": "test1", "kind": "compensate" },
+      { "from": "test1", "to": "retry", "kind": "compensate" },
+      { "from": "retry", "to": "attempt2", "kind": "compensate" },
+      ["attempt2", "patch2"],
+      ["patch2", "evidence"],
+      ["evidence", "decision"],
+      ["decision", "status"],
+      { "from": "decision", "to": "blockers", "kind": "conflict" },
+      ["decision", "ready"]
+    ]
+  },
+  {
     "id": "run-lane-convergence",
     "title": "Run Lane Convergence",
     "aliases": ["lane-convergence"],
@@ -412,21 +470,69 @@
       { "id": "code", "label": "CODE LANE", "x": 34, "y": 22, "wide": true },
       { "id": "test", "label": "TEST LANE", "x": 34, "y": 50, "wide": true },
       { "id": "review", "label": "REVIEW LANE", "x": 34, "y": 78, "wide": true },
-      { "id": "join", "label": "JOIN", "x": 64, "y": 50, "type": "synthesis", "wide": true },
-      { "id": "decision", "label": "DECISION", "x": 90, "y": 50, "type": "gate", "wide": true },
-      { "id": "continue", "label": "CONTINUE", "x": 116, "y": 34, "type": "result", "wide": true },
-      { "id": "rerun", "label": "RERUN", "x": 116, "y": 66, "type": "compensation", "wide": true }
+      { "id": "bundle", "label": "DECISION BUNDLE", "x": 68, "y": 50, "type": "synthesis", "wide": true },
+      { "id": "accept", "label": "ACCEPT", "x": 104, "y": 34, "type": "result", "wide": true },
+      { "id": "rerun", "label": "RERUN", "x": 104, "y": 66, "type": "compensation", "wide": true }
     ],
     "edges": [
       ["intent", "code"],
       ["intent", "test"],
       ["intent", "review"],
-      ["code", "join"],
-      ["test", "join"],
-      ["review", "join"],
-      ["join", "decision"],
-      ["decision", "continue"],
-      { "from": "decision", "to": "rerun", "kind": "compensate" }
+      ["code", "bundle"],
+      ["test", "bundle"],
+      ["review", "bundle"],
+      ["bundle", "accept"],
+      { "from": "bundle", "to": "rerun", "kind": "compensate" }
+    ]
+  },
+  {
+    "id": "run-stale-evidence",
+    "title": "Stale Evidence Check",
+    "aliases": ["stale-evidence-check"],
+    "maxColumnGap": 16,
+    "nodes": [
+      { "id": "head1", "label": "HEAD 1", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "patch", "label": "PATCH ON HEAD 1", "x": 38, "y": 24, "wide": true },
+      { "id": "test", "label": "TEST ON HEAD 1", "x": 38, "y": 50, "type": "event", "wide": true },
+      { "id": "head2", "label": "HEAD 2", "x": 38, "y": 76, "type": "conflict", "wide": true },
+      { "id": "check", "label": "STALE CHECK", "x": 74, "y": 50, "type": "gate", "wide": true },
+      { "id": "rerun", "label": "RERUN", "x": 108, "y": 34, "type": "compensation", "wide": true },
+      { "id": "rebase", "label": "REBASE", "x": 108, "y": 66, "type": "select", "wide": true }
+    ],
+    "edges": [
+      ["head1", "patch"],
+      ["head1", "test"],
+      { "from": "head1", "to": "head2", "kind": "conflict" },
+      ["patch", "check"],
+      ["test", "check"],
+      { "from": "head2", "to": "check", "kind": "conflict" },
+      { "from": "check", "to": "rerun", "kind": "compensate" },
+      ["check", "rebase"]
+    ]
+  },
+  {
+    "id": "run-decision-parents",
+    "title": "Decision Has Parents",
+    "aliases": ["decision-has-parents"],
+    "maxColumnGap": 16,
+    "nodes": [
+      { "id": "patch", "label": "PATCH p42", "x": 8, "y": 20, "wide": true },
+      { "id": "test", "label": "TEST t17", "x": 8, "y": 40, "type": "event", "wide": true },
+      { "id": "review", "label": "REVIEW r8", "x": 8, "y": 60, "type": "event", "wide": true },
+      { "id": "answer", "label": "ANSWER h3", "x": 8, "y": 80, "type": "event", "wide": true },
+      { "id": "decision", "label": "DECISION: ACCEPT", "x": 48, "y": 50, "type": "gate", "wide": true },
+      { "id": "applied", "label": "APPLIED", "x": 84, "y": 36, "type": "result", "wide": true },
+      { "id": "invalidated", "label": "TEST INVALIDATED", "x": 84, "y": 66, "type": "conflict", "wide": true },
+      { "id": "question", "label": "QUESTION DECISION", "x": 120, "y": 66, "type": "compensation", "wide": true }
+    ],
+    "edges": [
+      ["patch", "decision"],
+      ["test", "decision"],
+      ["review", "decision"],
+      ["answer", "decision"],
+      ["decision", "applied"],
+      { "from": "test", "to": "invalidated", "kind": "conflict" },
+      { "from": "invalidated", "to": "question", "kind": "conflict" }
     ]
   },
   {
@@ -609,7 +715,7 @@
       { "id": "done", "label": "DONE", "x": 146, "y": 34, "type": "result", "wide": true }
     ],
     "annotations": [
-      { "type": "direction-arrow", "x": 8, "y": 68, "direction": "up" }
+      { "type": "direction-arrow", "x": 8, "y": 55, "direction": "up" }
     ],
     "edges": [
       ["backlog", "plan"],
@@ -625,7 +731,7 @@
         "hideArrow": true,
         "labelPosition": { "x": 64, "y": 84 },
         "points": [{ "x": 118, "y": 88 }, { "x": 8, "y": 88 }],
-        "toPoint": { "x": 8, "y": 74 }
+        "toPoint": { "x": 8, "y": 54 }
       }
     ]
   },
@@ -813,7 +919,7 @@
       { "id": "rerun", "label": "RERUN", "x": 126, "y": 68, "type": "compensation", "wide": true }
     ],
     "annotations": [
-      { "type": "direction-arrow", "x": 8, "y": 68, "direction": "up" }
+      { "type": "direction-arrow", "x": 8, "y": 55, "direction": "up" }
     ],
     "edges": [
       ["stale", "evidence"],
@@ -828,7 +934,7 @@
         "hideArrow": true,
         "labelPosition": { "x": 52, "y": 84 },
         "points": [{ "x": 96, "y": 88 }, { "x": 8, "y": 88 }],
-        "toPoint": { "x": 8, "y": 74 }
+        "toPoint": { "x": 8, "y": 54 }
       },
       { "from": "gate", "to": "rerun", "kind": "compensate" }
     ]
@@ -880,7 +986,7 @@
       { "id": "backlog", "label": "BACKLOG", "x": 100, "y": 66, "type": "compensation", "wide": true }
     ],
     "annotations": [
-      { "type": "direction-arrow", "x": 100, "y": 84, "direction": "up" }
+      { "type": "direction-arrow", "x": 8, "y": 55, "direction": "up" }
     ],
     "edges": [
       ["router", "apply"],
@@ -901,7 +1007,7 @@
         "hideArrow": true,
         "labelPosition": { "x": 52, "y": 88 },
         "points": [{ "x": 100, "y": 90 }, { "x": 8, "y": 90 }],
-        "toPoint": { "x": 8, "y": 68 }
+        "toPoint": { "x": 8, "y": 54 }
       }
     ]
   },
@@ -1022,7 +1128,7 @@
       { "id": "model", "label": "MODEL", "x": 120, "y": 68, "type": "compensation", "wide": true }
     ],
     "annotations": [
-      { "type": "direction-arrow", "x": 8, "y": 68, "direction": "up" }
+      { "type": "direction-arrow", "x": 8, "y": 55, "direction": "up" }
     ],
     "edges": [
       ["observe", "plan"],
@@ -1037,7 +1143,7 @@
         "hideArrow": true,
         "labelPosition": { "x": 50, "y": 86 },
         "points": [{ "x": 92, "y": 88 }, { "x": 8, "y": 88 }],
-        "toPoint": { "x": 8, "y": 72 }
+        "toPoint": { "x": 8, "y": 54 }
       },
       { "from": "evidence", "to": "model", "kind": "compensate" }
     ]
@@ -1500,6 +1606,219 @@
       ["matrix", "admit"],
       ["matrix", "route"],
       { "from": "matrix", "to": "block", "kind": "conflict" }
+    ]
+  },
+  {
+    "id": "queue-contract-lifecycle",
+    "title": "Queue Contract Lifecycle",
+    "aliases": ["queue-is-a-contract"],
+    "maxColumnGap": 14,
+    "nodes": [
+      { "id": "task", "label": "TASK", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "dedupe", "label": "DEDUPE", "x": 34, "y": 50, "type": "gate", "wide": true },
+      { "id": "claim", "label": "CLAIM", "x": 60, "y": 50, "wide": true },
+      { "id": "attempt", "label": "ATTEMPT", "x": 86, "y": 50, "type": "event", "wide": true },
+      { "id": "outcome", "label": "OUTCOME", "x": 112, "y": 50, "type": "gate", "wide": true },
+      { "id": "done", "label": "DONE", "x": 138, "y": 24, "type": "result", "wide": true },
+      { "id": "retry", "label": "RETRY", "x": 138, "y": 50, "type": "compensation", "wide": true },
+      { "id": "dead", "label": "DEAD LETTER", "x": 138, "y": 76, "type": "conflict", "wide": true }
+    ],
+    "edges": [
+      ["task", "dedupe"],
+      ["dedupe", "claim"],
+      ["claim", "attempt"],
+      ["attempt", "outcome"],
+      ["outcome", "done"],
+      { "from": "outcome", "to": "retry", "kind": "compensate" },
+      { "from": "outcome", "to": "dead", "kind": "conflict" }
+    ]
+  },
+  {
+    "id": "distributed-agent-receipt",
+    "title": "Distributed Agent Receipt",
+    "aliases": ["distributed-agents-need-receipts"],
+    "maxColumnGap": 16,
+    "nodes": [
+      { "id": "worker", "label": "WORKER", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "head", "label": "HEAD", "x": 36, "y": 18, "wide": true },
+      { "id": "region", "label": "REGION", "x": 36, "y": 38, "wide": true },
+      { "id": "patch", "label": "PATCH", "x": 36, "y": 58, "type": "event", "wide": true },
+      { "id": "proof", "label": "PROOF", "x": 36, "y": 78, "type": "gate", "wide": true },
+      { "id": "receipt", "label": "RECEIPT", "x": 72, "y": 50, "type": "synthesis", "wide": true },
+      { "id": "coord", "label": "COORDINATOR", "x": 108, "y": 50, "type": "gate", "wide": true },
+      { "id": "accept", "label": "ACCEPT", "x": 140, "y": 34, "type": "result", "wide": true },
+      { "id": "reroute", "label": "REROUTE", "x": 140, "y": 66, "type": "compensation", "wide": true }
+    ],
+    "edges": [
+      ["worker", "head"],
+      ["worker", "region"],
+      ["worker", "patch"],
+      ["worker", "proof"],
+      ["head", "receipt"],
+      ["region", "receipt"],
+      ["patch", "receipt"],
+      ["proof", "receipt"],
+      ["receipt", "coord"],
+      ["coord", "accept"],
+      { "from": "coord", "to": "reroute", "kind": "compensate" }
+    ]
+  },
+  {
+    "id": "gate-interface-contract",
+    "title": "Gate Interface Contract",
+    "aliases": ["gates-are-interfaces"],
+    "maxColumnGap": 16,
+    "nodes": [
+      { "id": "candidate", "label": "CANDIDATE", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "manifest", "label": "GATE SPEC", "x": 36, "y": 50, "wide": true },
+      { "id": "type", "label": "TYPE", "x": 66, "y": 20, "type": "event", "wide": true },
+      { "id": "test", "label": "TEST", "x": 66, "y": 40, "type": "event", "wide": true },
+      { "id": "browser", "label": "BROWSER", "x": 66, "y": 60, "type": "event", "wide": true },
+      { "id": "oracle", "label": "ORACLE", "x": 66, "y": 80, "type": "gate", "wide": true },
+      { "id": "bundle", "label": "EVIDENCE", "x": 104, "y": 50, "type": "synthesis", "wide": true },
+      { "id": "decision", "label": "DECISION", "x": 136, "y": 50, "type": "gate", "wide": true }
+    ],
+    "edges": [
+      ["candidate", "manifest"],
+      ["manifest", "type"],
+      ["manifest", "test"],
+      ["manifest", "browser"],
+      ["manifest", "oracle"],
+      ["type", "bundle"],
+      ["test", "bundle"],
+      ["browser", "bundle"],
+      ["oracle", "bundle"],
+      ["bundle", "decision"]
+    ]
+  },
+  {
+    "id": "apply-review-engine",
+    "title": "Apply Review Engine",
+    "aliases": ["apply-step-review-engine"],
+    "maxColumnGap": 14,
+    "nodes": [
+      { "id": "candidate", "label": "CANDIDATE", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "lease", "label": "LEASE", "x": 34, "y": 50, "type": "gate", "wide": true },
+      { "id": "head", "label": "READ HEAD", "x": 60, "y": 50, "type": "event", "wide": true },
+      { "id": "apply", "label": "APPLY DRY", "x": 86, "y": 50, "type": "synthesis", "wide": true },
+      { "id": "gates", "label": "GATES", "x": 112, "y": 50, "type": "gate", "wide": true },
+      { "id": "commit", "label": "COMMIT", "x": 138, "y": 26, "type": "result", "wide": true },
+      { "id": "rebase", "label": "REBASE", "x": 138, "y": 50, "type": "compensation", "wide": true },
+      { "id": "reject", "label": "REJECT", "x": 138, "y": 74, "type": "conflict", "wide": true }
+    ],
+    "edges": [
+      ["candidate", "lease"],
+      ["lease", "head"],
+      ["head", "apply"],
+      ["apply", "gates"],
+      ["gates", "commit"],
+      { "from": "gates", "to": "rebase", "kind": "compensate" },
+      { "from": "gates", "to": "reject", "kind": "conflict" }
+    ]
+  },
+  {
+    "id": "small-task-scaling",
+    "title": "Small Task Scaling",
+    "aliases": ["small-tasks-scale"],
+    "maxColumnGap": 16,
+    "nodes": [
+      { "id": "goal", "label": "GOAL", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "split", "label": "SPLIT", "x": 36, "y": 50, "type": "synthesis", "wide": true },
+      { "id": "a", "label": "TASK A", "x": 66, "y": 24, "wide": true },
+      { "id": "b", "label": "TASK B", "x": 66, "y": 50, "wide": true },
+      { "id": "c", "label": "TASK C", "x": 66, "y": 76, "wide": true },
+      { "id": "bundle", "label": "BUNDLES", "x": 100, "y": 50, "type": "synthesis", "wide": true },
+      { "id": "review", "label": "REVIEW", "x": 132, "y": 50, "type": "gate", "wide": true },
+      { "id": "merge", "label": "MERGE", "x": 164, "y": 34, "type": "result", "wide": true },
+      { "id": "reroute", "label": "REROUTE", "x": 164, "y": 66, "type": "compensation", "wide": true }
+    ],
+    "edges": [
+      ["goal", "split"],
+      ["split", "a"],
+      ["split", "b"],
+      ["split", "c"],
+      ["a", "bundle"],
+      ["b", "bundle"],
+      ["c", "bundle"],
+      ["bundle", "review"],
+      ["review", "merge"],
+      { "from": "review", "to": "reroute", "kind": "compensate" }
+    ]
+  },
+  {
+    "id": "semantic-merge-conservative",
+    "title": "Conservative Semantic Merge",
+    "aliases": ["semantic-merge-conservative"],
+    "maxColumnGap": 16,
+    "nodes": [
+      { "id": "candidate", "label": "CANDIDATE", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "claims", "label": "CLAIMS", "x": 36, "y": 28, "wide": true },
+      { "id": "proof", "label": "PROOF", "x": 36, "y": 72, "type": "gate", "wide": true },
+      { "id": "checker", "label": "CHECKER", "x": 74, "y": 50, "type": "gate", "wide": true },
+      { "id": "apply", "label": "APPLY", "x": 110, "y": 24, "type": "result", "wide": true },
+      { "id": "ask", "label": "ASK", "x": 110, "y": 50, "type": "event", "wide": true },
+      { "id": "block", "label": "BLOCK", "x": 110, "y": 76, "type": "conflict", "wide": true }
+    ],
+    "edges": [
+      ["candidate", "claims"],
+      ["candidate", "proof"],
+      ["claims", "checker"],
+      ["proof", "checker"],
+      ["checker", "apply"],
+      ["checker", "ask"],
+      { "from": "checker", "to": "block", "kind": "conflict" }
+    ]
+  },
+  {
+    "id": "runtime-proof-interface",
+    "title": "Runtime Proof Interface",
+    "aliases": ["runtime-proofs-for-interfaces"],
+    "maxColumnGap": 16,
+    "nodes": [
+      { "id": "change", "label": "CHANGE", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "slice", "label": "SLICE", "x": 36, "y": 50, "type": "synthesis", "wide": true },
+      { "id": "layout", "label": "LAYOUT", "x": 66, "y": 20, "type": "event", "wide": true },
+      { "id": "focus", "label": "FOCUS", "x": 66, "y": 40, "type": "event", "wide": true },
+      { "id": "aria", "label": "ARIA", "x": 66, "y": 60, "type": "event", "wide": true },
+      { "id": "events", "label": "EVENTS", "x": 66, "y": 80, "type": "event", "wide": true },
+      { "id": "probe", "label": "PROBE", "x": 102, "y": 50, "type": "gate", "wide": true },
+      { "id": "evidence", "label": "EVIDENCE", "x": 136, "y": 50, "type": "result", "wide": true }
+    ],
+    "edges": [
+      ["change", "slice"],
+      ["slice", "layout"],
+      ["slice", "focus"],
+      ["slice", "aria"],
+      ["slice", "events"],
+      ["layout", "probe"],
+      ["focus", "probe"],
+      ["aria", "probe"],
+      ["events", "probe"],
+      ["probe", "evidence"]
+    ]
+  },
+  {
+    "id": "human-high-cost-oracle",
+    "title": "Human High Cost Oracle",
+    "aliases": ["human-is-high-cost-oracle"],
+    "maxColumnGap": 16,
+    "nodes": [
+      { "id": "uncertain", "label": "UNCERTAIN", "x": 8, "y": 50, "type": "conflict", "wide": true },
+      { "id": "shape", "label": "SHAPE", "x": 36, "y": 50, "type": "synthesis", "wide": true },
+      { "id": "batch", "label": "BATCH", "x": 66, "y": 28, "wide": true },
+      { "id": "question", "label": "QUESTION", "x": 66, "y": 72, "type": "event", "wide": true },
+      { "id": "human", "label": "HUMAN", "x": 102, "y": 50, "type": "gate", "wide": true },
+      { "id": "answer", "label": "ANSWER", "x": 136, "y": 34, "type": "result", "wide": true },
+      { "id": "reroute", "label": "REROUTE", "x": 136, "y": 66, "type": "compensation", "wide": true }
+    ],
+    "edges": [
+      ["uncertain", "shape"],
+      ["shape", "batch"],
+      ["shape", "question"],
+      ["batch", "human"],
+      ["question", "human"],
+      ["human", "answer"],
+      { "from": "human", "to": "reroute", "kind": "compensate" }
     ]
   }
 ]
