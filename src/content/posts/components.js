@@ -33,8 +33,16 @@ import StaticShapeRuntimeMeaning from './static-shape-runtime-meaning.mdx';
 import FailClosedThenLearn from './fail-closed-then-learn.mdx';
 import FromWorkerFindingToGate from './from-worker-finding-to-gate.mdx';
 import TheSupersetLanguage from './the-superset-language.mdx';
+import LockfileIsACausalGraph from './lockfile-is-a-causal-graph.mdx';
+import PreviewEnvironmentsAreEvidenceMachines from './preview-environments-are-evidence-machines.mdx';
+import WhenRefactoringIsCoordination from './when-refactoring-is-coordination.mdx';
+import AgentsShouldLeaveBetterMaps from './agents-should-leave-better-maps.mdx';
 
 export const postComponents = {
+  'agents-should-leave-better-maps': AgentsShouldLeaveBetterMaps,
+  'when-refactoring-is-coordination': WhenRefactoringIsCoordination,
+  'preview-environments-are-evidence-machines': PreviewEnvironmentsAreEvidenceMachines,
+  'lockfile-is-a-causal-graph': LockfileIsACausalGraph,
   'the-superset-language': TheSupersetLanguage,
   'proof-shape-matters': ProofShapeMatters,
   'identity-is-the-merge-primitive': IdentityIsTheMergePrimitive,

@@ -1,0 +1,200 @@
+Lockfiles look like generated text, so teams often treat them as annoying merge debris.
+
+That is the wrong model.
+
+A lockfile is dependency evidence. It records the result of a resolver running under a set of constraints: manifests, version ranges, peer sets, platform filters, registry metadata, integrity hashes, package-manager rules, and sometimes install scripts. The text is just the serialization.
+
+If two branches edit dependency state at the same time, a line conflict is often the least interesting part of the problem.
+
+<LockfileCausalGraphChart caption="A lockfile is the resolver output for many causes, not a flat list of package versions." />
+
+## The Lockfile Has Parents
+
+A source file usually has one obvious parent: the previous source file.
+
+A lockfile has many.
+
+```txt
+package.json
+workspace manifests
+version ranges
+peer dependency constraints
+engine and platform fields
+registry metadata
+package manager version
+resolution policy
+```
+
+Those parents matter because the same visible version can mean different things under different causes. A package can resolve because a direct dependency changed, because a peer set changed, because a transitive package was deduped differently, or because the package manager changed its resolver.
+
+Semantic merge should not ask only whether the lockfile text can be combined.
+
+It should ask what resolution changed and why.
+
+## Concurrent Dependency Edits Are Not All The Same
+
+Two dependency changes can commute.
+
+One branch adds a dev-only linter. Another branch adds a runtime package in a separate workspace. If the resulting graph has no shared peer set, no shared transitive path, and no install-policy conflict, the merge can probably be admitted after a re-resolution and install proof.
+
+Other edits do not commute.
+
+One branch upgrades React. Another branch adds a package with a narrow React peer range. A text merge might succeed, but the resulting graph can be invalid, duplicated, or subtly different from either branch's tested environment.
+
+<ClaimProofMatrix
+  eyebrow="Lockfile Matrix"
+  title="What A Dependency Merge Has To Prove"
+  rows={[
+    {
+      surface: 'Direct dependency',
+      claim: 'Two manifest edits commute',
+      proof: 'Manifest and workspace ownership',
+      evidence: 'Different packages, compatible ranges',
+      route: 'Re-resolve',
+      status: 'required',
+    },
+    {
+      surface: 'Peer set',
+      claim: 'Runtime peers remain satisfiable',
+      proof: 'Peer dependency graph',
+      evidence: 'Resolved peer ranges and consumers',
+      route: 'Gate install',
+      status: 'required',
+    },
+    {
+      surface: 'Transitive graph',
+      claim: 'Deduping did not change runtime shape unsafely',
+      proof: 'Graph delta with package identities',
+      evidence: 'Added, removed, replaced, and duplicated nodes',
+      route: 'Review if shared',
+      status: 'required',
+    },
+    {
+      surface: 'Integrity',
+      claim: 'Resolved artifacts are reproducible',
+      proof: 'Registry and integrity binding',
+      evidence: 'Package URL, checksum, lockfile hash',
+      route: 'Preserve',
+      status: 'proved',
+    },
+    {
+      surface: 'Lifecycle',
+      claim: 'Install effects are acceptable',
+      proof: 'Script and native build surface',
+      evidence: 'Postinstall, optional deps, platform gates',
+      route: 'Review',
+      status: 'missing',
+    },
+  ]}
+  caption="The merge unit is not the line. It is the resolved dependency graph and the proof attached to each changed surface."
+/>
+
+## Re-Resolve, Then Compare
+
+The safest semantic dependency merge is usually not:
+
+```txt
+merge lockfile text
+hope install works
+```
+
+The safer shape is:
+
+```txt
+merge manifest intent
+run the resolver from the merged head
+compare the graph delta
+run install and package gates
+record the receipt
+```
+
+That is closer to how humans already fix lockfile conflicts. They do not carefully reason through every line by hand. They re-run the package manager, inspect the surprising changes, and run the project.
+
+The missing piece is making that process explicit enough for a coordinator to admit or reject.
+
+<SemanticRecord
+  eyebrow="Dependency Receipt"
+  title="Lockfile Merge Candidate"
+  status="Needs install proof"
+  fields={[
+    {
+      label: 'Intent',
+      value: 'Add @acme/charts and upgrade vite',
+      detail: 'The manifest changes are the human-readable dependency intent.',
+    },
+    {
+      label: 'Parents',
+      value: 'base lock, worker lock, current head lock',
+      detail: 'The candidate has to say which dependency graph it was derived from.',
+    },
+    {
+      label: 'Graph delta',
+      value: '12 added, 4 replaced, 1 peer set changed',
+      detail: 'The review surface is compacted into semantic dependency changes.',
+      tone: 'warning',
+    },
+    {
+      label: 'Proof',
+      value: 'install, audit policy, typecheck, focused package tests',
+      detail: 'The output is admissible only after the resolved graph has been exercised.',
+      tone: 'route',
+    },
+  ]}
+  caption="A useful lockfile merge receipt binds intent, parents, graph delta, and install evidence."
+/>
+
+## Package Managers Could Help More
+
+Package managers already know most of this structure.
+
+They know which manifests participated. They know why a package was selected. They know which peer dependencies were satisfied. They know whether a package is optional, platform-specific, linked, hoisted, or isolated. They know which package-manager version produced the file.
+
+Semantic merge gets easier if package managers expose those facts as merge evidence instead of leaving every tool to reverse-engineer generated text.
+
+The lockfile does not need to stop being text.
+
+It needs a better receipt beside the text.
+
+<RouteDecisionTable
+  eyebrow="Dependency Routes"
+  title="Lockfile Admission"
+  rows={[
+    {
+      route: 'Admit',
+      signal: 'Independent graph changes and install proof',
+      requires: 'Merged resolver output matches manifest intent',
+      produces: 'Updated lockfile and dependency receipt',
+      tone: 'apply',
+    },
+    {
+      route: 'Re-resolve',
+      signal: 'Text conflict or stale lockfile',
+      requires: 'Run package manager from current head',
+      produces: 'Fresh graph delta',
+      tone: 'rebase',
+    },
+    {
+      route: 'Review',
+      signal: 'Peer set, engine, script, or native dependency changed',
+      requires: 'Human or policy decision on dependency risk',
+      produces: 'Accepted or blocked dependency boundary',
+      tone: 'review',
+    },
+    {
+      route: 'Block',
+      signal: 'Resolver output contradicts manifest intent',
+      requires: 'Narrow dependency task or version policy decision',
+      produces: 'No shared-state mutation',
+      tone: 'block',
+    },
+  ]}
+  caption="A lockfile conflict should route through resolver evidence, not through line ownership alone."
+/>
+
+## The Mental Model
+
+A lockfile is a causal graph rendered as text.
+
+The merge should preserve the rendered text, but it should review the graph.
+
+That is the difference between "the conflict went away" and "the dependency world is still the one we meant to create."

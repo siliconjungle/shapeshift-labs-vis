@@ -1,0 +1,168 @@
+A preview environment should not be just a place a human clicks around.
+
+It should be an evidence machine.
+
+The useful output of a preview is not only a URL. It is a structured record of what was built, what routes were reachable, what the browser observed, what changed at runtime, and what claims that evidence is strong enough to support.
+
+The link is for inspection.
+
+The evidence is for admission.
+
+<PreviewEvidenceMachineChart caption="A preview turns a patch into route, browser, accessibility, bundle, and runtime proof surfaces." />
+
+## The Preview Has A Job
+
+Preview environments often sit outside the review system.
+
+A bot comments with a link. A human opens it. Maybe someone notices a broken page. Maybe nobody does. The preview existed, but most of what it learned never became durable.
+
+For agent work, that is too weak.
+
+If a candidate changes a UI route, the preview should produce evidence:
+
+```txt
+which commit was deployed
+which environment variables were present
+which routes were probed
+which browser and viewport ran
+which DOM and accessibility snapshots were captured
+which user interactions were replayed
+which bundle and API contracts changed
+which claims are still out of scope
+```
+
+The preview is a runtime oracle. It should speak in records, not vibes.
+
+## Runtime Proof Is Bounded
+
+The preview cannot prove the whole product works.
+
+It can prove bounded claims.
+
+That boundary is what makes it useful. A route probe can prove that `/settings/billing` loads for a test account under one feature flag set. A focus probe can prove that a modal traps focus after one interaction. A layout probe can prove that a component did not shift outside a threshold at three viewports.
+
+Those are small claims, but they are real claims.
+
+<RuntimeProbeMatrix
+  caption="Preview proof should identify the probe, the observed signal, and the claim boundary it can actually support."
+/>
+
+## The Evidence Bundle
+
+A preview evidence bundle should be boringly inspectable.
+
+<SemanticRecord
+  eyebrow="Preview Receipt"
+  title="Checkout Flow Preview"
+  status="Runtime evidence"
+  fields={[
+    {
+      label: 'Build',
+      value: 'commit 8f31, app bundle hash, server image hash',
+      detail: 'The runtime proof is bound to the exact deployed output.',
+    },
+    {
+      label: 'Route probes',
+      value: '/cart, /checkout, /checkout/success',
+      detail: 'The route surface is declared instead of discovered casually.',
+    },
+    {
+      label: 'Browser signals',
+      value: 'DOM snapshot, console errors, network failures, hydration status',
+      detail: 'The browser returns machine-readable observations.',
+    },
+    {
+      label: 'Accessibility',
+      value: 'landmarks, labels, focus order, critical axe results',
+      detail: 'The proof names interaction and accessibility boundaries.',
+      tone: 'route',
+    },
+    {
+      label: 'Non-claims',
+      value: 'payment provider sandbox, logged-out checkout, mobile Safari',
+      detail: 'The evidence says what it did not cover.',
+      tone: 'warning',
+    },
+  ]}
+  caption="A preview receipt makes a deployed environment reviewable after the tab is closed."
+/>
+
+This is not the same as screenshot testing.
+
+Screenshots can help, but the proof needs source binding and structured observations. A screenshot can show what the page looked like. It cannot by itself say which route, commit, selector, focus state, accessibility tree, or network trace produced the image.
+
+## Preview Diffs Matter
+
+The most useful preview compares old and new runtime surfaces.
+
+<ClaimProofMatrix
+  eyebrow="Preview Matrix"
+  title="Runtime Evidence By Surface"
+  rows={[
+    {
+      surface: 'Route',
+      claim: 'Touched routes still load',
+      proof: 'Route probe with status and shell assertions',
+      evidence: 'HTTP status, app boot, route marker',
+      route: 'Admit route',
+      status: 'required',
+    },
+    {
+      surface: 'DOM',
+      claim: 'Expected structure is present',
+      proof: 'DOM snapshot and locator assertions',
+      evidence: 'Stable selectors, text, landmarks',
+      route: 'Admit structure',
+      status: 'required',
+    },
+    {
+      surface: 'Layout',
+      claim: 'Critical layout did not move unexpectedly',
+      proof: 'Viewport measurements',
+      evidence: 'Bounding boxes and movement thresholds',
+      route: 'Review drift',
+      status: 'missing',
+    },
+    {
+      surface: 'Accessibility',
+      claim: 'Interaction remains operable',
+      proof: 'A11y tree and focus probe',
+      evidence: 'Labels, roles, focus order',
+      route: 'Gate',
+      status: 'required',
+    },
+    {
+      surface: 'Bundle',
+      claim: 'Runtime cost changed within policy',
+      proof: 'Bundle delta and module diff',
+      evidence: 'Entrypoint size, new deps, split chunks',
+      route: 'Review cost',
+      status: 'missing',
+    },
+  ]}
+  caption="Preview admission is stronger when the environment returns comparable evidence objects."
+/>
+
+## Preview Environments Should Feed The Queue
+
+A failed preview should not end as a red badge.
+
+It should create work.
+
+```txt
+route probe failed -> rerun with server logs
+hydration mismatch -> create focused component task
+layout drift -> request viewport-specific proof
+accessibility regression -> block admission and open fix task
+bundle growth -> route to dependency review
+```
+
+That makes previews part of the coordination loop. They are not a destination for human attention. They are a source of structured proof, routes, and sharper follow-up tasks.
+
+## The Mental Model
+
+A preview is a deployed candidate plus probes.
+
+The URL is useful because humans can inspect it.
+
+The evidence is useful because the system can admit, rerun, split, or block from it.

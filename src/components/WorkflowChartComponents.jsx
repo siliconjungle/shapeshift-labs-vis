@@ -84,6 +84,10 @@ export const ModelRoutingBudgetLoopChart = makeWorkflowChart('model-routing-budg
 export const SupersetInterlinguaBridgeChart = makeWorkflowChart('superset-interlingua-bridge');
 export const SupersetSemanticLayersChart = makeWorkflowChart('superset-semantic-layers');
 export const SupersetLoweringRoutesChart = makeWorkflowChart('superset-lowering-routes');
+export const LockfileCausalGraphChart = makeWorkflowChart('lockfile-causal-graph');
+export const PreviewEvidenceMachineChart = makeWorkflowChart('preview-evidence-machine');
+export const RefactorCoordinationGraphChart = makeWorkflowChart('refactor-coordination-graph');
+export const AgentMapFeedbackChart = makeWorkflowChart('agent-map-feedback');
 
 export const workflowChartComponents = {
   ChainChart,
@@ -162,4 +166,8 @@ export const workflowChartComponents = {
   SupersetInterlinguaBridgeChart,
   SupersetSemanticLayersChart,
   SupersetLoweringRoutesChart,
+  LockfileCausalGraphChart,
+  PreviewEvidenceMachineChart,
+  RefactorCoordinationGraphChart,
+  AgentMapFeedbackChart,
 };

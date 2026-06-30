@@ -1,5 +1,37 @@
 const postEntries = [
   {
+    slug: 'agents-should-leave-better-maps',
+    title: 'Agents Should Leave Better Maps',
+    publishedAt: '2026-06-30T15:08:00+10:00',
+    graphType: null,
+    excerpt:
+      'Agent work should leave code plus navigation intelligence: symbols, regions, hotspots, gates, flaky surfaces, owners, and known failure modes.',
+  },
+  {
+    slug: 'when-refactoring-is-coordination',
+    title: 'When Refactoring Is Coordination',
+    publishedAt: '2026-06-30T15:07:00+10:00',
+    graphType: null,
+    excerpt:
+      'A refactor changes the future merge graph. Moving symbols, splitting files, and changing ownership can either unlock parallelism or create review debt.',
+  },
+  {
+    slug: 'preview-environments-are-evidence-machines',
+    title: 'Preview Environments Are Evidence Machines',
+    publishedAt: '2026-06-30T15:06:00+10:00',
+    graphType: null,
+    excerpt:
+      'A preview should be more than a link. It should emit route probes, browser telemetry, accessibility snapshots, bundle diffs, and bounded runtime claims.',
+  },
+  {
+    slug: 'lockfile-is-a-causal-graph',
+    title: 'The Lockfile Is A Causal Graph',
+    publishedAt: '2026-06-30T15:05:00+10:00',
+    graphType: null,
+    excerpt:
+      'Lockfiles are dependency evidence: manifests, ranges, peers, platforms, resolver choices, integrity records, and install outcomes bound into one graph.',
+  },
+  {
     slug: 'the-superset-language',
     title: 'The Superset Language',
     publishedAt: '2026-06-30T15:01:00+10:00',

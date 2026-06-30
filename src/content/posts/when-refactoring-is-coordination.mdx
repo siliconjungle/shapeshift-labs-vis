@@ -1,0 +1,164 @@
+Refactoring is usually described as code cleanup.
+
+That undersells it.
+
+A refactor changes the future merge graph. It moves symbols, splits ownership, changes imports, rewrites public names, creates or removes boundaries, and alters which tasks can safely run in parallel.
+
+Sometimes that reduces coordination cost.
+
+Sometimes it concentrates it.
+
+<RefactorCoordinationGraphChart caption="A refactor changes the map that future leases, tasks, gates, and merges will use." />
+
+## Refactors Move Work Boundaries
+
+If ten future tasks all touch one file, splitting that file might help.
+
+But only if the split follows real ownership boundaries.
+
+If the split scatters one concept across more files, the number of text conflicts may fall while semantic coupling increases. Workers stop colliding on lines and start colliding on invariants.
+
+That is not an improvement.
+
+A good refactor creates clearer regions:
+
+```txt
+public API
+private helper
+runtime effect boundary
+route boundary
+style boundary
+fixture family
+package boundary
+```
+
+Those regions are what future tasks can claim, test, and merge against.
+
+## The Refactor Has To Preserve Identity
+
+A symbol move is safe only if the system can still tell it is the same symbol.
+
+```txt
+src/user/display.ts -> src/account/display-name.ts
+displayName -> formatDisplayName
+User.fullName -> Profile.name.full
+```
+
+Those can be reasonable changes. They are also coordination events. Future branches may still be editing the old location or old name. A semantic merge needs to know whether to rebase those edits through the refactor or stop.
+
+<ClaimProofMatrix
+  eyebrow="Refactor Matrix"
+  title="Coordination Claims"
+  rows={[
+    {
+      surface: 'Symbol move',
+      claim: 'Same symbol, new location',
+      proof: 'Stable identity and import rebase',
+      evidence: 'Old path, new path, export identity',
+      route: 'Rebase users',
+      status: 'required',
+    },
+    {
+      surface: 'Public rename',
+      claim: 'Public contract changed intentionally',
+      proof: 'Declaration diff and migration route',
+      evidence: 'Old name, new name, compatibility decision',
+      route: 'Review',
+      status: 'required',
+    },
+    {
+      surface: 'File split',
+      claim: 'Ownership became narrower',
+      proof: 'Region map before and after',
+      evidence: 'Moved regions and import graph',
+      route: 'Update leases',
+      status: 'required',
+    },
+    {
+      surface: 'Fixture split',
+      claim: 'Tests now isolate meanings',
+      proof: 'Fixture-to-region map',
+      evidence: 'Old shared fixture, new focused fixtures',
+      route: 'Admit gate',
+      status: 'proved',
+    },
+    {
+      surface: 'Generated registry',
+      claim: 'Manual conflict point was removed',
+      proof: 'Generator and output check',
+      evidence: 'Source records, generated output hash',
+      route: 'Gate generator',
+      status: 'missing',
+    },
+  ]}
+  caption="A refactor is safe for parallel work when it proves how identity and ownership changed."
+/>
+
+## Refactoring Can Pay Down Review Debt
+
+Some hotspots should not be merged around forever.
+
+If every feature touches the same central registry, the system can keep adding semantic merge rules. That may work. It may also be treating a project-shape problem as a merge problem.
+
+The better answer might be:
+
+```txt
+generate the registry
+split the package
+move route ownership closer to feature code
+separate fixtures by behavior
+create an explicit public contract
+```
+
+That is refactoring as coordination work.
+
+The goal is not prettier code. The goal is fewer future changes needing the same human bottleneck.
+
+<SemanticRecord
+  eyebrow="Refactor Receipt"
+  title="Split Billing Routes"
+  status="Coordination change"
+  fields={[
+    {
+      label: 'Before',
+      value: 'One route registry edited by every billing task',
+      detail: 'High same-region pressure and repeated stale patches.',
+      tone: 'warning',
+    },
+    {
+      label: 'After',
+      value: 'Feature-owned route descriptors plus generated registry',
+      detail: 'Workers edit local descriptors; the generator owns the shared output.',
+    },
+    {
+      label: 'Proof',
+      value: 'Route parity, generated output hash, browser route probes',
+      detail: 'The refactor has to prove the old behavior still exists.',
+      tone: 'route',
+    },
+    {
+      label: 'Future map',
+      value: 'Lease feature descriptors, gate generated registry',
+      detail: 'The system learned a new way to route future work.',
+    },
+  ]}
+  caption="A refactor receipt should say how future work is expected to become easier."
+/>
+
+## The Bad Refactor
+
+A bad refactor makes the map less clear.
+
+It can hide coupling behind abstractions, move many responsibilities into one shared helper, or make every feature import a new central utility. That may reduce duplicate code while increasing correlated work.
+
+Semantic merge should measure this.
+
+If a refactor causes more same-region conflicts, more stale rebases, or more human questions, the project shape got worse for parallel work even if the code looks tidier.
+
+## The Mental Model
+
+Refactoring is not only changing code without changing behavior.
+
+It is changing the coordination topology of the project.
+
+The best refactors are the ones that preserve behavior while making future work easier to split, prove, and admit.

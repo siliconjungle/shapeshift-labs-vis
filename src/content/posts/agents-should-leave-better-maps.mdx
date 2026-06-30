@@ -1,0 +1,177 @@
+An agent should not only return a patch.
+
+It should return a better map.
+
+Every useful run learns something about the repository: which symbols matter, which regions were touched, which gates proved something, which fixtures were brittle, which files are hotspots, which assumptions were wrong, and where the next worker should start.
+
+If that knowledge stays in the transcript, the system forgets it.
+
+<AgentMapFeedbackChart caption="A run should update the repo map with code, evidence, and navigation intelligence." />
+
+## Code Is Not The Only Artifact
+
+A human developer leaves implicit maps in their head.
+
+They learn that one test is flaky, one package has a hidden public contract, one helper is shared across routes, one CSS selector is global, and one generated file should not be edited by hand.
+
+Agent systems need that map in data.
+
+```txt
+symbol graph
+semantic regions
+ownership boundaries
+hotspot signals
+gate coverage
+known flakes
+runtime probes
+dependency risks
+human decisions
+```
+
+Without that map, every run starts too cold. Workers rediscover the same facts, ask the same questions, and produce patches that are expensive to review.
+
+## A Good Handoff Improves Navigation
+
+The handoff should answer more than "what changed?"
+
+It should say where future work should look.
+
+<SemanticRecord
+  eyebrow="Map Delta"
+  title="Checkout Runtime Probe Work"
+  status="Repo map updated"
+  fields={[
+    {
+      label: 'Symbols',
+      value: 'CheckoutForm, submitOrder, usePaymentIntent',
+      detail: 'The touched behavior now has named anchors for future work.',
+    },
+    {
+      label: 'Regions',
+      value: 'checkout route, payment effect, form validation',
+      detail: 'Future leases can target meaning instead of only files.',
+    },
+    {
+      label: 'Gates',
+      value: 'checkout smoke, payment mock, focus probe',
+      detail: 'The run records which evidence was useful.',
+      tone: 'route',
+    },
+    {
+      label: 'Risk',
+      value: 'provider sandbox state is nondeterministic',
+      detail: 'A future worker can avoid treating this as a normal test failure.',
+      tone: 'warning',
+    },
+    {
+      label: 'Next route',
+      value: 'Prefer micro-slice preview proof for checkout UI changes',
+      detail: 'The map feeds the next task shape.',
+    },
+  ]}
+  caption="The map delta is the part of the run that helps the next run start smarter."
+/>
+
+## The Map Is Operational
+
+This is not documentation for its own sake.
+
+The coordinator can use the map to route work:
+
+<ClaimProofMatrix
+  eyebrow="Repo Map Matrix"
+  title="What Agents Should Leave Behind"
+  rows={[
+    {
+      surface: 'Symbols',
+      claim: 'Future patches can anchor to stable identities',
+      proof: 'Symbol and source-span map',
+      evidence: 'Exports, bindings, selectors, routes',
+      route: 'Use semantic lease',
+      status: 'required',
+    },
+    {
+      surface: 'Regions',
+      claim: 'Tasks can claim meaning, not just files',
+      proof: 'Region ownership record',
+      evidence: 'Touched regions and conflict keys',
+      route: 'Route narrow tasks',
+      status: 'required',
+    },
+    {
+      surface: 'Gates',
+      claim: 'The useful proof path is known',
+      proof: 'Gate result and claim boundary',
+      evidence: 'Command, probe, fixture, output hash',
+      route: 'Reuse proof',
+      status: 'proved',
+    },
+    {
+      surface: 'Hotspots',
+      claim: 'Coordination cost is visible',
+      proof: 'Repeated touches and outcomes',
+      evidence: 'Conflict, stale proof, review effort',
+      route: 'Split or refactor',
+      status: 'required',
+    },
+    {
+      surface: 'Flakes',
+      claim: 'A failure mode is known',
+      proof: 'Repeated nondeterministic outcome',
+      evidence: 'Run ids, logs, environment facts',
+      route: 'Quarantine or harden',
+      status: 'missing',
+    },
+  ]}
+  caption="A repo map is useful when it can change routing, leases, gates, or task shape."
+/>
+
+## Transcripts Are Too Weak
+
+The transcript is still useful.
+
+It is not the map.
+
+A transcript is chronological. A map is queryable. A transcript says what happened. A map says what the system now knows about the repository.
+
+Those are different shapes.
+
+```txt
+transcript: "I found the failing fixture after checking parser tests."
+map: parser.recovery fixtures prove malformed input spans
+
+transcript: "The route only failed when logged in."
+map: billing route proof requires account fixture and auth state
+
+transcript: "This helper is used by settings and checkout."
+map: helper has cross-route ownership and should be leased broadly
+```
+
+The map lets the next worker skip the rediscovery phase.
+
+## Better Maps Reduce Prompt Size
+
+A stronger repo map is also a context-control tool.
+
+Instead of giving a worker the whole project, the coordinator can give:
+
+```txt
+the target region
+the public contract
+the known gates
+the nearby hotspots
+the last useful evidence
+the known non-claims
+```
+
+That makes the task smaller and the output easier to review.
+
+It also makes swarms less wasteful. More workers help only when each worker starts with a good enough map of where it belongs.
+
+## The Mental Model
+
+Every agent run should pay rent.
+
+The patch is one payment.
+
+The map is the compound interest.

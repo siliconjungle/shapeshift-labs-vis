@@ -2011,5 +2011,122 @@
       { "from": "lossy", "to": "evidence", "kind": "compensate" },
       ["evidence", "output"]
     ]
+  },
+  {
+    "id": "lockfile-causal-graph",
+    "title": "Lockfile Causal Graph",
+    "aliases": ["lockfile-is-a-causal-graph"],
+    "maxColumnGap": 16,
+    "nodes": [
+      { "id": "manifest", "label": "MANIFEST", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "range", "label": "RANGES", "x": 36, "y": 24, "type": "event", "wide": true },
+      { "id": "peer", "label": "PEERS", "x": 36, "y": 50, "type": "event", "wide": true },
+      { "id": "platform", "label": "PLATFORM", "x": 36, "y": 76, "type": "event", "wide": true },
+      { "id": "resolver", "label": "RESOLVER", "x": 74, "y": 50, "type": "gate", "wide": true },
+      { "id": "lock", "label": "LOCKFILE", "x": 112, "y": 50, "type": "synthesis", "wide": true },
+      { "id": "install", "label": "INSTALL", "x": 148, "y": 32, "type": "result", "wide": true },
+      { "id": "audit", "label": "EVIDENCE", "x": 148, "y": 68, "type": "event", "wide": true }
+    ],
+    "edges": [
+      ["manifest", "range"],
+      ["manifest", "peer"],
+      ["manifest", "platform"],
+      ["range", "resolver"],
+      ["peer", "resolver"],
+      ["platform", "resolver"],
+      ["resolver", "lock"],
+      ["lock", "install"],
+      ["lock", "audit"]
+    ]
+  },
+  {
+    "id": "preview-evidence-machine",
+    "title": "Preview Evidence Machine",
+    "aliases": ["preview-environments-are-evidence-machines"],
+    "maxColumnGap": 16,
+    "nodes": [
+      { "id": "patch", "label": "PATCH", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "build", "label": "BUILD", "x": 36, "y": 50, "type": "gate", "wide": true },
+      { "id": "preview", "label": "PREVIEW", "x": 68, "y": 50, "type": "synthesis", "wide": true },
+      { "id": "routes", "label": "ROUTES", "x": 102, "y": 18, "type": "event", "wide": true },
+      { "id": "browser", "label": "BROWSER", "x": 102, "y": 38, "type": "event", "wide": true },
+      { "id": "a11y", "label": "A11Y", "x": 102, "y": 58, "type": "event", "wide": true },
+      { "id": "bundle", "label": "BUNDLE", "x": 102, "y": 78, "type": "event", "wide": true },
+      { "id": "proof", "label": "PROOF", "x": 140, "y": 50, "type": "result", "wide": true }
+    ],
+    "edges": [
+      ["patch", "build"],
+      ["build", "preview"],
+      ["preview", "routes"],
+      ["preview", "browser"],
+      ["preview", "a11y"],
+      ["preview", "bundle"],
+      ["routes", "proof"],
+      ["browser", "proof"],
+      ["a11y", "proof"],
+      ["bundle", "proof"]
+    ]
+  },
+  {
+    "id": "refactor-coordination-graph",
+    "title": "Refactor Coordination Graph",
+    "aliases": ["when-refactoring-is-coordination"],
+    "maxColumnGap": 16,
+    "nodes": [
+      { "id": "shape", "label": "CURRENT SHAPE", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "move", "label": "MOVE", "x": 42, "y": 24, "type": "event", "wide": true },
+      { "id": "split", "label": "SPLIT", "x": 42, "y": 50, "type": "event", "wide": true },
+      { "id": "rename", "label": "RENAME", "x": 42, "y": 76, "type": "event", "wide": true },
+      { "id": "map", "label": "NEW MAP", "x": 80, "y": 50, "type": "synthesis", "wide": true },
+      { "id": "leases", "label": "LEASES", "x": 118, "y": 30, "type": "gate", "wide": true },
+      { "id": "tasks", "label": "TASKS", "x": 118, "y": 70, "type": "select", "wide": true },
+      { "id": "future", "label": "FUTURE MERGES", "x": 154, "y": 50, "type": "result", "wide": true }
+    ],
+    "edges": [
+      ["shape", "move"],
+      ["shape", "split"],
+      ["shape", "rename"],
+      ["move", "map"],
+      ["split", "map"],
+      ["rename", "map"],
+      ["map", "leases"],
+      ["map", "tasks"],
+      ["leases", "future"],
+      ["tasks", "future"]
+    ]
+  },
+  {
+    "id": "agent-map-feedback",
+    "title": "Agent Map Feedback",
+    "aliases": ["agents-should-leave-better-maps"],
+    "maxColumnGap": 16,
+    "nodes": [
+      { "id": "run", "label": "RUN", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "code", "label": "CODE", "x": 38, "y": 28, "type": "event", "wide": true },
+      { "id": "evidence", "label": "EVIDENCE", "x": 38, "y": 50, "type": "gate", "wide": true },
+      { "id": "mapdelta", "label": "MAP DELTA", "x": 38, "y": 72, "type": "event", "wide": true },
+      { "id": "repo", "label": "REPO MAP", "x": 78, "y": 50, "type": "synthesis", "wide": true },
+      { "id": "symbols", "label": "SYMBOLS", "x": 116, "y": 20, "wide": true },
+      { "id": "regions", "label": "REGIONS", "x": 116, "y": 40, "wide": true },
+      { "id": "gates", "label": "GATES", "x": 116, "y": 60, "wide": true },
+      { "id": "hotspots", "label": "HOTSPOTS", "x": 116, "y": 80, "type": "conflict", "wide": true },
+      { "id": "next", "label": "NEXT WORK", "x": 154, "y": 50, "type": "result", "wide": true }
+    ],
+    "edges": [
+      ["run", "code"],
+      ["run", "evidence"],
+      ["run", "mapdelta"],
+      ["code", "repo"],
+      ["evidence", "repo"],
+      ["mapdelta", "repo"],
+      ["repo", "symbols"],
+      ["repo", "regions"],
+      ["repo", "gates"],
+      ["repo", "hotspots"],
+      ["symbols", "next"],
+      ["regions", "next"],
+      ["gates", "next"],
+      ["hotspots", "next"]
+    ]
   }
 ]
