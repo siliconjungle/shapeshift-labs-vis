@@ -1,5 +1,13 @@
 const postEntries = [
   {
+    slug: 'the-superset-language',
+    title: 'The Superset Language',
+    publishedAt: '2026-06-30T15:01:00+10:00',
+    graphType: null,
+    excerpt:
+      'Cross-language conversion should lift source code into a richer semantic interlingua, lower into targets with evidence, and record loss instead of hiding it.',
+  },
+  {
     slug: 'proof-shape-matters',
     title: 'Proof Shape Matters',
     publishedAt: '2026-06-29T22:10:00+10:00',

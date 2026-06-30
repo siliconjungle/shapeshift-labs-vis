@@ -81,6 +81,9 @@ export const MergeHotspotMeasurementChart = makeWorkflowChart('merge-hotspot-mea
 export const HotspotRoutingFeedbackChart = makeWorkflowChart('hotspot-routing-feedback');
 export const ModelTournamentFeedbackChart = makeWorkflowChart('model-tournament-feedback');
 export const ModelRoutingBudgetLoopChart = makeWorkflowChart('model-routing-budget-loop');
+export const SupersetInterlinguaBridgeChart = makeWorkflowChart('superset-interlingua-bridge');
+export const SupersetSemanticLayersChart = makeWorkflowChart('superset-semantic-layers');
+export const SupersetLoweringRoutesChart = makeWorkflowChart('superset-lowering-routes');
 
 export const workflowChartComponents = {
   ChainChart,
@@ -156,4 +159,7 @@ export const workflowChartComponents = {
   HotspotRoutingFeedbackChart,
   ModelTournamentFeedbackChart,
   ModelRoutingBudgetLoopChart,
+  SupersetInterlinguaBridgeChart,
+  SupersetSemanticLayersChart,
+  SupersetLoweringRoutesChart,
 };

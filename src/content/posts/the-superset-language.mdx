@@ -1,0 +1,381 @@
+Direct translation is the wrong mental model for serious language conversion.
+
+If the system goes straight from TypeScript to Rust, or from TSX to HTML, CSS, and JavaScript, it has to do too many things at once. It has to parse source, infer identity, preserve behavior, choose target idioms, account for missing features, and decide whether the result is trustworthy.
+
+That arrow is too small.
+
+The better shape is a superset language.
+
+Not a language humans necessarily write by hand. Not a new runtime. Not a claim that every language can be flattened into one perfect syntax.
+
+A superset language is an interlingua: a richer semantic form that can carry more meaning than any one output language needs.
+
+<SupersetInterlinguaBridgeChart caption="Source languages lift into a richer semantic record. Target languages are lowering decisions, not the place where meaning is first discovered." />
+
+## Direct Translation Hides Too Much
+
+A direct translator looks clean:
+
+```txt
+TypeScript -> Rust
+TSX -> HTML + CSS + JS
+Python -> JavaScript
+```
+
+But the clean arrow hides the useful questions.
+
+Which source span produced the output? Which exported symbol stayed the same? Which type fact survived? Which effect changed shape? Which runtime behavior was proved? Which target feature could not express the original meaning?
+
+If the translator cannot answer those questions, the output might still run, but the system cannot explain what it preserved.
+
+For agent work, that is not enough.
+
+The coordinator needs to know what can be merged, rebased, reviewed, regenerated, or blocked.
+
+## Lift First
+
+The first step is lifting.
+
+Lifting turns source code into a semantic record:
+
+```txt
+source text
+source spans
+comments and trivia
+bindings and declarations
+module edges
+type facts
+effect boundaries
+runtime surfaces
+package contracts
+proof obligations
+```
+
+That record is deliberately bigger than the source language.
+
+TypeScript can express some type facts directly. JavaScript may need inference or weaker claims. CSS has selectors, cascade, variables, media state, and asset references. Rust has ownership and trait facts. HTML has document structure, ids, ARIA relationships, and form behavior.
+
+The superset has to hold all of those facts without pretending they are the same fact.
+
+<SupersetSemanticLayersChart caption="The interlingua keeps text, identity, types, effects, runtime meaning, and proof as separate layers." />
+
+## One Source, Many Lowerings
+
+The source should lift once.
+
+Different targets can then lower different parts of the same record.
+
+<SemanticCodeDiff
+  title="A Semantic Record, Not A Direct Rewrite"
+  panelMaxHeight={420}
+  panes={[
+    {
+      label: 'Source',
+      role: 'base',
+      code: [
+        'export interface User {',
+        '  id: string;',
+        '  fullName: string;',
+        '}',
+        '',
+        'export function label(user: User) {',
+        '  return user.fullName;',
+        '}',
+      ].join('\n'),
+      note: {
+        kind: 'base',
+        label: 'Source language',
+        detail: 'The TypeScript syntax is only one surface over identity, type shape, export shape, and behavior.',
+      },
+      highlights: [
+        { line: 1, text: 'User', kind: 'base', label: 'public type' },
+        { line: 3, text: 'fullName', kind: 'base', label: 'field identity' },
+        { line: 6, text: 'label', kind: 'base', label: 'exported function' },
+        { line: 7, text: 'fullName', kind: 'base', label: 'field read' },
+      ],
+    },
+    {
+      label: 'Superset',
+      role: 'worker',
+      code: [
+        'record User {',
+        '  identity: export/type/User',
+        '  field id: string',
+        '  field fullName: string',
+        '}',
+        '',
+        'fn label(user: User) -> string {',
+        '  reads: User.fullName',
+        '  effect: pure',
+        '}',
+      ].join('\n'),
+      note: {
+        kind: 'add',
+        label: 'Lifted meaning',
+        detail: 'The interlingua carries identity, type facts, read dependencies, and effect facts separately from TypeScript syntax.',
+      },
+      highlights: [
+        { line: 2, text: 'export/type/User', kind: 'base', label: 'stable identity' },
+        { line: 4, text: 'fullName', kind: 'base', label: 'field identity' },
+        { line: 7, text: 'label', kind: 'add', label: 'function identity' },
+        { line: 8, text: 'User.fullName', kind: 'base', label: 'read dependency' },
+        { line: 9, text: 'pure', kind: 'admit', label: 'effect claim' },
+      ],
+    },
+    {
+      label: 'Rust',
+      role: 'output',
+      code: [
+        'pub struct User {',
+        '  pub id: String,',
+        '  pub full_name: String,',
+        '}',
+        '',
+        'pub fn label(user: &User) -> String {',
+        '  user.full_name.clone()',
+        '}',
+      ].join('\n'),
+      note: {
+        kind: 'admit',
+        label: 'Lowered target',
+        detail: 'Rust chooses target idioms while preserving the public shape, field identity, and read behavior through a span map.',
+      },
+      highlights: [
+        { line: 1, text: 'User', kind: 'base', label: 'same type' },
+        { line: 3, text: 'full_name', kind: 'rename', label: 'target spelling' },
+        { line: 6, text: 'label', kind: 'add', label: 'same function' },
+        { line: 7, text: 'full_name', kind: 'rename', label: 'rebased read' },
+      ],
+    },
+    {
+      label: 'JavaScript',
+      role: 'output',
+      code: [
+        'export function label(user) {',
+        '  return user.fullName;',
+        '}',
+      ].join('\n'),
+      note: {
+        kind: 'warning',
+        label: 'Lowered with loss',
+        detail: 'JavaScript can preserve runtime behavior, but the static User type becomes external declaration evidence or a known loss.',
+      },
+      highlights: [
+        { line: 1, text: 'label', kind: 'add', label: 'same function' },
+        { line: 2, text: 'fullName', kind: 'base', label: 'same field read' },
+      ],
+    },
+  ]}
+  caption="The useful intermediate form is richer than each output. Rust, JavaScript, or another target can lower from the same semantic record with different proof obligations."
+/>
+
+The superset is not a prettier AST.
+
+It is the place where the system keeps the facts that would otherwise disappear between languages.
+
+## Loss Accounting Is The Point
+
+The important feature is not that the superset can magically represent everything.
+
+The important feature is that it can represent the difference between:
+
+```txt
+preserved exactly
+preserved through an adapter
+lowered with a runtime proof
+lowered with a known loss
+not representable in this target
+```
+
+That is the difference between a code generator and a review system.
+
+A code generator emits code.
+
+A review system says what the emitted code means, where it came from, and where it stopped being equivalent.
+
+<ClaimProofMatrix
+  eyebrow="Superset Matrix"
+  title="What The Interlingua Has To Carry"
+  rows={[
+    {
+      surface: 'Source span',
+      claim: 'Output can be traced back',
+      proof: 'Span and hash binding',
+      evidence: 'File hash, byte range, generated span map',
+      route: 'Preserve',
+      status: 'proved',
+    },
+    {
+      surface: 'Identity',
+      claim: 'The same thing moved languages',
+      proof: 'Stable symbol or region identity',
+      evidence: 'Export, binding, selector, id, key, trait, route',
+      route: 'Preserve or rebase',
+      status: 'required',
+    },
+    {
+      surface: 'Type shape',
+      claim: 'The public contract survived',
+      proof: 'Target type or declaration check',
+      evidence: 'Assignable shape, generated interface, adapter type',
+      route: 'Gate',
+      status: 'required',
+    },
+    {
+      surface: 'Effect boundary',
+      claim: 'Side effects stayed bounded',
+      proof: 'Effect graph or runtime trace',
+      evidence: 'IO, mutation, async, DOM, storage, network',
+      route: 'Require proof',
+      status: 'missing',
+    },
+    {
+      surface: 'Runtime meaning',
+      claim: 'The output behaves under declared conditions',
+      proof: 'Runtime capsule',
+      evidence: 'DOM, layout, events, canvas, API trace',
+      route: 'Probe',
+      status: 'missing',
+    },
+  ]}
+  caption="A superset language is useful when it carries meaning and also records which claims still need evidence."
+/>
+
+## Lowering Is A Decision
+
+Once the source has been lifted, lowering is not just code generation.
+
+Lowering asks what the target can honestly express.
+
+<SupersetLoweringRoutesChart caption="Lowering is an admission route: exact output, adapter output, lossy output, or no output." />
+
+Some facts lower cleanly.
+
+```txt
+TypeScript interface -> Rust struct shape
+named export -> module export edge
+JSX static attribute -> HTML attribute
+CSS module class -> generated class map
+```
+
+Some facts need an adapter.
+
+```txt
+Promise boundary -> async runtime adapter
+optional property -> option-like wrapper
+DOM event handler -> generated listener
+CSS variable contract -> theme token binding
+```
+
+Some facts are target-specific and should not be silently erased.
+
+```txt
+Rust lifetime information
+TypeScript conditional type behavior
+CSS cascade order
+React component lifecycle
+browser focus behavior
+canvas draw sequence
+```
+
+If those facts matter to the claim, the output should carry proof, a loss record, or a refusal.
+
+<RouteDecisionTable
+  eyebrow="Conversion Routes"
+  title="Lowering Is Reviewable"
+  rows={[
+    {
+      route: 'Exact',
+      signal: 'Target can express the semantic record directly',
+      requires: 'Span map, identity map, target syntax gate',
+      produces: 'Generated target code',
+      tone: 'apply',
+    },
+    {
+      route: 'Adapter',
+      signal: 'Target can express the behavior with a helper boundary',
+      requires: 'Adapter contract and focused proof',
+      produces: 'Target code plus adapter evidence',
+      tone: 'review',
+    },
+    {
+      route: 'Runtime proof',
+      signal: 'Meaning depends on execution, browser state, or effects',
+      requires: 'Probe capsule bound to source and output',
+      produces: 'Admissible bounded claim',
+      tone: 'rerun',
+    },
+    {
+      route: 'Loss record',
+      signal: 'Target cannot preserve a fact but the loss is accepted',
+      requires: 'Explicit non-claim and owner decision',
+      produces: 'Lowered output with known limitation',
+      tone: 'split',
+    },
+    {
+      route: 'Block',
+      signal: 'Required meaning cannot be represented or proved',
+      requires: 'No silent erasure',
+      produces: 'Question, redesign, or target-specific implementation',
+      tone: 'block',
+    },
+  ]}
+  caption="A conversion system becomes trustworthy when every output path records what it preserved and what it did not."
+/>
+
+## Translation Helps Merge
+
+This is where language conversion connects back to semantic merging.
+
+If every language lifts into the same kind of semantic record, merge does not have to be invented separately for every syntax.
+
+The syntax adapters stay language-specific.
+
+The core questions become shared:
+
+```txt
+what identity changed?
+what public contract changed?
+what effect boundary changed?
+what runtime claim changed?
+what proof admits the output?
+what loss was accepted?
+```
+
+That does not make all languages equivalent.
+
+It gives the coordinator one place to compare meaning before writing target text back to disk.
+
+## Not Concept Merge
+
+This should stop below taste, intention, and vibe.
+
+The system should not decide that one branch made the product more minimal and another made it more art deco, then synthesize a new aesthetic.
+
+That is too high in the stack.
+
+The useful boundary is lower and stricter:
+
+```txt
+source identity
+program structure
+public contracts
+effect boundaries
+runtime probes
+declared layout or behavior claims
+explicit loss records
+```
+
+Humans can still choose direction.
+
+The system should make the consequences of that choice portable, inspectable, and mergeable.
+
+## The Mental Model
+
+The superset language is not the destination.
+
+It is the customs form between languages.
+
+The source language declares what it had. The interlingua records what was understood. The target language receives only what it can express. Anything else becomes proof, adapter, loss, question, or refusal.
+
+That is the shape that makes universal semantic merging and cross-language conversion feel like the same project.

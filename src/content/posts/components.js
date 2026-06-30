@@ -32,8 +32,10 @@ import TheDenominatorProblem from './the-denominator-problem.mdx';
 import StaticShapeRuntimeMeaning from './static-shape-runtime-meaning.mdx';
 import FailClosedThenLearn from './fail-closed-then-learn.mdx';
 import FromWorkerFindingToGate from './from-worker-finding-to-gate.mdx';
+import TheSupersetLanguage from './the-superset-language.mdx';
 
 export const postComponents = {
+  'the-superset-language': TheSupersetLanguage,
   'proof-shape-matters': ProofShapeMatters,
   'identity-is-the-merge-primitive': IdentityIsTheMergePrimitive,
   'the-denominator-problem': TheDenominatorProblem,

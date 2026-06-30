@@ -1931,5 +1931,85 @@
       ["review", "accept"],
       ["accept", "policy"]
     ]
+  },
+  {
+    "id": "superset-interlingua-bridge",
+    "title": "Superset Interlingua Bridge",
+    "aliases": ["superset-language-bridge"],
+    "maxColumnGap": 16,
+    "height": 300,
+    "nodes": [
+      { "id": "ts", "label": "TS", "x": 8, "y": 22, "type": "branch", "wide": true },
+      { "id": "rust", "label": "RUST", "x": 8, "y": 42, "type": "branch", "wide": true },
+      { "id": "jsx", "label": "JSX", "x": 8, "y": 62, "type": "branch", "wide": true },
+      { "id": "css", "label": "CSS", "x": 8, "y": 82, "type": "branch", "wide": true },
+      { "id": "lift", "label": "LIFT", "x": 40, "y": 52, "type": "synthesis", "wide": true },
+      { "id": "interlingua", "label": "SUPERSET", "x": 76, "y": 52, "type": "gate", "wide": true },
+      { "id": "lower", "label": "LOWER", "x": 112, "y": 52, "type": "synthesis", "wide": true },
+      { "id": "target", "label": "TARGET", "x": 146, "y": 32, "type": "result", "wide": true },
+      { "id": "loss", "label": "LOSS LOG", "x": 146, "y": 72, "type": "event", "wide": true }
+    ],
+    "edges": [
+      ["ts", "lift"],
+      ["rust", "lift"],
+      ["jsx", "lift"],
+      ["css", "lift"],
+      ["lift", "interlingua"],
+      ["interlingua", "lower"],
+      ["lower", "target"],
+      { "from": "lower", "to": "loss", "kind": "compensate" }
+    ]
+  },
+  {
+    "id": "superset-semantic-layers",
+    "title": "Superset Semantic Layers",
+    "aliases": ["superset-language-layers"],
+    "maxColumnGap": 16,
+    "nodes": [
+      { "id": "text", "label": "TEXT", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "spans", "label": "SPANS", "x": 34, "y": 50, "type": "event", "wide": true },
+      { "id": "identity", "label": "IDENTITY", "x": 64, "y": 50, "type": "gate", "wide": true },
+      { "id": "types", "label": "TYPES", "x": 94, "y": 26, "type": "event", "wide": true },
+      { "id": "effects", "label": "EFFECTS", "x": 94, "y": 50, "type": "event", "wide": true },
+      { "id": "runtime", "label": "RUNTIME", "x": 94, "y": 74, "type": "event", "wide": true },
+      { "id": "proof", "label": "PROOF", "x": 130, "y": 50, "type": "result", "wide": true }
+    ],
+    "edges": [
+      ["text", "spans"],
+      ["spans", "identity"],
+      ["identity", "types"],
+      ["identity", "effects"],
+      ["identity", "runtime"],
+      ["types", "proof"],
+      ["effects", "proof"],
+      ["runtime", "proof"]
+    ]
+  },
+  {
+    "id": "superset-lowering-routes",
+    "title": "Superset Lowering Routes",
+    "aliases": ["superset-language-lowering"],
+    "maxColumnGap": 16,
+    "nodes": [
+      { "id": "record", "label": "RECORD", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "target", "label": "TARGET DIALECT", "x": 42, "y": 50, "type": "gate", "wide": true },
+      { "id": "exact", "label": "EXACT", "x": 80, "y": 18, "type": "result", "wide": true },
+      { "id": "adapter", "label": "ADAPTER", "x": 80, "y": 40, "type": "event", "wide": true },
+      { "id": "lossy", "label": "LOSSY", "x": 80, "y": 62, "type": "compensation", "wide": true },
+      { "id": "block", "label": "BLOCK", "x": 80, "y": 84, "type": "conflict", "wide": true },
+      { "id": "evidence", "label": "EVIDENCE", "x": 120, "y": 50, "type": "synthesis", "wide": true },
+      { "id": "output", "label": "OUTPUT", "x": 156, "y": 50, "type": "result", "wide": true }
+    ],
+    "edges": [
+      ["record", "target"],
+      ["target", "exact"],
+      ["target", "adapter"],
+      { "from": "target", "to": "lossy", "kind": "compensate" },
+      { "from": "target", "to": "block", "kind": "conflict" },
+      ["exact", "evidence"],
+      ["adapter", "evidence"],
+      { "from": "lossy", "to": "evidence", "kind": "compensate" },
+      ["evidence", "output"]
+    ]
   }
 ]
