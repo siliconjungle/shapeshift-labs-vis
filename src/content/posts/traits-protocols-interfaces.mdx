@@ -1,0 +1,289 @@
+Different languages have different names for a similar idea:
+
+```txt
+Rust trait
+Swift protocol
+TypeScript interface
+Java interface
+Go interface
+Haskell typeclass
+C++ concept
+Scala typeclass or trait
+```
+
+They all describe a contract, but they are not the same contract.
+
+That difference matters for semantic merge and cross-language translation.
+
+If the system sees only method names, it will overclaim. A method set is not enough to prove a trait, protocol, interface, typeclass, or concept survived a merge.
+
+<ClaimProofMatrix
+  eyebrow="Contract Matrix"
+  title="Same Shape Is Not The Same Contract"
+  rows={[
+    {
+      surface: 'Required members',
+      claim: 'The target exposes the needed operations',
+      proof: 'Requirement set evidence',
+      evidence: 'Method names, parameter shape, return shape',
+      route: 'Gate member set',
+      status: 'required',
+    },
+    {
+      surface: 'Associated types',
+      claim: 'Type members are represented',
+      proof: 'Associated type or equivalent binding',
+      evidence: 'Item, Error, Output, Self relationships',
+      route: 'Request target proof',
+      status: 'missing',
+    },
+    {
+      surface: 'Generic bounds',
+      claim: 'Constraints still apply',
+      proof: 'Bound and where-clause evidence',
+      evidence: 'T: Send, comparable, iterable, constraint clauses',
+      route: 'Review bounds',
+      status: 'required',
+    },
+    {
+      surface: 'Dispatch',
+      claim: 'Call resolution keeps meaning',
+      proof: 'Static/dynamic dispatch evidence',
+      evidence: 'Trait object, virtual call, structural call site',
+      route: 'Prove dispatch',
+      status: 'missing',
+    },
+    {
+      surface: 'Coherence',
+      claim: 'Implementations are still legal',
+      proof: 'Implementation authority evidence',
+      evidence: 'Orphan rule, blanket impl, extension method',
+      route: 'Fail closed',
+      status: 'missing',
+    },
+  ]}
+  caption="A protocol-like construct is a bundle of obligations. Preserving one obligation does not prove the rest."
+/>
+
+## Names Are Not Contracts
+
+Imagine a source trait:
+
+```rust
+trait Cache {
+  type Item;
+  fn get(&self, key: &str) -> Option<Self::Item>;
+}
+```
+
+It can be lowered into something that looks like a TypeScript interface:
+
+```ts
+interface Cache<Item> {
+  get(key: string): Item | undefined;
+}
+```
+
+The shape is close.
+
+But the proof is not finished.
+
+What happened to `Self::Item`? Is `undefined` the same absence convention as `Option`? Are implementations structural or nominal? Can any object satisfy the interface, or must an implementation be declared? Does dispatch happen statically, dynamically, or structurally?
+
+Those are not philosophical questions. They decide whether a merge can be admitted.
+
+<SemanticCodeDiff
+  title="A Contract Has More Than Members"
+  panelMaxHeight={430}
+  panes={[
+    {
+      label: 'Trait',
+      role: 'base',
+      code: [
+        'trait Cache {',
+        '  type Item;',
+        '  fn get(&self, key: &str) -> Option<Self::Item>;',
+        '}',
+      ].join('\n'),
+      note: {
+        kind: 'base',
+        label: 'Source contract',
+        detail: 'The trait includes a required method and an associated type tied to Self.',
+      },
+      highlights: [
+        { line: 1, text: 'Cache', kind: 'base', label: 'contract identity' },
+        { line: 2, text: 'Item', kind: 'base', label: 'associated type' },
+        { line: 3, text: 'get', kind: 'base', label: 'required method' },
+        { line: 3, text: 'Option<Self::Item>', kind: 'base', label: 'absence + associated type' },
+      ],
+    },
+    {
+      label: 'Interface',
+      role: 'worker',
+      code: [
+        'interface Cache<Item> {',
+        '  get(key: string): Item | undefined;',
+        '}',
+      ].join('\n'),
+      note: {
+        kind: 'add',
+        label: 'Target shape',
+        detail: 'The member shape can be represented, but associated type and absence semantics need explicit evidence.',
+      },
+      highlights: [
+        { line: 1, text: 'Cache', kind: 'base', label: 'contract identity' },
+        { line: 1, text: 'Item', kind: 'add', label: 'generic replacement' },
+        { line: 2, text: 'get', kind: 'base', label: 'required method' },
+        { line: 2, text: 'Item | undefined', kind: 'warning', label: 'lowered absence' },
+      ],
+    },
+    {
+      label: 'Record',
+      role: 'output',
+      code: [
+        'protocol-constraint Cache {',
+        '  required-member: get',
+        '  associated-type: Item',
+        '  absence-model: Option -> undefined',
+        '  dispatch: structural',
+        '  equivalence: false',
+        '}',
+      ].join('\n'),
+      note: {
+        kind: 'admit',
+        label: 'Review record',
+        detail: 'The system should record what is represented and what remains a non-claim.',
+      },
+      highlights: [
+        { line: 2, text: 'get', kind: 'base', label: 'member obligation' },
+        { line: 3, text: 'Item', kind: 'add', label: 'type obligation' },
+        { line: 4, text: 'Option -> undefined', kind: 'warning', label: 'lowering decision' },
+        { line: 5, text: 'structural', kind: 'warning', label: 'dispatch change' },
+        { line: 6, text: 'false', kind: 'warning', label: 'no broad claim' },
+      ],
+    },
+  ]}
+  caption="The target code can be useful while still carrying explicit non-claims about full protocol equivalence."
+/>
+
+## Obligations Travel Separately
+
+A protocol-like contract is not one fact.
+
+It is a set of obligations:
+
+```txt
+identity of the contract
+required members
+associated types or type members
+generic parameters
+where clauses and bounds
+default methods
+extension methods
+implementation declarations
+dynamic or static dispatch
+coherence and orphan rules
+object-safety or existential behavior
+```
+
+Some obligations translate cleanly.
+
+Some need an adapter.
+
+Some cannot be represented in the target language without runtime checks or conventions.
+
+That is why a universal merge system should not store “interface preserved: true.”
+
+It should store the obligations.
+
+## Dispatch Is Meaning
+
+Dispatch is one of the easiest places to overclaim.
+
+```txt
+static dispatch
+dynamic dispatch
+structural dispatch
+virtual dispatch
+extension method lookup
+blanket implementation
+conditional implementation
+```
+
+Two outputs can have the same method call text and different dispatch meaning.
+
+A target might call a structurally compatible object where the source required an explicit implementation. Or a source trait object may allow dynamic dispatch where the target generic erases it.
+
+That is not automatically bad.
+
+It is a lowering decision that needs to be named.
+
+<RouteDecisionTable
+  eyebrow="Contract Route Table"
+  title="Protocol Evidence Routes"
+  rows={[
+    {
+      route: 'Admit member shape',
+      signal: 'Required methods match',
+      requires: 'Member names, parameters, return shape',
+      produces: 'Scoped static claim',
+      tone: 'apply',
+    },
+    {
+      route: 'Review type members',
+      signal: 'Associated type became generic parameter',
+      requires: 'Mapping and use-site proof',
+      produces: 'Target contract decision',
+      tone: 'review',
+    },
+    {
+      route: 'Probe dispatch',
+      signal: 'Dynamic behavior may differ',
+      requires: 'Runtime or call-resolution evidence',
+      produces: 'Bounded dispatch claim',
+      tone: 'rerun',
+    },
+    {
+      route: 'Block coherence',
+      signal: 'Implementation authority is missing',
+      requires: 'Orphan/coherence or extension proof',
+      produces: 'Non-admission',
+      tone: 'block',
+    },
+  ]}
+  caption="Protocol evidence routes each obligation separately instead of forcing one yes/no contract claim."
+/>
+
+## Structural Is Not Weaker By Default
+
+TypeScript interfaces are structural. Rust traits are explicit. Go interfaces are structural but method-set based. Swift protocols have conformance rules. Haskell typeclasses have instance resolution.
+
+No one model is universally “more semantic.”
+
+They express different commitments.
+
+Semantic merge should respect the source commitment and the target commitment. If a target weakens a nominal requirement into structural compatibility, the system should say so. If a target strengthens a structural shape into an explicit implementation, the system should say so.
+
+The evidence is useful precisely because it refuses to flatten these differences into one field called `interface`.
+
+## The Mental Model
+
+Traits, protocols, interfaces, typeclasses, and concepts are contract surfaces.
+
+They are made of obligations.
+
+Semantic merge should preserve or route each obligation:
+
+```txt
+member set
+type members
+bounds
+dispatch
+implementation authority
+coherence
+runtime behavior
+```
+
+If those obligations are represented, the candidate can move forward.
+
+If they are missing, the system should not guess from matching names.

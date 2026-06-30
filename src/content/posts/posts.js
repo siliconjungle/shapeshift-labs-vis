@@ -1,5 +1,37 @@
 const postEntries = [
   {
+    slug: 'pattern-matching-is-control-flow',
+    title: 'Pattern Matching Is Control Flow',
+    publishedAt: '2026-07-01T08:59:00+10:00',
+    graphType: null,
+    excerpt:
+      'Pattern matching is dispatch: variants, payloads, guards, exhaustiveness, defaults, and fallthrough need proof before a merge can claim safety.',
+  },
+  {
+    slug: 'traits-protocols-interfaces',
+    title: 'Traits, Protocols, Interfaces',
+    publishedAt: '2026-07-01T08:58:00+10:00',
+    graphType: null,
+    excerpt:
+      'Cross-language contracts are bundles of obligations: required members, associated types, bounds, dispatch, implementation authority, and coherence.',
+  },
+  {
+    slug: 'borrow-checker-is-a-merge-surface',
+    title: 'The Borrow Checker Is A Merge Surface',
+    publishedAt: '2026-07-01T08:57:00+10:00',
+    graphType: null,
+    excerpt:
+      'Ownership, borrowing, aliasing, mutation rights, moves, drops, and lifetimes are permission facts that semantic merge has to preserve or route.',
+  },
+  {
+    slug: 'semantics-are-constraints-not-a-tree',
+    title: 'Semantics Are Constraints, Not A Tree',
+    publishedAt: '2026-07-01T08:56:00+10:00',
+    graphType: null,
+    excerpt:
+      'A universal semantic layer should be a set of proof-carrying constraint families, not one mega AST that hides type, ownership, effect, runtime, and protocol obligations.',
+  },
+  {
     slug: 'agents-should-leave-better-maps',
     title: 'Agents Should Leave Better Maps',
     publishedAt: '2026-06-30T15:08:00+10:00',

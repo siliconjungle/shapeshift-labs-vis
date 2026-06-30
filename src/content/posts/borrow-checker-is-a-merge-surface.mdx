@@ -1,0 +1,275 @@
+The borrow checker is usually described as a compiler feature.
+
+For semantic merge, it is also a review surface.
+
+That matters because ownership is not only about memory safety. It is a language-level way of saying who may read, who may mutate, when a value may move, and when a reference stops being valid.
+
+Those are merge questions.
+
+If two changes both touch the same value, the hard part is not always the text conflict. The hard part is whether the combined output still respects the permission model of the program.
+
+<ClaimProofMatrix
+  eyebrow="Ownership Surface"
+  title="Borrow Facts Are Merge Facts"
+  rows={[
+    {
+      surface: 'Move',
+      claim: 'Value is not used after transfer',
+      proof: 'Move and use-site evidence',
+      evidence: 'Moved value, last use, output use sites',
+      route: 'Reject use-after-move',
+      status: 'required',
+    },
+    {
+      surface: 'Shared borrow',
+      claim: 'Read aliases do not overlap mutation',
+      proof: 'Loan scope evidence',
+      evidence: 'Borrow start, borrow end, mutation span',
+      route: 'Admit or request scope proof',
+      status: 'required',
+    },
+    {
+      surface: 'Mutable borrow',
+      claim: 'Only one writer exists',
+      proof: 'Exclusive access evidence',
+      evidence: 'Mutable loan, escape boundary, reborrow',
+      route: 'Block overlapping writers',
+      status: 'missing',
+    },
+    {
+      surface: 'Lifetime',
+      claim: 'Reference outlives its use',
+      proof: 'Lifetime/region constraint',
+      evidence: 'Producer, consumer, escape path',
+      route: 'Require lifetime proof',
+      status: 'missing',
+    },
+    {
+      surface: 'Interior mutability',
+      claim: 'Runtime borrow rule is preserved',
+      proof: 'Runtime or API proof',
+      evidence: 'Cell/refcell/lock boundary',
+      route: 'Route to runtime evidence',
+      status: 'missing',
+    },
+  ]}
+  caption="Borrow checking gives the merge system a vocabulary for permissions, not just a compiler error after the fact."
+/>
+
+## Ownership Is Permission
+
+Text diff sees this:
+
+```txt
+line 12 changed
+line 18 changed
+```
+
+Ownership sees something else:
+
+```txt
+value moved here
+shared reference created here
+mutable reference requested here
+borrow escapes this scope
+drop order changed here
+```
+
+Those facts decide whether two edits commute.
+
+One branch may add a read. Another branch may add a mutation. Textually, they can live far apart. Semantically, they can overlap the same loan.
+
+That is why ownership belongs in the merge model.
+
+<SemanticCodeDiff
+  title="Text Distance Is Not Permission Distance"
+  panelMaxHeight={420}
+  panes={[
+    {
+      label: 'Base',
+      role: 'base',
+      code: [
+        'fn render(user: &User) -> String {',
+        '  let name = user.name();',
+        '  format!("Hello {name}")',
+        '}',
+      ].join('\n'),
+      note: {
+        kind: 'base',
+        label: 'Base permission',
+        detail: 'The function only takes a shared borrow and reads user.name().',
+      },
+      highlights: [
+        { line: 1, text: '&User', kind: 'base', label: 'shared borrow' },
+        { line: 2, text: 'user.name()', kind: 'base', label: 'read' },
+      ],
+    },
+    {
+      label: 'Agent A',
+      role: 'worker',
+      code: [
+        'fn render(user: &User) -> String {',
+        '  let name = user.name();',
+        '  let title = user.title();',
+        '  format!("{title}: {name}")',
+        '}',
+      ].join('\n'),
+      note: {
+        kind: 'add',
+        label: 'Read added',
+        detail: 'This branch extends the shared-borrow read surface.',
+      },
+      highlights: [
+        { line: 1, text: '&User', kind: 'base', label: 'shared borrow' },
+        { line: 3, text: 'user.title()', kind: 'add', label: 'new read' },
+      ],
+    },
+    {
+      label: 'Agent B',
+      role: 'worker',
+      code: [
+        'fn render(user: &mut User) -> String {',
+        '  user.refresh();',
+        '  let name = user.name();',
+        '  format!("Hello {name}")',
+        '}',
+      ].join('\n'),
+      note: {
+        kind: 'rename',
+        label: 'Mutation added',
+        detail: 'This branch changes the permission boundary from shared to mutable.',
+      },
+      highlights: [
+        { line: 1, text: '&mut User', kind: 'rename', label: 'mutable borrow' },
+        { line: 2, text: 'user.refresh()', kind: 'rename', label: 'mutation' },
+      ],
+    },
+    {
+      label: 'Output?',
+      role: 'output',
+      code: [
+        'fn render(user: &mut User) -> String {',
+        '  let name = user.name();',
+        '  user.refresh();',
+        '  let title = user.title();',
+        '  format!("{title}: {name}")',
+        '}',
+      ].join('\n'),
+      note: {
+        kind: 'warning',
+        label: 'Needs proof',
+        detail: 'The output may be valid, but the merge must prove read/mutation ordering and borrow scope.',
+      },
+      highlights: [
+        { line: 1, text: '&mut User', kind: 'rename', label: 'permission changed' },
+        { line: 2, text: 'user.name()', kind: 'base', label: 'read before mutation' },
+        { line: 3, text: 'user.refresh()', kind: 'rename', label: 'mutation' },
+        { line: 4, text: 'user.title()', kind: 'add', label: 'read after mutation' },
+      ],
+    },
+  ]}
+  caption="Two edits can be textually simple and still change the permission structure of the function."
+/>
+
+The output is not automatically wrong.
+
+But it is not automatically safe either.
+
+The merge system needs the same kind of evidence the compiler needs: loan scopes, move sites, mutation rights, and use sites bound to the output.
+
+## The Constraint Is Portable
+
+Borrow checking is associated with Rust, but the underlying idea appears everywhere.
+
+```txt
+Rust: ownership, borrow, lifetime
+C++: move, reference, RAII, aliasing
+Swift: exclusivity, inout, copy-on-write
+Kotlin: mutability and nullability boundaries
+JavaScript: shared mutable object references
+React: state ownership and effect lifetime
+Databases: transaction ownership and locks
+```
+
+Not every language enforces the same rules.
+
+That is exactly why the universal layer needs to model the rules as constraints. A source language may have a strong ownership fact that the target cannot express directly.
+
+When that happens, the target needs another route: a wrapper, runtime check, cloning policy, lock boundary, immutability convention, or explicit loss.
+
+<RouteDecisionTable
+  eyebrow="Borrow Route Table"
+  title="When Ownership Proof Is Missing"
+  rows={[
+    {
+      route: 'Preserve',
+      signal: 'Target has equivalent ownership construct',
+      requires: 'Source and target loan scopes match',
+      produces: 'Ownership constraint attached',
+      tone: 'apply',
+    },
+    {
+      route: 'Adapt',
+      signal: 'Target needs wrapper or clone policy',
+      requires: 'Adapter declares alias/mutation behavior',
+      produces: 'Reviewable lowering',
+      tone: 'review',
+    },
+    {
+      route: 'Probe',
+      signal: 'Safety depends on runtime state',
+      requires: 'Trace or fixture around mutation boundary',
+      produces: 'Runtime-bounded proof',
+      tone: 'rerun',
+    },
+    {
+      route: 'Split',
+      signal: 'One patch changes reads and writes',
+      requires: 'Independent read and mutation regions',
+      produces: 'Smaller review objects',
+      tone: 'split',
+    },
+    {
+      route: 'Block',
+      signal: 'Use-after-move or overlapping writer',
+      requires: 'Recorded failed constraint',
+      produces: 'No admission',
+      tone: 'block',
+    },
+  ]}
+  caption="The useful outcome is not always apply or reject. Ownership evidence tells the coordinator what kind of work comes next."
+/>
+
+## Review Before Compiler Error
+
+A compiler error is late evidence.
+
+It tells you the combined output failed a rule.
+
+A semantic merge system should use ownership records earlier:
+
+```txt
+this edit introduces a mutable loan
+this edit lengthens a shared borrow
+these branches both mutate through aliases
+this lowering erases move-only semantics
+this target needs a clone or wrapper decision
+```
+
+That lets the coordinator shape the work before the final output exists.
+
+It can ask one worker for a focused rebase. It can ask another for a runtime proof. It can block the unsafe combination while preserving the safe hunks.
+
+## The Mental Model
+
+The borrow checker is not just a Rust feature.
+
+It is a visible permission system.
+
+Semantic merge should treat permission systems as merge surfaces.
+
+If a change affects who can read, who can write, who owns, who borrows, or who outlives whom, the merge needs evidence at that level.
+
+Text tells us where the edit happened.
+
+Ownership tells us whether the edit is allowed to coexist.

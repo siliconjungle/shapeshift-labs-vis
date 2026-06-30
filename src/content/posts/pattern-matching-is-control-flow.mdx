@@ -1,0 +1,314 @@
+Pattern matching looks like syntax.
+
+For semantic merge, it is control flow.
+
+A `match`, `switch`, destructuring branch, sealed-class visitor, or discriminated-union check decides which path a value takes through the program. If a merge changes a variant, payload, guard, default branch, or branch order, it may change behavior even when the edited text is small.
+
+That is why pattern matching belongs in the semantic model.
+
+<ClaimProofMatrix
+  eyebrow="Pattern Matrix"
+  title="Variant Dispatch Needs Proof"
+  rows={[
+    {
+      surface: 'Variant identity',
+      claim: 'The same cases exist in the output',
+      proof: 'Variant or discriminator map',
+      evidence: 'Ok, Err, Some, None, case names',
+      route: 'Preserve identity',
+      status: 'required',
+    },
+    {
+      surface: 'Payload shape',
+      claim: 'Each case carries the same data',
+      proof: 'Field or tuple payload evidence',
+      evidence: 'Named fields, tuple slots, nested payloads',
+      route: 'Gate shape',
+      status: 'required',
+    },
+    {
+      surface: 'Exhaustiveness',
+      claim: 'Every possible value is handled',
+      proof: 'Coverage proof',
+      evidence: 'All variants, wildcard, default branch',
+      route: 'Require proof',
+      status: 'missing',
+    },
+    {
+      surface: 'Guard',
+      claim: 'Conditions run in the same order',
+      proof: 'Guard evaluation evidence',
+      evidence: 'if guards, where clauses, predicate order',
+      route: 'Review order',
+      status: 'missing',
+    },
+    {
+      surface: 'Fallthrough',
+      claim: 'Branch boundaries are explicit',
+      proof: 'No-fallthrough or fallthrough proof',
+      evidence: 'break, return, throw, default, switch semantics',
+      route: 'Block ambiguity',
+      status: 'missing',
+    },
+  ]}
+  caption="A pattern proof is not only about case names. It has to bind identity, payloads, coverage, guards, and branch behavior."
+/>
+
+## Variants Are Identities
+
+Consider a source type:
+
+```txt
+Result<T, E>
+  Ok(T)
+  Err(E)
+```
+
+The useful identity is not only the word `Result`.
+
+The variants are identities too.
+
+`Ok` carries success data. `Err` carries failure data. A change that adds a field to `Err`, renames a discriminator, or moves a handler from `Ok` to default is not a harmless local edit.
+
+It changes the route a value takes.
+
+<SemanticCodeDiff
+  title="A Pattern Is A Dispatch Table"
+  panelMaxHeight={430}
+  panes={[
+    {
+      label: 'Source',
+      role: 'base',
+      code: [
+        'match result {',
+        '  Ok(user) => show(user),',
+        '  Err(error) => report(error),',
+        '}',
+      ].join('\n'),
+      note: {
+        kind: 'base',
+        label: 'Source dispatch',
+        detail: 'The match is exhaustive because Ok and Err are the full variant set.',
+      },
+      highlights: [
+        { line: 2, text: 'Ok', kind: 'base', label: 'success variant' },
+        { line: 2, text: 'user', kind: 'base', label: 'payload binding' },
+        { line: 3, text: 'Err', kind: 'base', label: 'error variant' },
+        { line: 3, text: 'error', kind: 'base', label: 'payload binding' },
+      ],
+    },
+    {
+      label: 'Tagged',
+      role: 'worker',
+      code: [
+        'switch (result.kind) {',
+        '  case "ok": return show(result.user);',
+        '  case "err": return report(result.error);',
+        '}',
+      ].join('\n'),
+      note: {
+        kind: 'add',
+        label: 'Target dispatch',
+        detail: 'A tagged representation can preserve the branch table if the discriminator and payloads are bound.',
+      },
+      highlights: [
+        { line: 1, text: 'kind', kind: 'add', label: 'discriminator' },
+        { line: 2, text: '"ok"', kind: 'base', label: 'success tag' },
+        { line: 2, text: 'result.user', kind: 'base', label: 'payload read' },
+        { line: 3, text: '"err"', kind: 'base', label: 'error tag' },
+        { line: 3, text: 'result.error', kind: 'base', label: 'payload read' },
+      ],
+    },
+    {
+      label: 'Default',
+      role: 'output',
+      code: [
+        'switch (result.kind) {',
+        '  case "ok": return show(result.user);',
+        '  default: return report(result.error);',
+        '}',
+      ].join('\n'),
+      note: {
+        kind: 'warning',
+        label: 'Weaker claim',
+        detail: 'The default may be intentional, but it is not the same exhaustiveness proof as naming Err.',
+      },
+      highlights: [
+        { line: 1, text: 'kind', kind: 'add', label: 'discriminator' },
+        { line: 2, text: '"ok"', kind: 'base', label: 'explicit variant' },
+        { line: 3, text: 'default', kind: 'warning', label: 'catch-all' },
+        { line: 3, text: 'result.error', kind: 'warning', label: 'assumed payload' },
+      ],
+    },
+  ]}
+  caption="A default branch can be valid code while still losing the source claim that every variant was handled by name."
+/>
+
+## Exhaustiveness Is Evidence
+
+Some languages can prove exhaustiveness statically.
+
+```txt
+Rust enum match
+Swift enum switch
+Kotlin sealed when
+Scala sealed trait match
+TypeScript discriminated union narrowing
+```
+
+Other languages need conventions or runtime guards.
+
+```txt
+JavaScript switch over kind
+Python match over dataclass shape
+Java visitor over sealed hierarchy
+C switch over enum tag
+```
+
+The merge system should not pretend these are the same.
+
+It should ask: what is the variant universe, and did the output cover it?
+
+<EvidenceLadder
+  levels={[
+    {
+      name: 'Case text',
+      strength: 'weak',
+      proves: 'A branch label appears in source.',
+      limit: 'Does not prove it belongs to the variant set.',
+      route: 'Attach source span',
+      tone: 'note',
+    },
+    {
+      name: 'Variant identity',
+      strength: 'bound',
+      proves: 'A case maps to a known variant.',
+      limit: 'Does not prove every variant is handled.',
+      route: 'Build variant map',
+      tone: 'bound',
+    },
+    {
+      name: 'Payload shape',
+      strength: 'static',
+      proves: 'The branch receives the expected data.',
+      limit: 'Does not prove guard order or fallthrough.',
+      route: 'Gate branch shape',
+      tone: 'static',
+    },
+    {
+      name: 'Exhaustiveness',
+      strength: 'coverage',
+      proves: 'The variant universe is covered.',
+      limit: 'Does not prove runtime side effects inside arms.',
+      route: 'Admit dispatch shape',
+      tone: 'focused',
+    },
+    {
+      name: 'Runtime trace',
+      strength: 'observed',
+      proves: 'Representative branch behavior occurred.',
+      limit: 'Only proves traced values and state.',
+      route: 'Admit bounded behavior',
+      tone: 'runtime',
+    },
+  ]}
+  caption="Pattern evidence gets stronger as it moves from labels to variant identity, payloads, coverage, and runtime behavior."
+/>
+
+## Guards And Order Matter
+
+Patterns can contain conditions:
+
+```txt
+Some(user) if user.active
+case { kind: "user", active: true }
+case x where x.isReady
+```
+
+A guard is not only a filter. It is an ordered predicate.
+
+If two branches can both match, order becomes meaning. If a target reorders guards, combines cases, or converts guards into nested `if` statements, the output needs proof that the same value reaches the same branch.
+
+Fallthrough has the same problem.
+
+A source match arm usually does not fall through. A target `switch` might, unless it returns, breaks, throws, or is otherwise proven to stop.
+
+That is why fallthrough should be explicit evidence, not a style preference.
+
+## Defaults Are Not Exhaustiveness
+
+A default branch is useful.
+
+It can protect runtime behavior when a value is unknown. It can preserve compatibility with future variants. It can make generated code smaller.
+
+But a default branch is not the same claim as exhaustive coverage.
+
+```txt
+all variants named
+wildcard intentionally accepts every remaining variant
+default catches unknown runtime values
+default hides a missing named variant
+```
+
+Those are different claims.
+
+Semantic merge should record which one is true.
+
+<RouteDecisionTable
+  eyebrow="Pattern Route Table"
+  title="How Pattern Changes Should Route"
+  rows={[
+    {
+      route: 'Admit',
+      signal: 'All variants and payloads are represented',
+      requires: 'Coverage proof and no fallthrough ambiguity',
+      produces: 'Dispatch constraint attached',
+      tone: 'apply',
+    },
+    {
+      route: 'Review',
+      signal: 'Default branch replaces named variant',
+      requires: 'Intentional catch-all decision',
+      produces: 'Bounded non-equivalence record',
+      tone: 'review',
+    },
+    {
+      route: 'Rebase',
+      signal: 'Variant was renamed but identity survived',
+      requires: 'Variant lineage evidence',
+      produces: 'Updated branch labels',
+      tone: 'rebase',
+    },
+    {
+      route: 'Rerun',
+      signal: 'Guard order depends on runtime values',
+      requires: 'Fixture or trace over branch conditions',
+      produces: 'Runtime branch proof',
+      tone: 'rerun',
+    },
+    {
+      route: 'Block',
+      signal: 'Payload shape or exhaustiveness is unknown',
+      requires: 'Recorded missing pattern proof',
+      produces: 'No admission',
+      tone: 'block',
+    },
+  ]}
+  caption="Pattern changes should route by the exact claim that is missing: identity, payload, coverage, order, or runtime behavior."
+/>
+
+## The Mental Model
+
+Pattern matching is control flow with names.
+
+The names matter.
+
+The payloads matter.
+
+The branch order matters.
+
+The proof that every value reaches an intended branch matters.
+
+Semantic merge should treat a pattern as a dispatch surface, not as decorative syntax around an `if`.
+
+If the output cannot prove variant identity, payload shape, exhaustiveness, guard order, and fallthrough behavior, it should say what is missing and route the work from there.

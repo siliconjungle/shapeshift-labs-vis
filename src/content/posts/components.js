@@ -37,8 +37,16 @@ import LockfileIsACausalGraph from './lockfile-is-a-causal-graph.mdx';
 import PreviewEnvironmentsAreEvidenceMachines from './preview-environments-are-evidence-machines.mdx';
 import WhenRefactoringIsCoordination from './when-refactoring-is-coordination.mdx';
 import AgentsShouldLeaveBetterMaps from './agents-should-leave-better-maps.mdx';
+import SemanticsAreConstraintsNotATree from './semantics-are-constraints-not-a-tree.mdx';
+import BorrowCheckerIsAMergeSurface from './borrow-checker-is-a-merge-surface.mdx';
+import TraitsProtocolsInterfaces from './traits-protocols-interfaces.mdx';
+import PatternMatchingIsControlFlow from './pattern-matching-is-control-flow.mdx';
 
 export const postComponents = {
+  'pattern-matching-is-control-flow': PatternMatchingIsControlFlow,
+  'traits-protocols-interfaces': TraitsProtocolsInterfaces,
+  'borrow-checker-is-a-merge-surface': BorrowCheckerIsAMergeSurface,
+  'semantics-are-constraints-not-a-tree': SemanticsAreConstraintsNotATree,
   'agents-should-leave-better-maps': AgentsShouldLeaveBetterMaps,
   'when-refactoring-is-coordination': WhenRefactoringIsCoordination,
   'preview-environments-are-evidence-machines': PreviewEnvironmentsAreEvidenceMachines,

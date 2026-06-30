@@ -1,0 +1,238 @@
+It is tempting to imagine a universal semantic representation as one enormous tree.
+
+Parse every language, normalize the nodes, and then merge the tree.
+
+That sounds clean, but it collapses too much.
+
+Languages do not only differ in syntax. They differ in what they force you to prove. One language makes ownership explicit. Another makes effects implicit. One has structural interfaces. Another has nominal traits and coherence rules. One has pattern matching with exhaustiveness. Another has a switch statement with fallthrough.
+
+The useful universal layer is not a perfect tree.
+
+It is a set of constraints.
+
+<SupersetSemanticLayersChart caption="The interlingua is stronger when it keeps source text, identity, type, effect, ownership, protocol, runtime, and proof layers separate." />
+
+## The Tree Is Too Flat
+
+A tree is good for containment.
+
+```txt
+file
+  module
+    declaration
+      expression
+        identifier
+```
+
+Containment matters. Source spans, comments, imports, declarations, and generated output all need positions.
+
+But most merge questions are not containment questions.
+
+They are questions like:
+
+```txt
+does this borrow still end before mutation?
+does this interface still satisfy the protocol?
+does this match still cover every variant?
+does this selector still reach the same rendered target?
+does this async operation still happen in the same order?
+does this public type still assign to the old contract?
+```
+
+Those are constraint questions.
+
+If the representation only says where a node lives, the coordinator still has to infer what the node means. That is where unsafe merges hide.
+
+## Constraint Families
+
+A better semantic record is made of many small families.
+
+<ClaimProofMatrix
+  eyebrow="Constraint Matrix"
+  title="Different Surfaces Need Different Proof"
+  rows={[
+    {
+      surface: 'Type',
+      claim: 'Public shape survived',
+      proof: 'Declaration, assignability, or type oracle',
+      evidence: 'Fields, generics, overloads, aliases',
+      route: 'Gate public API',
+      status: 'required',
+    },
+    {
+      surface: 'Ownership',
+      claim: 'Mutation rights are preserved',
+      proof: 'Borrow and move constraints',
+      evidence: 'Loan scope, alias mode, escape boundary',
+      route: 'Require proof',
+      status: 'missing',
+    },
+    {
+      surface: 'Protocol',
+      claim: 'Contract obligations survived',
+      proof: 'Requirement and implementation evidence',
+      evidence: 'Methods, associated types, dispatch, coherence',
+      route: 'Review target contract',
+      status: 'required',
+    },
+    {
+      surface: 'Pattern',
+      claim: 'Variant dispatch stayed total',
+      proof: 'Exhaustiveness and guard evidence',
+      evidence: 'Cases, payloads, default, fallthrough',
+      route: 'Prove coverage',
+      status: 'missing',
+    },
+    {
+      surface: 'Runtime',
+      claim: 'Output behaves under declared conditions',
+      proof: 'Runtime probe capsule',
+      evidence: 'Trace, DOM, layout, effects, accessibility',
+      route: 'Run bounded proof',
+      status: 'missing',
+    },
+  ]}
+  caption="A semantic system should keep proof obligations separate. Green type evidence should not accidentally imply runtime, ownership, or pattern evidence."
+/>
+
+The important part is not the number of families.
+
+The important part is that each family can fail independently.
+
+A target may preserve the type shape but lose ownership semantics.
+
+A target may preserve an interface but lose dispatch behavior.
+
+A target may preserve the variants but lose exhaustiveness because a default branch swallowed the missing case.
+
+Those distinctions are what make review smaller.
+
+## Merge As Constraint Admission
+
+A semantic merge is not “understand the program, then apply.”
+
+It is closer to:
+
+```txt
+lift source into records
+compare changed identities
+collect constraints
+ask what proof each constraint requires
+route the candidate
+admit only the claims that are proved
+```
+
+<SemanticRecord
+  eyebrow="Constraint Record"
+  title="One Candidate, Several Obligations"
+  status="Reviewable"
+  fields={[
+    {
+      label: 'Candidate',
+      value: 'Translate Result<T, E> into a tagged object',
+      detail: 'The output can look simple while the proof surface is not.',
+    },
+    {
+      label: 'Type',
+      value: 'Ok and Err payloads represented',
+      detail: 'The target object shape carries both variant payloads.',
+      tone: 'route',
+    },
+    {
+      label: 'Pattern',
+      value: 'Every source match arm has a target branch',
+      detail: 'Exhaustiveness and default behavior are separate claims.',
+    },
+    {
+      label: 'Runtime',
+      value: 'No broad behavior claim',
+      detail: 'The record can be useful without claiming total equivalence.',
+      tone: 'warning',
+    },
+    {
+      label: 'Route',
+      value: 'Admit type shape, request pattern proof',
+      detail: 'Partial proof produces narrower follow-up work.',
+      tone: 'route',
+    },
+  ]}
+  caption="A constraint record lets the system admit what is actually proved and route what is still missing."
+/>
+
+This turns “semantic understanding” into an inspectable object.
+
+The coordinator does not need to believe a worker’s summary. It can inspect which constraint families are present, which are missing, and which claims are explicitly false.
+
+## Missing Constraints Are Useful
+
+A missing constraint is not just a failure.
+
+It is a better task.
+
+<EvidenceLadder
+  levels={[
+    {
+      name: 'Tree node',
+      strength: 'weak',
+      proves: 'A construct exists at a span.',
+      limit: 'Does not prove the construct keeps its meaning.',
+      route: 'Attach source binding',
+      tone: 'note',
+    },
+    {
+      name: 'Identity',
+      strength: 'bound',
+      proves: 'The same region can be followed across edits.',
+      limit: 'Does not prove the region is safe to merge.',
+      route: 'Compare changed regions',
+      tone: 'bound',
+    },
+    {
+      name: 'Constraint',
+      strength: 'typed',
+      proves: 'A specific semantic obligation is known.',
+      limit: 'Does not prove the obligation is satisfied.',
+      route: 'Ask for family proof',
+      tone: 'static',
+    },
+    {
+      name: 'Proof',
+      strength: 'bounded',
+      proves: 'The obligation is satisfied under declared evidence.',
+      limit: 'Does not imply unrelated constraints.',
+      route: 'Admit scoped claim',
+      tone: 'focused',
+    },
+    {
+      name: 'Decision',
+      strength: 'accepted',
+      proves: 'The candidate may cross the named boundary.',
+      limit: 'Does not erase future stale checks.',
+      route: 'Apply or rebase',
+      tone: 'decision',
+    },
+  ]}
+  caption="The ladder from syntax to admission is a ladder of stronger constraints, not a single jump from parse tree to merge."
+/>
+
+If ownership proof is missing, ask for ownership proof.
+
+If protocol coherence is missing, ask for protocol evidence.
+
+If runtime order is missing, run a runtime probe.
+
+If pattern exhaustiveness is missing, create a focused coverage fixture.
+
+That is the practical reason to model semantics as constraints. The system can produce the next correct unit of work.
+
+## The Mental Model
+
+A universal semantic layer should not try to erase the differences between languages.
+
+It should preserve those differences as named constraints.
+
+The tree says where meaning lives.
+
+The constraints say what must stay true.
+
+The merge decision should be based on the constraints, not on a vague claim that the tree looks reasonable.
