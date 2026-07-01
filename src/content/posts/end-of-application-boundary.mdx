@@ -1,0 +1,333 @@
+An application feels like a natural unit.
+
+It has a repo. It has a deploy. It has pages, routes, APIs, jobs, data models, feature flags, permissions, and a name in the sidebar. People buy it, open it, administer it, and argue about whether a feature belongs inside it.
+
+But the application boundary is not as fundamental as it feels.
+
+It is a packaging boundary.
+
+Sometimes that boundary is useful. It gives teams ownership, gives users a product shape, gives infrastructure something to deploy, and gives security teams something to audit. But it also traps capabilities inside accidents of implementation: this framework, this repo, this language, this database, this runtime, this UI shell, this vendor, this release train.
+
+The larger consequence of semantic software is that those accidents can become explicit constraints instead of walls.
+
+<ApplicationBoundaryChart caption="The old boundary says software is the deployed application. Everything inside belongs to the app; everything outside is integration, export, plugin, or custom work." />
+
+## Apps Are Packaging Accidents
+
+Most application boundaries are made from a pile of historical choices:
+
+```txt
+the team that built it
+the repo it started in
+the framework it used
+the database it owned
+the runtime it deployed to
+the auth model it grew around
+the UI shell it shipped with
+the billing boundary around it
+```
+
+Those choices matter, but they are not always the shape of the work.
+
+A checkout flow is not naturally trapped inside a React app. An approval workflow is not naturally trapped inside a SaaS product. A migration assistant is not naturally a permanent admin page. A report is not naturally a dashboard. A support operation is not naturally a ticket queue. A game editor tool is not naturally bound to the web app that rendered it first.
+
+Those things are capabilities.
+
+They read state. They offer actions. They run effects. They obey policy. They present surfaces. They make promises. They need proof.
+
+The app is one container for those capabilities.
+
+It should not be the only one.
+
+## Capabilities Are The Real Unit
+
+A capability is not just an API endpoint.
+
+It is the whole contract around a piece of behavior:
+
+```txt
+what it can read
+what it can write
+which effects it may run
+which roles can use it
+which state shape it expects
+which UI surfaces can expose it
+which runtime it needs
+which evidence proves it still works
+which source regions own it
+how it can be rolled back
+```
+
+That is a better unit than a page, file, package, or deploy.
+
+<CapabilityGraphChart caption="A capability is a semantic bundle: state, actions, effects, policy, source, runtime, and proof. A page or tool is one projection of that bundle." />
+
+Once capabilities are represented this way, a product can stop asking only:
+
+```txt
+which app owns this?
+```
+
+And start asking:
+
+```txt
+which capability is needed here?
+which surface should expose it?
+which runtime can host it?
+which proof is required?
+which parts must stay local?
+which parts can become durable source?
+```
+
+That is the shift from apps as containers to apps as projections.
+
+## Translation Makes Boundaries Porous
+
+Universal semantic representation matters because capabilities do not live in one language forever.
+
+The useful form for a capability may change:
+
+```txt
+TypeScript UI surface
+Rust worker
+SQL migration
+Python analysis script
+HTML form
+CSS layout contract
+local command-line tool
+agent action manifest
+temporary incident dashboard
+```
+
+Today, moving between those forms is mostly manual. A developer translates intent by reading code and writing new code. The system loses track of what was preserved, what was changed, and what became ambiguous.
+
+A semantic interlingua changes the shape of that move.
+
+It does not make translation magic. It makes translation accountable.
+
+The system can say: the state shape survived, the callable boundary is missing receiver proof, the effect boundary widened, the UI contract became a generated surface, the runtime proof is stale, the source lowering is lossy, and this output should be review-only.
+
+<CapabilityProjectionChart caption="A capability can project into different surfaces and runtimes. Evidence decides whether a projection is promoted, kept local, or discarded." />
+
+That is how boundaries become porous without becoming vague.
+
+The app boundary no longer says:
+
+```txt
+inside is product
+outside is integration
+```
+
+It says:
+
+```txt
+this capability can be projected here
+this capability cannot cross that effect boundary
+this projection is local
+this projection is durable
+this translation is lossy
+this proof is missing
+```
+
+## Temporary Software Becomes Normal
+
+The biggest downstream change is that not every useful piece of software has to become a permanent feature.
+
+Today, the path from need to software is heavy:
+
+```txt
+request
+ticket
+design
+implementation
+review
+deploy
+documentation
+maintenance
+```
+
+That heaviness is why teams avoid building small tools. It is why internal workflows live in spreadsheets, Slack instructions, fragile scripts, and human memory.
+
+If software can expose semantic capabilities, it can create temporary surfaces around real work:
+
+```txt
+incident dashboard for one outage
+migration workbench for one schema move
+support repair view for one customer state machine
+approval queue for one compliance window
+analysis notebook over one production anomaly
+agent workbench for one bounded refactor
+```
+
+Some of those surfaces should disappear after the task.
+
+Some should become local rules.
+
+Some should become shared product features.
+
+Some should become packages.
+
+The important thing is that the system can choose a route.
+
+<CapabilityAdmissionChart caption="A temporary tool can stay temporary, become a local rule, or be admitted into durable source and runtime through evidence." />
+
+This makes software feel less like a cathedral and more like a workshop.
+
+Not because there is no discipline.
+
+Because admission becomes the discipline.
+
+## The New Constraint Is Admission
+
+If applications become capability graphs, the hard question changes.
+
+It is no longer only:
+
+```txt
+can we generate this code?
+can we deploy this app?
+can this API call that API?
+```
+
+It becomes:
+
+```txt
+should this capability cross this boundary?
+does this projection preserve the contract?
+is this local change allowed to become shared?
+what proof would make it durable?
+what should stay temporary?
+who owns the rollback?
+```
+
+That is a more serious software question.
+
+Code generation without admission produces mess. Plugin systems without admission produce unsafe extension. Low-code without admission produces invisible complexity. Automation without admission produces hidden authority. Translation without admission produces false equivalence.
+
+The point of semantic merge, runtime proof, leases, repo maps, and interlingua is not just to say yes more often.
+
+It is to know what kind of yes is being said.
+
+<ClaimProofMatrix
+  eyebrow="Boundary Admission"
+  title="What A Capability Crossing Has To Prove"
+  rows={[
+    {
+      surface: 'Authority',
+      claim: 'The capability can cross this boundary',
+      proof: 'Policy, role, effect, and write-scope check',
+      evidence: 'Capability record',
+      route: 'Admit or reject',
+      status: 'required',
+    },
+    {
+      surface: 'Translation',
+      claim: 'The target surface preserves the needed contract',
+      proof: 'Interlingua layers, losses, callable boundaries, type shape',
+      evidence: 'Projection record',
+      route: 'Review if lossy',
+      status: 'required',
+    },
+    {
+      surface: 'Runtime',
+      claim: 'The behavior works under declared conditions',
+      proof: 'Probe, telemetry, UI/runtime snapshot, oracle',
+      evidence: 'Runtime proof',
+      route: 'Gate',
+      status: 'proved',
+    },
+    {
+      surface: 'Durability',
+      claim: 'The change deserves to become source',
+      proof: 'Use, ownership, tests, rollback, maintenance route',
+      evidence: 'Admission decision',
+      route: 'Promote or keep local',
+      status: 'required',
+    },
+  ]}
+  caption="The boundary is no longer the app. The boundary is the admission rule for each capability crossing."
+/>
+
+## Organizations Become More Malleable
+
+This is not only a technical change.
+
+Application boundaries shape organizations.
+
+If a workflow lives inside one product, one team owns it. If a report lives inside one dashboard, one team controls it. If a policy lives inside one service, one deployment controls it. If a data transform lives inside one script, one person remembers it.
+
+Capability graphs make that shape more negotiable.
+
+A team can keep a local adaptation without forking the whole app. Another team can reuse the capability with a different surface. An agent can generate a temporary tool without being handed the entire repo. A platform team can promote a repeated local workflow into a shared contract. A product can absorb useful edge work without pretending every edge case was designed upfront.
+
+The system starts to see where the organization is actually doing work:
+
+```txt
+which local tools keep reappearing
+which workflows keep being customized
+which capabilities are shared across products
+which effects are too central
+which boundaries create review debt
+which translations are always lossy
+which temporary surfaces should become durable
+```
+
+That is a different feedback loop than analytics.
+
+It is not measuring clicks.
+
+It is measuring where software wants to change shape.
+
+## The End Is Not One Giant App
+
+The wrong version of this idea is a giant universal application where every system melts into one configurable platform.
+
+That is not the destination.
+
+The destination is many bounded capabilities that can move through well-defined routes.
+
+Some capabilities stay inside a product. Some become shared services. Some become local team extensions. Some become generated task tools. Some become packages. Some become policies. Some become source. Some remain runtime-only. Some are rejected because the proof is missing.
+
+The system should not erase boundaries.
+
+It should make boundaries semantic.
+
+## After The Application Boundary
+
+After the application boundary, software is not primarily a bundle of pages and APIs.
+
+It is a graph of capabilities:
+
+```txt
+state
+actions
+effects
+permissions
+workflows
+runtime surfaces
+source regions
+translation routes
+proofs
+admission decisions
+rollback paths
+```
+
+An application is one projection of that graph.
+
+A local tool is another.
+
+A generated dashboard is another.
+
+An agent action surface is another.
+
+A package is another.
+
+A service is another.
+
+The deeper point is that software becomes able to move between forms without losing its memory of what it is.
+
+That is what sits downstream of universal semantic merging.
+
+Not just fewer conflicts.
+
+Software that can leave the app it was born in.

@@ -88,6 +88,10 @@ export const LockfileCausalGraphChart = makeWorkflowChart('lockfile-causal-graph
 export const PreviewEvidenceMachineChart = makeWorkflowChart('preview-evidence-machine');
 export const RefactorCoordinationGraphChart = makeWorkflowChart('refactor-coordination-graph');
 export const AgentMapFeedbackChart = makeWorkflowChart('agent-map-feedback');
+export const ApplicationBoundaryChart = makeWorkflowChart('application-boundary');
+export const CapabilityGraphChart = makeWorkflowChart('capability-graph');
+export const CapabilityProjectionChart = makeWorkflowChart('capability-projection');
+export const CapabilityAdmissionChart = makeWorkflowChart('capability-admission');
 export const SoftwareAfterFilesChart = makeWorkflowChart('software-after-files');
 export const SoftwareAfterFilesRuntimeChart = makeWorkflowChart('software-after-files-runtime');
 export const SoftwareAfterFilesWorkflowChart = makeWorkflowChart('software-after-files-workflow');
@@ -173,6 +177,10 @@ export const workflowChartComponents = {
   PreviewEvidenceMachineChart,
   RefactorCoordinationGraphChart,
   AgentMapFeedbackChart,
+  ApplicationBoundaryChart,
+  CapabilityGraphChart,
+  CapabilityProjectionChart,
+  CapabilityAdmissionChart,
   SoftwareAfterFilesChart,
   SoftwareAfterFilesRuntimeChart,
   SoftwareAfterFilesWorkflowChart,

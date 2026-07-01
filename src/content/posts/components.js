@@ -42,8 +42,10 @@ import BorrowCheckerIsAMergeSurface from './borrow-checker-is-a-merge-surface.md
 import TraitsProtocolsInterfaces from './traits-protocols-interfaces.mdx';
 import PatternMatchingIsControlFlow from './pattern-matching-is-control-flow.mdx';
 import ShapeOfSoftwareAfterFiles from './shape-of-software-after-files.mdx';
+import EndOfApplicationBoundary from './end-of-application-boundary.mdx';
 
 export const postComponents = {
+  'end-of-application-boundary': EndOfApplicationBoundary,
   'shape-of-software-after-files': ShapeOfSoftwareAfterFiles,
   'pattern-matching-is-control-flow': PatternMatchingIsControlFlow,
   'traits-protocols-interfaces': TraitsProtocolsInterfaces,

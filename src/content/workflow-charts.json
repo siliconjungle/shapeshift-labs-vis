@@ -2130,6 +2130,118 @@
     ]
   },
   {
+    "id": "application-boundary",
+    "title": "Application Boundary",
+    "maxColumnGap": 16,
+    "height": 320,
+    "nodes": [
+      { "id": "repo", "label": "REPO", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "build", "label": "BUILD", "x": 36, "y": 50, "type": "event", "wide": true },
+      { "id": "app", "label": "APP", "x": 66, "y": 50, "type": "gate", "wide": true },
+      { "id": "page", "label": "PAGES", "x": 98, "y": 22, "type": "event", "wide": true },
+      { "id": "api", "label": "API", "x": 98, "y": 42, "type": "event", "wide": true },
+      { "id": "db", "label": "DB", "x": 98, "y": 62, "type": "event", "wide": true },
+      { "id": "jobs", "label": "JOBS", "x": 98, "y": 82, "type": "event", "wide": true },
+      { "id": "outside", "label": "OUTSIDE", "x": 146, "y": 50, "type": "conflict", "wide": true }
+    ],
+    "edges": [
+      ["repo", "build"],
+      ["build", "app"],
+      ["app", "page"],
+      ["app", "api"],
+      ["app", "db"],
+      ["app", "jobs"],
+      { "from": "page", "to": "outside", "kind": "compensate" },
+      { "from": "api", "to": "outside", "kind": "compensate" },
+      { "from": "db", "to": "outside", "kind": "compensate" },
+      { "from": "jobs", "to": "outside", "kind": "compensate" }
+    ]
+  },
+  {
+    "id": "capability-graph",
+    "title": "Capability Graph",
+    "maxColumnGap": 16,
+    "height": 330,
+    "nodes": [
+      { "id": "state", "label": "STATE", "x": 10, "y": 18, "type": "event", "wide": true },
+      { "id": "actions", "label": "ACTIONS", "x": 10, "y": 38, "type": "event", "wide": true },
+      { "id": "effects", "label": "EFFECTS", "x": 10, "y": 58, "type": "event", "wide": true },
+      { "id": "policy", "label": "POLICY", "x": 10, "y": 78, "type": "gate", "wide": true },
+      { "id": "capability", "label": "CAPABILITY", "x": 62, "y": 50, "type": "synthesis", "wide": true },
+      { "id": "proof", "label": "PROOF", "x": 102, "y": 22, "type": "gate", "wide": true },
+      { "id": "runtime", "label": "RUNTIME", "x": 102, "y": 50, "type": "event", "wide": true },
+      { "id": "source", "label": "SOURCE", "x": 102, "y": 78, "type": "event", "wide": true },
+      { "id": "surface", "label": "SURFACE", "x": 150, "y": 50, "type": "result", "wide": true }
+    ],
+    "edges": [
+      ["state", "capability"],
+      ["actions", "capability"],
+      ["effects", "capability"],
+      ["policy", "capability"],
+      ["capability", "proof"],
+      ["capability", "runtime"],
+      ["capability", "source"],
+      ["proof", "surface"],
+      ["runtime", "surface"],
+      ["source", "surface"]
+    ]
+  },
+  {
+    "id": "capability-projection",
+    "title": "Capability Projection",
+    "maxColumnGap": 16,
+    "height": 330,
+    "nodes": [
+      { "id": "contract", "label": "CONTRACT", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "interlingua", "label": "INTERLINGUA", "x": 46, "y": 50, "type": "synthesis", "wide": true },
+      { "id": "web", "label": "WEB APP", "x": 86, "y": 18, "type": "event", "wide": true },
+      { "id": "local", "label": "LOCAL TOOL", "x": 86, "y": 38, "type": "event", "wide": true },
+      { "id": "service", "label": "SERVICE", "x": 86, "y": 58, "type": "event", "wide": true },
+      { "id": "agent", "label": "AGENT SURFACE", "x": 86, "y": 78, "type": "event", "wide": true },
+      { "id": "evidence", "label": "EVIDENCE", "x": 128, "y": 50, "type": "gate", "wide": true },
+      { "id": "promote", "label": "PROMOTE", "x": 160, "y": 32, "type": "result", "wide": true },
+      { "id": "discard", "label": "DISCARD", "x": 160, "y": 68, "type": "compensation", "wide": true }
+    ],
+    "edges": [
+      ["contract", "interlingua"],
+      ["interlingua", "web"],
+      ["interlingua", "local"],
+      ["interlingua", "service"],
+      ["interlingua", "agent"],
+      ["web", "evidence"],
+      ["local", "evidence"],
+      ["service", "evidence"],
+      ["agent", "evidence"],
+      ["evidence", "promote"],
+      { "from": "evidence", "to": "discard", "kind": "compensate" }
+    ]
+  },
+  {
+    "id": "capability-admission",
+    "title": "Capability Admission",
+    "maxColumnGap": 16,
+    "height": 320,
+    "nodes": [
+      { "id": "need", "label": "NEED", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "tool", "label": "TEMP TOOL", "x": 42, "y": 50, "type": "event", "wide": true },
+      { "id": "local", "label": "LOCAL RULE", "x": 78, "y": 28, "type": "event", "wide": true },
+      { "id": "shared", "label": "SHARED CAP", "x": 78, "y": 72, "type": "event", "wide": true },
+      { "id": "gate", "label": "ADMISSION", "x": 118, "y": 50, "type": "gate", "wide": true },
+      { "id": "source", "label": "SOURCE", "x": 154, "y": 28, "type": "result", "wide": true },
+      { "id": "runtime", "label": "RUNTIME", "x": 154, "y": 72, "type": "result", "wide": true }
+    ],
+    "edges": [
+      ["need", "tool"],
+      ["tool", "local"],
+      ["tool", "shared"],
+      ["local", "gate"],
+      ["shared", "gate"],
+      ["gate", "source"],
+      ["gate", "runtime"],
+      { "from": "runtime", "to": "need", "kind": "compensate", "points": [{ "x": 154, "y": 92 }, { "x": 8, "y": 92 }] }
+    ]
+  },
+  {
     "id": "software-after-files",
     "title": "Software After Files",
     "aliases": ["shape-of-software-after-files"],

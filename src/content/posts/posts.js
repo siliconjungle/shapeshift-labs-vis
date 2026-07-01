@@ -1,5 +1,13 @@
 const postEntries = [
   {
+    slug: 'end-of-application-boundary',
+    title: 'The End Of The Application Boundary',
+    publishedAt: '2026-07-01T15:40:00+10:00',
+    graphType: null,
+    excerpt:
+      'If software becomes a graph of capabilities instead of a bundle of apps, workflows, tools, services, and agents can move across boundaries through explicit contracts.',
+  },
+  {
     slug: 'shape-of-software-after-files',
     title: 'The Shape Of Software After Files',
     publishedAt: '2026-07-01T15:11:00+10:00',
