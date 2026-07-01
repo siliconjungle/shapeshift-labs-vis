@@ -1,314 +1,368 @@
 Files are not going away.
 
-But they should stop being the deepest object the system can see.
+But files should stop being the deepest object the system can operate on.
 
-A file is a storage boundary. It is where bytes live, where editors save text, where Git records snapshots, and where packages ship source. That matters. The mistake is treating that storage boundary as the natural boundary for ownership, review, runtime behavior, safety, routing, and automation.
+A file is a storage boundary. It is where bytes live, where editors save text, where Git records snapshots, and where packages ship source. That still matters. The mistake is treating that storage boundary as the natural boundary for ownership, runtime behavior, extension, safety, personalization, routing, and change.
 
-The interesting question is what happens after that mistake is removed.
+The bigger claim is not that software becomes easier to inspect.
 
-If software has a shape above files, it stops looking like a folder tree and starts looking like a live map: stable identities, source spans, public contracts, effects, routes, selectors, state shapes, runtime probes, evidence, decisions, and the text that can be written back to disk.
+The bigger claim is that software becomes more malleable.
 
-That is not just a better merge tool.
+If a running system has stable semantic handles for its components, state, effects, workflows, contracts, routes, styles, permissions, and probes, then it can safely expose changes at the level people actually mean. A product stops being one opaque bundle of deployed text and starts behaving more like a live material: bounded, recomposable, locally adaptable, and capable of changing shape without every change becoming a fork of the whole program.
 
-It is a different substrate for building software.
+<SoftwareAfterFilesChart caption="Files remain the durable write format. The operating layer above them is made of spans, identities, semantic surfaces, runtime handles, evidence, decisions, and text output." />
 
-<SoftwareAfterFilesChart caption="Files remain the durable write format. The operating layer above them is made of spans, identities, semantic surfaces, evidence, decisions, and text output." />
+## Runtime Needs Handles
 
-## Software Becomes Addressable
+Most apps already have runtime objects.
 
-The first downstream change is simple: work can point at the thing it means.
+They have DOM nodes, component instances, event handlers, state stores, API clients, feature flags, and logs. The problem is that those objects usually do not carry stable meaning across source, runtime, and history.
 
-Not just:
+A checkout button exists in the DOM. A submit function exists in source. A payment call exists in a network trace. A validation rule exists in a form library. A failing test exists in CI.
+
+But the system often cannot say: these are all the same bounded capability.
+
+After files, the runtime can keep that identity attached:
 
 ```txt
-edit src/checkout/Form.tsx
+surface: checkout.delivery-step
+renders: DeliveryAddressForm, ShippingMethodPicker
+reads: CheckoutDraft, UserProfile, ShippingPolicy
+writes: delivery address, shipping method, validation errors
+may call: quoteShipping
+may not call: submitPayment
+can adapt: copy, layout, required fields, validation rules
+must prove: type gate, validation fixture, route probe, focus probe
+```
+
+That is not just metadata.
+
+It is a live handle. Humans, agents, plugins, tests, dashboards, preview environments, and the app itself can all point at the same part of the system and ask for bounded change.
+
+<SemanticRecord
+  eyebrow="Runtime Handle"
+  title="Checkout Delivery Step"
+  status="Malleable region"
+  fields={[
+    {
+      label: 'Surface',
+      value: 'checkout.delivery-step',
+      detail: 'A stable runtime identity, not only a file path or DOM selector.',
+    },
+    {
+      label: 'Can change',
+      value: 'copy, layout slots, required fields, validation rules',
+      detail: 'The region exposes the kinds of edits it can safely accept.',
+      tone: 'route',
+    },
+    {
+      label: 'Cannot change',
+      value: 'payment submission, account mutation, order creation',
+      detail: 'Authority is narrower than the page that contains it.',
+    },
+    {
+      label: 'Runtime proof',
+      value: 'route probe, focus probe, validation fixture',
+      detail: 'The change has to prove the behavior it claims to preserve.',
+    },
+    {
+      label: 'Durable output',
+      value: 'semantic patch, generated source span, rollback record',
+      detail: 'The runtime change can still become reviewable text.',
+      tone: 'route',
+    },
+  ]}
+  caption="A semantic runtime handle turns a piece of software into a bounded place where change can happen."
+/>
+
+## Runtime Becomes A Control Surface
+
+The important downstream capability is that the app can change through declared operations instead of raw code edits.
+
+Not:
+
+```txt
+open the repo and rewrite the checkout screen
 ```
 
 But:
 
 ```txt
-region: checkout.form.validation
-symbol: CheckoutForm
-state: CheckoutDraft
-effect boundary: submitOrder
-runtime surface: /checkout route
-proof owed: type gate, validation fixture, browser probe
+add a validation rule to checkout.delivery-step
+add an approval lane to invoice.workflow
+create a compact mobile view for dispatch.orders
+swap the CRM adapter behind contacts.sync
+migrate saved filters from v2 to v3
+generate a temporary review dashboard for overdue claims
 ```
 
-That is a different kind of address.
+Those are not all the same kind of change. Some are UI composition. Some are workflow edits. Some are schema migrations. Some are adapter swaps. Some are temporary task surfaces.
 
-It gives humans, tools, and agents a shared handle for the same piece of software. The handle can survive a file move, a rename, a formatting pass, or a refactor. The system can ask whether two edits touched the same meaning instead of only asking whether they touched the same lines.
+The common requirement is that each change has a semantic target, a capability boundary, and a proof shape.
 
-This is the move from file paths to semantic places.
+<SoftwareAfterFilesRuntimeChart caption="A semantic runtime is a control surface. It can recompose UI, specialize workflows, add adapters, migrate state, and write the bounded change back into durable form." />
 
-<SemanticRecord
-  eyebrow="Semantic Address"
-  title="Checkout Validation Region"
-  status="Above the file"
-  fields={[
-    {
-      label: 'Text',
-      value: 'src/checkout/Form.tsx:42-118',
-      detail: 'The region still has an exact source span so the result can be written back.',
-    },
-    {
-      label: 'Identity',
-      value: 'CheckoutForm.validation',
-      detail: 'The stable thing being changed is not the whole file.',
-      tone: 'route',
-    },
-    {
-      label: 'Reads',
-      value: 'CheckoutDraft, UserProfile, payment flags',
-      detail: 'The system can see which contracts the region depends on.',
-    },
-    {
-      label: 'Writes',
-      value: 'validation errors only',
-      detail: 'The task boundary excludes payment effects and order submission.',
-    },
-    {
-      label: 'Proof',
-      value: 'type gate, validation fixture, route probe',
-      detail: 'Admission is tied to the claim, not to the file path.',
-      tone: 'route',
-    },
-  ]}
-  caption="After files, a task can target a semantic place with permissions, dependencies, and proof obligations attached."
-/>
+This is where the idea gets more ambitious than merge tooling.
 
-## Runtime Gets A Map
-
-The bigger shift is at runtime.
-
-Most software today ships as behavior plus a little metadata. The running system can render a screen, call an API, update a database, and emit logs. But it usually cannot explain itself in the same terms the codebase is built from.
-
-If the semantic map survives into runtime, the application can answer stronger questions:
+Software could expose safe edit operations to the people using it:
 
 ```txt
-which component owns this button?
-which state fields can this action mutate?
-which effects can fire from this route?
-which CSS selectors influence this layout?
-which feature flags guard this behavior?
-which proof last covered this user-visible contract?
-which source regions are implicated by this production failure?
+make this field required for enterprise customers
+show this inventory warning only for warehouse managers
+turn this support process into a two-step approval
+create a read-only executive view over these metrics
+add a fallback provider when this API is unavailable
 ```
 
-That makes runtime software more inspectable, but also more operable.
+Today, those requests usually become tickets, configuration sprawl, plugin APIs, custom code, or brittle automation. With semantic handles, they can become bounded runtime edits.
 
-A product can expose safe automation surfaces because it knows what an action is allowed to read and write. A preview environment can generate evidence because it knows which routes and claims changed. A migration can run with receipts because it knows which state shape it is moving from and to. A bug report can point back to the semantic region that most likely owns the failure.
+The app does not need to make the whole codebase editable. It needs to expose the parts that are designed to change.
 
-<SoftwareAfterFilesRuntimeChart caption="A live runtime with a semantic map can explain, adapt, repair, and emit receipts tied back to contracts, effects, state shape, and probes." />
+## Interfaces Can Recompose
 
-This is where the idea stops being only about developer tools.
+Most software ships with fixed screens.
 
-A system with a runtime map can support capabilities that are awkward today:
+After files, a screen can be treated as one projection over a semantic system. The same underlying state, actions, policies, and effects can support many surfaces:
 
 ```txt
-semantic permissions: allow this automation to change copy, but not payment effects
-source-bound telemetry: bind a production failure to a route, component, selector, and gate
-live migration receipts: prove which state records moved through which schema boundary
-bounded self-repair: patch a narrow runtime surface and prove the affected claim
-user-facing provenance: explain why a screen behaved this way and which contract controlled it
+operator view
+manager view
+audit view
+mobile view
+debug view
+onboarding view
+temporary incident view
+agent workbench view
 ```
 
-Those are new software capabilities, not just new IDE features.
+The novel part is not responsive design. The novel part is semantic recomposition.
 
-They come from carrying identity and proof across the boundary between source and runtime.
+A runtime that knows which actions are available, which state is readable, which effects are allowed, and which fields belong together can generate or adapt an interface for a purpose. It can hide dangerous actions, group fields by workflow stage, create a comparison view, expose a narrow admin panel, or build a one-off repair surface for a production issue.
 
-## Review Moves From Diffs To Claims
+That makes software more like a set of capabilities than a set of pages.
 
-A line diff is still useful.
+The page is no longer the product boundary.
 
-It is just not enough.
+It is one way of arranging the product's live contracts.
 
-When a reviewer looks at a patch, they are already doing semantic work in their head:
+## Workflows Can Specialize Locally
+
+The same app should not always mean the same workflow.
+
+One team may need a two-person approval. Another may need a regional compliance check. Another may need a custom import field. Another may need a temporary exception during an incident. Today those differences tend to become configuration flags, enterprise forks, plugin hooks, or manual process outside the system.
+
+Semantic software gives those differences a better shape.
+
+Local adaptations can attach to stable workflow nodes:
 
 ```txt
-did the public contract change?
-did this helper keep the same identity?
-did the effect boundary widen?
-did this selector hit more DOM than before?
-did the route behavior change?
-was the test proving the right thing?
+workflow: invoice.approval
+local rule: require finance-review when total > 10000
+allowed writes: approval state, comments, audit reason
+blocked effects: payment release
+proof owed: rule fixture, role-policy check, route probe
+rollback: remove local rule and replay affected open invoices
 ```
 
-After files, those questions become first-class objects.
+That means software can specialize without losing its shared base.
 
-The system can say: this patch changed one exported symbol, widened one effect boundary, preserved one selector identity, invalidated one browser proof, and needs a focused route probe before admission.
+The local rule is not a hidden fork. It is a semantic extension with an address, authority, proof, and rollback story. If it becomes broadly useful, it can be promoted. If it causes trouble, it can be removed. If two teams change the same workflow, the system can compare their changes as workflow edits rather than line edits.
 
-That changes review from reading every line equally to checking the claims the patch makes.
+This is a much more interesting version of customization.
+
+Not "every customer gets a fork."
+
+Not "everything is just config."
+
+Malleability sits between those extremes: richer than settings, safer than arbitrary code.
+
+## Programs Can Create Task-Specific Tools
+
+If the runtime knows its own state, actions, effects, and permissions, it can create small tools for temporary jobs.
+
+An incident does not always need a permanent dashboard. It may need a focused surface for the next four hours:
+
+```txt
+show affected accounts
+show last successful sync
+allow retry for this adapter only
+block destructive actions
+attach evidence to each retry
+expire the surface after the incident closes
+```
+
+A migration does not always need a handcrafted admin page. It may need a guided tool that shows unmigrated records, explains the transform, previews the patch, runs the gate, and records the result.
+
+A support workflow does not always need a new product feature. It may need a temporary view that lets a support lead inspect one bounded customer state machine and apply one safe transition.
+
+This is runtime malleability as a product capability.
+
+The system can make tools out of its own semantic map.
+
+## Adaptation Needs Boundaries
+
+This should not become a vague story about self-modifying software.
+
+The useful target is not:
+
+```txt
+make the app feel more premium
+change the business logic however the model thinks is best
+rewrite the checkout system while users are active
+```
+
+The useful target is bounded change:
+
+```txt
+target: checkout.delivery-step.validation
+operation: add required-field rule
+authority: validation errors only
+reads: CheckoutDraft, ShippingPolicy
+writes: DeliveryValidationResult
+cannot touch: submitPayment, createOrder, auth session
+proof: type gate, validation fixture, route probe, focus probe
+rollback: remove rule, replay validation result
+```
+
+This is where proof still matters, but proof is not the point.
+
+Proof is the price of malleability.
+
+If a runtime can change shape, the system needs to know which shape changed, who had authority, what was preserved, what was invalidated, and how to roll back. Without that, malleability becomes chaos. With that, malleability becomes an engineering primitive.
 
 <ClaimProofMatrix
-  eyebrow="Downstream Review"
-  title="Claims Replace Raw Diff Volume"
+  eyebrow="Bounded Adaptation"
+  title="What A Runtime Change Has To Prove"
   rows={[
     {
       surface: 'Identity',
-      claim: 'The same public thing survived',
-      proof: 'Stable export, route, selector, key, or id',
-      evidence: 'Symbol graph and span map',
-      route: 'Admit or rebase',
+      claim: 'The edit targets the same live region',
+      proof: 'Stable symbol, route, selector, key, or workflow node',
+      evidence: 'Source span and runtime handle',
+      route: 'Admit or ask',
       status: 'required',
     },
     {
-      surface: 'Contract',
-      claim: 'The boundary is still compatible',
-      proof: 'Type, schema, declaration, or protocol check',
-      evidence: 'Compatibility diff',
+      surface: 'Authority',
+      claim: 'The edit stays inside its capability boundary',
+      proof: 'Read, write, effect, and policy check',
+      evidence: 'Capability record',
+      route: 'Reject if widened',
+      status: 'required',
+    },
+    {
+      surface: 'Behavior',
+      claim: 'The promised user behavior still holds',
+      proof: 'Focused fixture, browser probe, oracle, or telemetry check',
+      evidence: 'Runtime proof capsule',
       route: 'Gate',
       status: 'proved',
     },
     {
-      surface: 'Effect',
-      claim: 'The change did not gain new authority',
-      proof: 'Read/write/effect graph',
-      evidence: 'Capability record',
-      route: 'Review if widened',
+      surface: 'State',
+      claim: 'Existing data can move through the change',
+      proof: 'Migration preview and replay check',
+      evidence: 'State transform record',
+      route: 'Run before live',
       status: 'required',
     },
     {
-      surface: 'Runtime',
-      claim: 'The user-visible behavior still holds',
-      proof: 'Route probe, DOM/layout/focus evidence, oracle',
-      evidence: 'Telemetry snapshot',
-      route: 'Run proof',
-      status: 'missing',
-    },
-    {
-      surface: 'History',
-      claim: 'The proof belongs to this head',
-      proof: 'Causal receipt',
-      evidence: 'Base hash, decision parents, lease token',
-      route: 'Accept or rerun',
+      surface: 'Undo',
+      claim: 'The change can be removed or compensated',
+      proof: 'Rollback patch, replay plan, or deactivation boundary',
+      evidence: 'Rollback record',
+      route: 'Require for live edits',
       status: 'required',
     },
   ]}
-  caption="The review object becomes a bundle of claims and proofs, with the line diff as one view over it."
+  caption="A malleable runtime is not an unbounded runtime. It changes through identities, capabilities, behavior checks, state movement, and rollback."
 />
 
-## Development Becomes A Feedback Loop
+## Development Becomes More Like Runtime
 
-The workflow consequence is bigger than automerging.
+This also changes development.
 
-Today, a task usually starts with a human-shaped instruction, becomes a patch, receives review, and either lands or bounces. The system may remember the final commit, but it forgets most of the coordination intelligence: which region was hard, which proof was missing, which files collided, which route kept failing, which question unblocked the work.
-
-After files, every attempt can update the map.
+The current split is sharp:
 
 ```txt
-work changed this region
-gate failed for this claim
-human answered this blocker
-two regions were correlated
-this file is hot, but these exports are independent
-this fixture carries too many meanings
-this route needs a narrower probe
+runtime is where software behaves
+development is where software changes
 ```
 
-The next task should not start from the same ignorance.
+After files, that split softens.
 
-<SoftwareAfterFilesWorkflowChart caption="Development becomes a loop: intent routes through semantic regions and gates, decisions write text, and every outcome improves the map used by the next route." />
+Runtime can propose bounded changes because it has semantic handles. Development can accept runtime evidence because the evidence points back to source. Agents can work in small regions because the system knows ownership. Refactors can be chosen because the runtime and merge history reveal where coordination cost is high.
 
-This creates a practical path to more parallel work.
+<SoftwareAfterFilesWorkflowChart caption="Development becomes a feedback loop: intent routes through semantic regions and gates, decisions write text, and every outcome improves the map used by the next runtime or development change." />
 
-Not because agents are magically better at code, and not because conflicts disappear.
+The result is not that deployment disappears.
 
-Because the system learns where work actually lives. It can split tasks around real ownership boundaries, serialize the few regions that are genuinely coupled, route proof to the right gates, and recommend refactors when the same semantic bottleneck keeps absorbing unrelated work.
+The result is that deployment stops being the only way software learns a new shape.
 
-The goal is not only to merge better.
+Some changes stay ephemeral and local. Some become configuration. Some become generated source. Some become pull requests. Some become package boundaries. Some become new gates. The semantic layer decides which route is legitimate.
 
-The goal is to need fewer painful merges.
+## The Capability Change
 
-## Refactoring Becomes System Design
-
-In a file-shaped world, refactoring is often treated as cleanup.
-
-In an after-files world, refactoring changes the future coordination graph.
-
-Moving a symbol is not just moving text. It changes import edges, ownership, proof routes, leases, task boundaries, and future collision probability. Splitting a module can create parallel lanes. Hiding a selector behind a component boundary can reduce layout blast radius. Replacing a shared registry with generated records can remove a constant merge hotspot.
-
-That means the system can ask a new kind of question:
+Many pieces of this exist in fragments already:
 
 ```txt
-what refactor would reduce future coordination cost?
+plugin systems
+feature flags
+schema-driven forms
+workflow engines
+low-code builders
+component libraries
+database migrations
+runtime telemetry
+preview environments
+policy engines
+CRDTs
 ```
 
-This is different from performance profiling, but the shape is similar. Performance work finds where runtime is spent. Coordination profiling finds where human and agent attention is spent.
+The ambitious version is to connect them.
 
-The output might be a code change, but it might also be a new gate, a smaller fixture, a stronger semantic region, a better package boundary, or a rule that prevents broad tasks from touching unrelated contracts.
-
-## Software Can Be Partly Self-Describing
-
-The most interesting runtime consequence is self-description.
-
-Not consciousness. Not a product that "understands itself" in a mystical way.
-
-Something more concrete:
+A semantic system can make UI regions, workflows, state shapes, effects, policies, gates, source spans, and history part of the same operating layer. That lets software gain capabilities that are awkward when files are the only durable shape:
 
 ```txt
-this action can read these resources
-this view is produced from these state fields
-this effect may call these external systems
-this route is proved by these probes
-this public contract is owned by this package
-this failed behavior maps to these source regions
+live local adaptation without permanent forks
+task-specific tools generated from real app capabilities
+runtime-safe extensions with declared authority
+interfaces that recompose around user role and workflow state
+state migrations that are previewable, replayable, and reversible
+agents that request bounded operations instead of raw code access
+review that accepts runtime evidence as part of the source change
+products that learn where they need better extension points
 ```
 
-That is enough to make software much more cooperative.
+That is the real downstream change.
 
-Tools can ask the running app for its capability surface. Agents can request bounded actions instead of raw shell access. Dashboards can project real state instead of scraping artifacts. Preview environments can produce comparable proof objects. Users can get explanations that are connected to the system’s actual contracts.
+Software stops being only an artifact you edit, build, and deploy.
 
-The novel part is not that any single fact is impossible today.
-
-The novel part is making those facts durable, source-bound, runtime-bound, and operationally useful.
-
-## The Hard Boundary
-
-This should stay conservative.
-
-The system should not claim it understands vague intent like "make the vibe more premium" and then auto-merge broad conceptual changes. That is not the useful target.
-
-The useful target is source-bound meaning:
-
-```txt
-identity
-ownership
-contracts
-effects
-dependencies
-runtime observations
-proof obligations
-history
-```
-
-Those are hard enough, and they are valuable because they can fail closed. If identity is missing, ask. If a runtime claim is unproved, run a probe. If a contract changed, route review. If the map is stale, rerun or rebase.
-
-The system gets smarter by refusing to guess and turning each refusal into a better map.
+It becomes a set of live contracts that can be recomposed under constraints.
 
 ## After Files
 
 The shape of software after files is not a prettier project tree.
 
-It is software with an operating layer above the text:
+It is software with an operating layer above text:
 
 ```txt
-addressable places
+addressable regions
 stable identities
+runtime handles
 bounded effects
 queryable contracts
+adaptive surfaces
+local extensions
 runtime probes
-evidence-backed decisions
-coordination memory
+rollback records
 text output
 ```
 
-That layer changes what software can do while it runs, and it changes how software can be changed.
-
-At runtime, software becomes more explainable, safer to automate, easier to probe, and more capable of producing receipts for its own behavior.
-
-In development, work becomes easier to route, review becomes claim-based, parallelism becomes measurable, refactoring becomes a coordination tool, and every failed merge can teach the system where its map is weak.
-
 Files remain the serialization.
 
-The software is the map above them.
+The product becomes the semantic system above them.
+
+That system is inspectable, but inspectability is not the destination.
+
+The destination is software that can safely change shape while it is being used.

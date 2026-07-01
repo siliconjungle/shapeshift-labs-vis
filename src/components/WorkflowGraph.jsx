@@ -139,6 +139,14 @@ const buildPath = (edge, nodesById) => {
   return commands.join(' ');
 };
 
+const edgeHasArrow = (edge, nodesById) => {
+  if (edge.showArrow === true || edge.arrow === true) return true;
+  const from = nodesById.get(edge.from);
+  const to = edge.toPoint || nodesById.get(edge.to);
+  if (!from || !to || edge.kind !== 'compensate') return false;
+  return Boolean((edge.points?.length || edge.toPoint) && to.x < from.x);
+};
+
 const resolveEdgeLabelPosition = (edge, nodesById) => {
   if (edge.labelPosition) return edge.labelPosition;
 
@@ -170,10 +178,26 @@ export default function WorkflowGraph({ type = 'diamond', graph = null, classNam
   const annotations = (selected.annotations || []).map(layout.transformPoint);
   const nodesById = new Map(nodes.map((node) => [node.id, node]));
   const graphClassName = ['workflow-graph', className].filter(Boolean).join(' ');
+  const markerBase = selected.id || type || 'custom';
+  const markerId = `workflow-arrow-${sanitizeClassPart(markerBase)}`;
 
   return (
     <div className={graphClassName}>
       <svg className="workflow-graph__edges" viewBox="0 0 100 100" preserveAspectRatio="none">
+        <defs>
+          <marker
+            id={markerId}
+            markerUnits="userSpaceOnUse"
+            viewBox="0 0 8 8"
+            refX="7"
+            refY="4"
+            markerWidth="2.4"
+            markerHeight="2.4"
+            orient="auto"
+          >
+            <path className="workflow-graph__arrow" d="M0,0 L8,4 L0,8 Z" />
+          </marker>
+        </defs>
         {edges.map((edge, index) => {
           const path = buildPath(edge, nodesById);
           if (!path) return null;
@@ -184,6 +208,7 @@ export default function WorkflowGraph({ type = 'diamond', graph = null, classNam
                   edge.kind ? `workflow-graph__edge--${edge.kind}` : ''
                 }`}
                 d={path}
+                markerEnd={edgeHasArrow(edge, nodesById) ? `url(#${markerId})` : undefined}
               />
             </g>
           );
@@ -207,6 +232,7 @@ export default function WorkflowGraph({ type = 'diamond', graph = null, classNam
         );
       })}
       {annotations.map((annotation, index) => {
+        if (selected.edges?.some((edge) => edge.toPoint || edge.points?.length)) return null;
         if (annotation.type !== 'direction-arrow') return null;
 
         return (
