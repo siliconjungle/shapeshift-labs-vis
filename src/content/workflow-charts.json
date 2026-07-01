@@ -2128,5 +2128,39 @@
       ["gates", "next"],
       ["hotspots", "next"]
     ]
+  },
+  {
+    "id": "software-after-files",
+    "title": "Software After Files",
+    "aliases": ["shape-of-software-after-files"],
+    "maxColumnGap": 16,
+    "height": 320,
+    "nodes": [
+      { "id": "files", "label": "FILES", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "spans", "label": "SPANS", "x": 34, "y": 50, "type": "event", "wide": true },
+      { "id": "identity", "label": "IDENTITY", "x": 62, "y": 50, "type": "gate", "wide": true },
+      { "id": "symbols", "label": "SYMBOLS", "x": 92, "y": 20, "type": "event", "wide": true },
+      { "id": "regions", "label": "REGIONS", "x": 92, "y": 40, "type": "event", "wide": true },
+      { "id": "effects", "label": "EFFECTS", "x": 92, "y": 60, "type": "event", "wide": true },
+      { "id": "runtime", "label": "RUNTIME", "x": 92, "y": 80, "type": "event", "wide": true },
+      { "id": "evidence", "label": "EVIDENCE", "x": 124, "y": 50, "type": "synthesis", "wide": true },
+      { "id": "decision", "label": "DECISION", "x": 154, "y": 30, "type": "select", "wide": true },
+      { "id": "output", "label": "TEXT OUTPUT", "x": 154, "y": 70, "type": "result", "wide": true }
+    ],
+    "edges": [
+      ["files", "spans"],
+      ["spans", "identity"],
+      ["identity", "symbols"],
+      ["identity", "regions"],
+      ["identity", "effects"],
+      ["identity", "runtime"],
+      ["symbols", "evidence"],
+      ["regions", "evidence"],
+      ["effects", "evidence"],
+      ["runtime", "evidence"],
+      ["evidence", "decision"],
+      ["evidence", "output"],
+      ["decision", "output"]
+    ]
   }
 ]

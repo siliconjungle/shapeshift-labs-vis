@@ -88,6 +88,7 @@ export const LockfileCausalGraphChart = makeWorkflowChart('lockfile-causal-graph
 export const PreviewEvidenceMachineChart = makeWorkflowChart('preview-evidence-machine');
 export const RefactorCoordinationGraphChart = makeWorkflowChart('refactor-coordination-graph');
 export const AgentMapFeedbackChart = makeWorkflowChart('agent-map-feedback');
+export const SoftwareAfterFilesChart = makeWorkflowChart('software-after-files');
 
 export const workflowChartComponents = {
   ChainChart,
@@ -170,4 +171,5 @@ export const workflowChartComponents = {
   PreviewEvidenceMachineChart,
   RefactorCoordinationGraphChart,
   AgentMapFeedbackChart,
+  SoftwareAfterFilesChart,
 };

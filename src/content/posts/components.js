@@ -41,8 +41,10 @@ import SemanticsAreConstraintsNotATree from './semantics-are-constraints-not-a-t
 import BorrowCheckerIsAMergeSurface from './borrow-checker-is-a-merge-surface.mdx';
 import TraitsProtocolsInterfaces from './traits-protocols-interfaces.mdx';
 import PatternMatchingIsControlFlow from './pattern-matching-is-control-flow.mdx';
+import ShapeOfSoftwareAfterFiles from './shape-of-software-after-files.mdx';
 
 export const postComponents = {
+  'shape-of-software-after-files': ShapeOfSoftwareAfterFiles,
   'pattern-matching-is-control-flow': PatternMatchingIsControlFlow,
   'traits-protocols-interfaces': TraitsProtocolsInterfaces,
   'borrow-checker-is-a-merge-surface': BorrowCheckerIsAMergeSurface,

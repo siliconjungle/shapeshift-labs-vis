@@ -1,0 +1,239 @@
+Files are not wrong.
+
+They are just not the real shape of software.
+
+A file is a storage boundary. It is convenient for editors, version control, package publishing, and operating systems. But most of the work humans and agents care about does not actually live at the file boundary.
+
+It lives in exported symbols, routes, selectors, tests, effects, runtime behavior, dependency edges, ownership regions, public contracts, evidence, and decisions.
+
+When a system treats the file as the primary unit, it inherits file-shaped problems: line conflicts, broad ownership, stale review context, hard-to-route work, and patches that are easy to apply but hard to understand.
+
+The shape after files is not "no files."
+
+It is files as the final serialization, with a richer operating layer above them.
+
+<SoftwareAfterFilesChart caption="Files remain the write format. The operating layer is made of source spans, stable identities, semantic graphs, evidence, decisions, and text output." />
+
+## Files Are A Storage Boundary
+
+The file is the place where source text is kept.
+
+It is not the best answer to every other question.
+
+```txt
+What changed?          Not just a file. A symbol, selector, route, or effect.
+Who owns it?           Not just a path. A contract, region, or runtime surface.
+Can this merge?        Not just line overlap. Identity, proof, and evidence.
+What should run?       Not the whole suite by default. The gates tied to claims.
+What should review?    Not every diff hunk equally. The uncertain claim boundary.
+```
+
+Text matters because it is precise.
+
+Files matter because software has to be written back somewhere.
+
+But a merge, review, refactor, or agent run should not be forced to pretend that the file path is the deepest thing the system can know.
+
+## The Real Shape Is Layered
+
+A codebase is many overlapping graphs.
+
+There is a syntax graph. A module graph. A type graph. A call graph. A dependency graph. A selector graph. A layout graph. A runtime graph. A history graph. A graph of tests and proofs. A graph of decisions.
+
+None of those graphs replaces the others.
+
+The useful representation keeps them separate enough that they can disagree.
+
+<SemanticRecord
+  eyebrow="Semantic Surface"
+  title="Checkout Form Region"
+  status="Above the file layer"
+  fields={[
+    {
+      label: 'File',
+      value: 'src/checkout/Form.tsx',
+      detail: 'The source text still has a concrete place on disk.',
+    },
+    {
+      label: 'Symbols',
+      value: 'CheckoutForm, submitOrder, usePaymentIntent',
+      detail: 'Stable identities give edits something better than line numbers to attach to.',
+    },
+    {
+      label: 'Regions',
+      value: 'form validation, payment effect, layout slot',
+      detail: 'Work can be claimed and reviewed by meaning, not just by path.',
+      tone: 'route',
+    },
+    {
+      label: 'Edges',
+      value: 'imports, prop contract, CSS module class map, route probe',
+      detail: 'The interesting risks are usually between surfaces.',
+    },
+    {
+      label: 'Evidence',
+      value: 'type gate, checkout browser probe, accessibility snapshot',
+      detail: 'A change is admitted by proof that matches the surface it touched.',
+    },
+    {
+      label: 'Decision',
+      value: 'admit, rebase, rerun, split, ask, or block',
+      detail: 'The output of understanding is a route, not only a rewritten file.',
+      tone: 'route',
+    },
+  ]}
+  caption="The file is still present, but it is no longer the only object the system can reason about."
+/>
+
+## Agents Need Places, Not Paths
+
+An agent should not only be told "edit this file."
+
+That is too blunt.
+
+A better task points at a place in the semantic map:
+
+```txt
+region: checkout.form.validation
+symbol: CheckoutForm
+allowed effects: none
+can read: checkout route, User type, payment intent mock
+can change: validation branch and focused tests
+must prove: type gate, validation fixture, checkout route probe
+must not claim: payment provider behavior
+```
+
+This is a different kind of address.
+
+It tells the worker where it belongs, what it is allowed to touch, what proof it owes, and which nearby meanings are out of scope.
+
+That makes parallel work possible for a less romantic reason than "more agents."
+
+It makes the boundaries reviewable.
+
+## Review Moves From Lines To Claims
+
+Review has always been partly semantic.
+
+A human reviewer looks at a line diff and mentally asks:
+
+```txt
+did the public contract change?
+does this helper still have the same identity?
+did the route behavior change?
+did the CSS selector hit a wider surface?
+did the dependency graph move?
+was this test proving the right thing?
+```
+
+The problem is that most tools only store the line diff, so the semantic part is rebuilt in the reviewer head every time.
+
+The shape after files makes those questions explicit.
+
+<ClaimProofMatrix
+  eyebrow="After Files"
+  title="What Moves Above The File Layer"
+  rows={[
+    {
+      surface: 'Text',
+      claim: 'The output can be written back exactly',
+      proof: 'Source hash and span map',
+      evidence: 'File hash, byte range, formatter output',
+      route: 'Write text',
+      status: 'proved',
+    },
+    {
+      surface: 'Identity',
+      claim: 'The same thing survived the edit',
+      proof: 'Stable symbol, selector, key, id, or route identity',
+      evidence: 'Export graph, binding graph, class map, route map',
+      route: 'Rebase or admit',
+      status: 'required',
+    },
+    {
+      surface: 'Contract',
+      claim: 'The public boundary is still valid',
+      proof: 'Type, declaration, schema, or protocol check',
+      evidence: 'Diagnostics, generated declarations, compatibility diff',
+      route: 'Gate',
+      status: 'required',
+    },
+    {
+      surface: 'Runtime',
+      claim: 'The behavior still holds under declared conditions',
+      proof: 'Runtime probe or oracle',
+      evidence: 'DOM, layout, focus, telemetry, trace, screenshots',
+      route: 'Run proof',
+      status: 'missing',
+    },
+    {
+      surface: 'History',
+      claim: 'The evidence belongs to this head',
+      proof: 'Causal receipt',
+      evidence: 'Base hash, run id, lease token, decision parents',
+      route: 'Accept or rerun',
+      status: 'required',
+    },
+  ]}
+  caption="A line diff can still be shown, but admission should be based on the claims a change makes and the proof attached to those claims."
+/>
+
+## The System Becomes Queryable
+
+Files are easy to list.
+
+They are weak to query.
+
+The questions that matter for coordination are not usually "which files exist?"
+
+They are questions like:
+
+```txt
+which symbols are touched by many workers?
+which routes depend on this helper?
+which CSS modules feed this component?
+which tests prove this public contract?
+which runtime probes cover this layout claim?
+which decisions depended on stale evidence?
+which regions should be split because they keep colliding?
+```
+
+That is the practical reason the representation matters.
+
+Once the software has a queryable shape, work can route around future conflicts instead of merely resolving them after they happen.
+
+## Languages Can Be Judged By Mergeability
+
+This also changes how a language can be evaluated.
+
+A language is not only good or bad because it is expressive, fast, safe, or pleasant.
+
+It also has a collaboration shape.
+
+Some languages make identity visible. Some hide it. Some give public contracts clear boundaries. Some make effects explicit. Some encode ownership. Some make layout and behavior inseparable. Some make package state deterministic. Some force every small change through one broad text region.
+
+Those choices decide how much parallel work can be safely admitted later.
+
+The question becomes:
+
+```txt
+Can the system see what changed?
+Can it prove the identity of the thing that changed?
+Can it route the change to the right gates?
+Can it say what was not proved?
+Can it write the result back without losing the map?
+```
+
+A language designed for parallel work would make those answers cheap.
+
+## After Files
+
+The point is not to abolish files.
+
+The point is to stop asking files to carry every kind of meaning.
+
+Files can remain the durable text surface.
+
+Above them, the system should carry identities, regions, contracts, effects, runtime observations, dependency facts, evidence, and decisions.
+
+That is the shape of software after files: not a prettier folder tree, but an operating model where code can be addressed, changed, reviewed, merged, and learned from at the level where the work actually happens.

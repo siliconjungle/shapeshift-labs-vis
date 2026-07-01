@@ -1,5 +1,13 @@
 const postEntries = [
   {
+    slug: 'shape-of-software-after-files',
+    title: 'The Shape Of Software After Files',
+    publishedAt: '2026-07-01T13:49:00+10:00',
+    graphType: null,
+    excerpt:
+      'Files are the storage boundary, not the operating model. The useful shape of software is symbols, regions, effects, runtime evidence, decisions, and text output.',
+  },
+  {
     slug: 'pattern-matching-is-control-flow',
     title: 'Pattern Matching Is Control Flow',
     publishedAt: '2026-07-01T08:59:00+10:00',
