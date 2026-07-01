@@ -2162,5 +2162,69 @@
       ["evidence", "output"],
       ["decision", "output"]
     ]
+  },
+  {
+    "id": "software-after-files-runtime",
+    "title": "Runtime After Files",
+    "aliases": ["semantic-runtime-capabilities"],
+    "maxColumnGap": 16,
+    "height": 330,
+    "nodes": [
+      { "id": "map", "label": "SEMANTIC MAP", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "contracts", "label": "CONTRACTS", "x": 42, "y": 22, "type": "event", "wide": true },
+      { "id": "effects", "label": "EFFECTS", "x": 42, "y": 42, "type": "event", "wide": true },
+      { "id": "state", "label": "STATE SHAPE", "x": 42, "y": 62, "type": "event", "wide": true },
+      { "id": "probes", "label": "PROBES", "x": 42, "y": 82, "type": "gate", "wide": true },
+      { "id": "runtime", "label": "LIVE RUNTIME", "x": 82, "y": 50, "type": "synthesis", "wide": true },
+      { "id": "adapt", "label": "ADAPT", "x": 122, "y": 24, "type": "select", "wide": true },
+      { "id": "explain", "label": "EXPLAIN", "x": 122, "y": 50, "type": "result", "wide": true },
+      { "id": "repair", "label": "REPAIR", "x": 122, "y": 76, "type": "compensation", "wide": true },
+      { "id": "receipt", "label": "RECEIPT", "x": 158, "y": 50, "type": "event", "wide": true }
+    ],
+    "edges": [
+      ["map", "contracts"],
+      ["map", "effects"],
+      ["map", "state"],
+      ["map", "probes"],
+      ["contracts", "runtime"],
+      ["effects", "runtime"],
+      ["state", "runtime"],
+      ["probes", "runtime"],
+      ["runtime", "adapt"],
+      ["runtime", "explain"],
+      { "from": "runtime", "to": "repair", "kind": "compensate" },
+      ["adapt", "receipt"],
+      ["explain", "receipt"],
+      { "from": "repair", "to": "receipt", "kind": "compensate" }
+    ]
+  },
+  {
+    "id": "software-after-files-workflow",
+    "title": "Workflow After Files",
+    "aliases": ["semantic-development-workflow"],
+    "maxColumnGap": 16,
+    "height": 320,
+    "nodes": [
+      { "id": "intent", "label": "INTENT", "x": 8, "y": 50, "type": "branch", "wide": true },
+      { "id": "route", "label": "SEMANTIC ROUTE", "x": 42, "y": 50, "type": "select", "wide": true },
+      { "id": "region", "label": "REGION", "x": 78, "y": 24, "type": "event", "wide": true },
+      { "id": "worker", "label": "WORKER", "x": 78, "y": 50, "type": "event", "wide": true },
+      { "id": "gate", "label": "GATE", "x": 78, "y": 76, "type": "gate", "wide": true },
+      { "id": "decision", "label": "DECISION", "x": 118, "y": 50, "type": "synthesis", "wide": true },
+      { "id": "text", "label": "TEXT", "x": 154, "y": 30, "type": "result", "wide": true },
+      { "id": "map", "label": "BETTER MAP", "x": 154, "y": 70, "type": "result", "wide": true }
+    ],
+    "edges": [
+      ["intent", "route"],
+      ["route", "region"],
+      ["route", "worker"],
+      ["route", "gate"],
+      ["region", "decision"],
+      ["worker", "decision"],
+      ["gate", "decision"],
+      ["decision", "text"],
+      ["decision", "map"],
+      { "from": "map", "to": "route", "kind": "compensate", "points": [{ "x": 154, "y": 92 }, { "x": 42, "y": 92 }] }
+    ]
   }
 ]

@@ -170,25 +170,10 @@ export default function WorkflowGraph({ type = 'diamond', graph = null, classNam
   const annotations = (selected.annotations || []).map(layout.transformPoint);
   const nodesById = new Map(nodes.map((node) => [node.id, node]));
   const graphClassName = ['workflow-graph', className].filter(Boolean).join(' ');
-  const markerBase = selected.id || type || 'custom';
-  const markerId = `workflow-arrow-${sanitizeClassPart(markerBase)}`;
 
   return (
     <div className={graphClassName}>
       <svg className="workflow-graph__edges" viewBox="0 0 100 100" preserveAspectRatio="none">
-        <defs>
-          <marker
-            id={markerId}
-            viewBox="0 0 8 8"
-            refX="7"
-            refY="4"
-            markerWidth="4.6"
-            markerHeight="4.6"
-            orient="auto"
-          >
-            <path className="workflow-graph__arrow" d="M0,0 L8,4 L0,8 Z" />
-          </marker>
-        </defs>
         {edges.map((edge, index) => {
           const path = buildPath(edge, nodesById);
           if (!path) return null;
@@ -199,7 +184,6 @@ export default function WorkflowGraph({ type = 'diamond', graph = null, classNam
                   edge.kind ? `workflow-graph__edge--${edge.kind}` : ''
                 }`}
                 d={path}
-                markerEnd={edge.hideArrow ? undefined : `url(#${markerId})`}
               />
             </g>
           );

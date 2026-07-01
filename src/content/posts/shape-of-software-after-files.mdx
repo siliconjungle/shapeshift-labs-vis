@@ -1,239 +1,314 @@
-Files are not wrong.
+Files are not going away.
 
-They are just not the real shape of software.
+But they should stop being the deepest object the system can see.
 
-A file is a storage boundary. It is convenient for editors, version control, package publishing, and operating systems. But most of the work humans and agents care about does not actually live at the file boundary.
+A file is a storage boundary. It is where bytes live, where editors save text, where Git records snapshots, and where packages ship source. That matters. The mistake is treating that storage boundary as the natural boundary for ownership, review, runtime behavior, safety, routing, and automation.
 
-It lives in exported symbols, routes, selectors, tests, effects, runtime behavior, dependency edges, ownership regions, public contracts, evidence, and decisions.
+The interesting question is what happens after that mistake is removed.
 
-When a system treats the file as the primary unit, it inherits file-shaped problems: line conflicts, broad ownership, stale review context, hard-to-route work, and patches that are easy to apply but hard to understand.
+If software has a shape above files, it stops looking like a folder tree and starts looking like a live map: stable identities, source spans, public contracts, effects, routes, selectors, state shapes, runtime probes, evidence, decisions, and the text that can be written back to disk.
 
-The shape after files is not "no files."
+That is not just a better merge tool.
 
-It is files as the final serialization, with a richer operating layer above them.
+It is a different substrate for building software.
 
-<SoftwareAfterFilesChart caption="Files remain the write format. The operating layer is made of source spans, stable identities, semantic graphs, evidence, decisions, and text output." />
+<SoftwareAfterFilesChart caption="Files remain the durable write format. The operating layer above them is made of spans, identities, semantic surfaces, evidence, decisions, and text output." />
 
-## Files Are A Storage Boundary
+## Software Becomes Addressable
 
-The file is the place where source text is kept.
+The first downstream change is simple: work can point at the thing it means.
 
-It is not the best answer to every other question.
+Not just:
 
 ```txt
-What changed?          Not just a file. A symbol, selector, route, or effect.
-Who owns it?           Not just a path. A contract, region, or runtime surface.
-Can this merge?        Not just line overlap. Identity, proof, and evidence.
-What should run?       Not the whole suite by default. The gates tied to claims.
-What should review?    Not every diff hunk equally. The uncertain claim boundary.
+edit src/checkout/Form.tsx
 ```
 
-Text matters because it is precise.
-
-Files matter because software has to be written back somewhere.
-
-But a merge, review, refactor, or agent run should not be forced to pretend that the file path is the deepest thing the system can know.
-
-## The Real Shape Is Layered
-
-A codebase is many overlapping graphs.
-
-There is a syntax graph. A module graph. A type graph. A call graph. A dependency graph. A selector graph. A layout graph. A runtime graph. A history graph. A graph of tests and proofs. A graph of decisions.
-
-None of those graphs replaces the others.
-
-The useful representation keeps them separate enough that they can disagree.
-
-<SemanticRecord
-  eyebrow="Semantic Surface"
-  title="Checkout Form Region"
-  status="Above the file layer"
-  fields={[
-    {
-      label: 'File',
-      value: 'src/checkout/Form.tsx',
-      detail: 'The source text still has a concrete place on disk.',
-    },
-    {
-      label: 'Symbols',
-      value: 'CheckoutForm, submitOrder, usePaymentIntent',
-      detail: 'Stable identities give edits something better than line numbers to attach to.',
-    },
-    {
-      label: 'Regions',
-      value: 'form validation, payment effect, layout slot',
-      detail: 'Work can be claimed and reviewed by meaning, not just by path.',
-      tone: 'route',
-    },
-    {
-      label: 'Edges',
-      value: 'imports, prop contract, CSS module class map, route probe',
-      detail: 'The interesting risks are usually between surfaces.',
-    },
-    {
-      label: 'Evidence',
-      value: 'type gate, checkout browser probe, accessibility snapshot',
-      detail: 'A change is admitted by proof that matches the surface it touched.',
-    },
-    {
-      label: 'Decision',
-      value: 'admit, rebase, rerun, split, ask, or block',
-      detail: 'The output of understanding is a route, not only a rewritten file.',
-      tone: 'route',
-    },
-  ]}
-  caption="The file is still present, but it is no longer the only object the system can reason about."
-/>
-
-## Agents Need Places, Not Paths
-
-An agent should not only be told "edit this file."
-
-That is too blunt.
-
-A better task points at a place in the semantic map:
+But:
 
 ```txt
 region: checkout.form.validation
 symbol: CheckoutForm
-allowed effects: none
-can read: checkout route, User type, payment intent mock
-can change: validation branch and focused tests
-must prove: type gate, validation fixture, checkout route probe
-must not claim: payment provider behavior
+state: CheckoutDraft
+effect boundary: submitOrder
+runtime surface: /checkout route
+proof owed: type gate, validation fixture, browser probe
 ```
 
-This is a different kind of address.
+That is a different kind of address.
 
-It tells the worker where it belongs, what it is allowed to touch, what proof it owes, and which nearby meanings are out of scope.
+It gives humans, tools, and agents a shared handle for the same piece of software. The handle can survive a file move, a rename, a formatting pass, or a refactor. The system can ask whether two edits touched the same meaning instead of only asking whether they touched the same lines.
 
-That makes parallel work possible for a less romantic reason than "more agents."
+This is the move from file paths to semantic places.
 
-It makes the boundaries reviewable.
+<SemanticRecord
+  eyebrow="Semantic Address"
+  title="Checkout Validation Region"
+  status="Above the file"
+  fields={[
+    {
+      label: 'Text',
+      value: 'src/checkout/Form.tsx:42-118',
+      detail: 'The region still has an exact source span so the result can be written back.',
+    },
+    {
+      label: 'Identity',
+      value: 'CheckoutForm.validation',
+      detail: 'The stable thing being changed is not the whole file.',
+      tone: 'route',
+    },
+    {
+      label: 'Reads',
+      value: 'CheckoutDraft, UserProfile, payment flags',
+      detail: 'The system can see which contracts the region depends on.',
+    },
+    {
+      label: 'Writes',
+      value: 'validation errors only',
+      detail: 'The task boundary excludes payment effects and order submission.',
+    },
+    {
+      label: 'Proof',
+      value: 'type gate, validation fixture, route probe',
+      detail: 'Admission is tied to the claim, not to the file path.',
+      tone: 'route',
+    },
+  ]}
+  caption="After files, a task can target a semantic place with permissions, dependencies, and proof obligations attached."
+/>
 
-## Review Moves From Lines To Claims
+## Runtime Gets A Map
 
-Review has always been partly semantic.
+The bigger shift is at runtime.
 
-A human reviewer looks at a line diff and mentally asks:
+Most software today ships as behavior plus a little metadata. The running system can render a screen, call an API, update a database, and emit logs. But it usually cannot explain itself in the same terms the codebase is built from.
+
+If the semantic map survives into runtime, the application can answer stronger questions:
+
+```txt
+which component owns this button?
+which state fields can this action mutate?
+which effects can fire from this route?
+which CSS selectors influence this layout?
+which feature flags guard this behavior?
+which proof last covered this user-visible contract?
+which source regions are implicated by this production failure?
+```
+
+That makes runtime software more inspectable, but also more operable.
+
+A product can expose safe automation surfaces because it knows what an action is allowed to read and write. A preview environment can generate evidence because it knows which routes and claims changed. A migration can run with receipts because it knows which state shape it is moving from and to. A bug report can point back to the semantic region that most likely owns the failure.
+
+<SoftwareAfterFilesRuntimeChart caption="A live runtime with a semantic map can explain, adapt, repair, and emit receipts tied back to contracts, effects, state shape, and probes." />
+
+This is where the idea stops being only about developer tools.
+
+A system with a runtime map can support capabilities that are awkward today:
+
+```txt
+semantic permissions: allow this automation to change copy, but not payment effects
+source-bound telemetry: bind a production failure to a route, component, selector, and gate
+live migration receipts: prove which state records moved through which schema boundary
+bounded self-repair: patch a narrow runtime surface and prove the affected claim
+user-facing provenance: explain why a screen behaved this way and which contract controlled it
+```
+
+Those are new software capabilities, not just new IDE features.
+
+They come from carrying identity and proof across the boundary between source and runtime.
+
+## Review Moves From Diffs To Claims
+
+A line diff is still useful.
+
+It is just not enough.
+
+When a reviewer looks at a patch, they are already doing semantic work in their head:
 
 ```txt
 did the public contract change?
-does this helper still have the same identity?
+did this helper keep the same identity?
+did the effect boundary widen?
+did this selector hit more DOM than before?
 did the route behavior change?
-did the CSS selector hit a wider surface?
-did the dependency graph move?
-was this test proving the right thing?
+was the test proving the right thing?
 ```
 
-The problem is that most tools only store the line diff, so the semantic part is rebuilt in the reviewer head every time.
+After files, those questions become first-class objects.
 
-The shape after files makes those questions explicit.
+The system can say: this patch changed one exported symbol, widened one effect boundary, preserved one selector identity, invalidated one browser proof, and needs a focused route probe before admission.
+
+That changes review from reading every line equally to checking the claims the patch makes.
 
 <ClaimProofMatrix
-  eyebrow="After Files"
-  title="What Moves Above The File Layer"
+  eyebrow="Downstream Review"
+  title="Claims Replace Raw Diff Volume"
   rows={[
     {
-      surface: 'Text',
-      claim: 'The output can be written back exactly',
-      proof: 'Source hash and span map',
-      evidence: 'File hash, byte range, formatter output',
-      route: 'Write text',
-      status: 'proved',
-    },
-    {
       surface: 'Identity',
-      claim: 'The same thing survived the edit',
-      proof: 'Stable symbol, selector, key, id, or route identity',
-      evidence: 'Export graph, binding graph, class map, route map',
-      route: 'Rebase or admit',
+      claim: 'The same public thing survived',
+      proof: 'Stable export, route, selector, key, or id',
+      evidence: 'Symbol graph and span map',
+      route: 'Admit or rebase',
       status: 'required',
     },
     {
       surface: 'Contract',
-      claim: 'The public boundary is still valid',
-      proof: 'Type, declaration, schema, or protocol check',
-      evidence: 'Diagnostics, generated declarations, compatibility diff',
+      claim: 'The boundary is still compatible',
+      proof: 'Type, schema, declaration, or protocol check',
+      evidence: 'Compatibility diff',
       route: 'Gate',
+      status: 'proved',
+    },
+    {
+      surface: 'Effect',
+      claim: 'The change did not gain new authority',
+      proof: 'Read/write/effect graph',
+      evidence: 'Capability record',
+      route: 'Review if widened',
       status: 'required',
     },
     {
       surface: 'Runtime',
-      claim: 'The behavior still holds under declared conditions',
-      proof: 'Runtime probe or oracle',
-      evidence: 'DOM, layout, focus, telemetry, trace, screenshots',
+      claim: 'The user-visible behavior still holds',
+      proof: 'Route probe, DOM/layout/focus evidence, oracle',
+      evidence: 'Telemetry snapshot',
       route: 'Run proof',
       status: 'missing',
     },
     {
       surface: 'History',
-      claim: 'The evidence belongs to this head',
+      claim: 'The proof belongs to this head',
       proof: 'Causal receipt',
-      evidence: 'Base hash, run id, lease token, decision parents',
+      evidence: 'Base hash, decision parents, lease token',
       route: 'Accept or rerun',
       status: 'required',
     },
   ]}
-  caption="A line diff can still be shown, but admission should be based on the claims a change makes and the proof attached to those claims."
+  caption="The review object becomes a bundle of claims and proofs, with the line diff as one view over it."
 />
 
-## The System Becomes Queryable
+## Development Becomes A Feedback Loop
 
-Files are easy to list.
+The workflow consequence is bigger than automerging.
 
-They are weak to query.
+Today, a task usually starts with a human-shaped instruction, becomes a patch, receives review, and either lands or bounces. The system may remember the final commit, but it forgets most of the coordination intelligence: which region was hard, which proof was missing, which files collided, which route kept failing, which question unblocked the work.
 
-The questions that matter for coordination are not usually "which files exist?"
-
-They are questions like:
+After files, every attempt can update the map.
 
 ```txt
-which symbols are touched by many workers?
-which routes depend on this helper?
-which CSS modules feed this component?
-which tests prove this public contract?
-which runtime probes cover this layout claim?
-which decisions depended on stale evidence?
-which regions should be split because they keep colliding?
+work changed this region
+gate failed for this claim
+human answered this blocker
+two regions were correlated
+this file is hot, but these exports are independent
+this fixture carries too many meanings
+this route needs a narrower probe
 ```
 
-That is the practical reason the representation matters.
+The next task should not start from the same ignorance.
 
-Once the software has a queryable shape, work can route around future conflicts instead of merely resolving them after they happen.
+<SoftwareAfterFilesWorkflowChart caption="Development becomes a loop: intent routes through semantic regions and gates, decisions write text, and every outcome improves the map used by the next route." />
 
-## Languages Can Be Judged By Mergeability
+This creates a practical path to more parallel work.
 
-This also changes how a language can be evaluated.
+Not because agents are magically better at code, and not because conflicts disappear.
 
-A language is not only good or bad because it is expressive, fast, safe, or pleasant.
+Because the system learns where work actually lives. It can split tasks around real ownership boundaries, serialize the few regions that are genuinely coupled, route proof to the right gates, and recommend refactors when the same semantic bottleneck keeps absorbing unrelated work.
 
-It also has a collaboration shape.
+The goal is not only to merge better.
 
-Some languages make identity visible. Some hide it. Some give public contracts clear boundaries. Some make effects explicit. Some encode ownership. Some make layout and behavior inseparable. Some make package state deterministic. Some force every small change through one broad text region.
+The goal is to need fewer painful merges.
 
-Those choices decide how much parallel work can be safely admitted later.
+## Refactoring Becomes System Design
 
-The question becomes:
+In a file-shaped world, refactoring is often treated as cleanup.
+
+In an after-files world, refactoring changes the future coordination graph.
+
+Moving a symbol is not just moving text. It changes import edges, ownership, proof routes, leases, task boundaries, and future collision probability. Splitting a module can create parallel lanes. Hiding a selector behind a component boundary can reduce layout blast radius. Replacing a shared registry with generated records can remove a constant merge hotspot.
+
+That means the system can ask a new kind of question:
 
 ```txt
-Can the system see what changed?
-Can it prove the identity of the thing that changed?
-Can it route the change to the right gates?
-Can it say what was not proved?
-Can it write the result back without losing the map?
+what refactor would reduce future coordination cost?
 ```
 
-A language designed for parallel work would make those answers cheap.
+This is different from performance profiling, but the shape is similar. Performance work finds where runtime is spent. Coordination profiling finds where human and agent attention is spent.
+
+The output might be a code change, but it might also be a new gate, a smaller fixture, a stronger semantic region, a better package boundary, or a rule that prevents broad tasks from touching unrelated contracts.
+
+## Software Can Be Partly Self-Describing
+
+The most interesting runtime consequence is self-description.
+
+Not consciousness. Not a product that "understands itself" in a mystical way.
+
+Something more concrete:
+
+```txt
+this action can read these resources
+this view is produced from these state fields
+this effect may call these external systems
+this route is proved by these probes
+this public contract is owned by this package
+this failed behavior maps to these source regions
+```
+
+That is enough to make software much more cooperative.
+
+Tools can ask the running app for its capability surface. Agents can request bounded actions instead of raw shell access. Dashboards can project real state instead of scraping artifacts. Preview environments can produce comparable proof objects. Users can get explanations that are connected to the system’s actual contracts.
+
+The novel part is not that any single fact is impossible today.
+
+The novel part is making those facts durable, source-bound, runtime-bound, and operationally useful.
+
+## The Hard Boundary
+
+This should stay conservative.
+
+The system should not claim it understands vague intent like "make the vibe more premium" and then auto-merge broad conceptual changes. That is not the useful target.
+
+The useful target is source-bound meaning:
+
+```txt
+identity
+ownership
+contracts
+effects
+dependencies
+runtime observations
+proof obligations
+history
+```
+
+Those are hard enough, and they are valuable because they can fail closed. If identity is missing, ask. If a runtime claim is unproved, run a probe. If a contract changed, route review. If the map is stale, rerun or rebase.
+
+The system gets smarter by refusing to guess and turning each refusal into a better map.
 
 ## After Files
 
-The point is not to abolish files.
+The shape of software after files is not a prettier project tree.
 
-The point is to stop asking files to carry every kind of meaning.
+It is software with an operating layer above the text:
 
-Files can remain the durable text surface.
+```txt
+addressable places
+stable identities
+bounded effects
+queryable contracts
+runtime probes
+evidence-backed decisions
+coordination memory
+text output
+```
 
-Above them, the system should carry identities, regions, contracts, effects, runtime observations, dependency facts, evidence, and decisions.
+That layer changes what software can do while it runs, and it changes how software can be changed.
 
-That is the shape of software after files: not a prettier folder tree, but an operating model where code can be addressed, changed, reviewed, merged, and learned from at the level where the work actually happens.
+At runtime, software becomes more explainable, safer to automate, easier to probe, and more capable of producing receipts for its own behavior.
+
+In development, work becomes easier to route, review becomes claim-based, parallelism becomes measurable, refactoring becomes a coordination tool, and every failed merge can teach the system where its map is weak.
+
+Files remain the serialization.
+
+The software is the map above them.

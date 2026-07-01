@@ -2,10 +2,10 @@ const postEntries = [
   {
     slug: 'shape-of-software-after-files',
     title: 'The Shape Of Software After Files',
-    publishedAt: '2026-07-01T13:49:00+10:00',
+    publishedAt: '2026-07-01T14:55:00+10:00',
     graphType: null,
     excerpt:
-      'Files are the storage boundary, not the operating model. The useful shape of software is symbols, regions, effects, runtime evidence, decisions, and text output.',
+      'If files become the serialization layer instead of the operating model, software can become addressable, explainable, safer to change, and able to improve its own map.',
   },
   {
     slug: 'pattern-matching-is-control-flow',
