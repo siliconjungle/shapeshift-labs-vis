@@ -1,0 +1,405 @@
+A semantic language is not serious if it only exists as JSON.
+
+JSON is useful as an interchange format. It is good for tools, checkpoints, sidecars, proofs, and snapshots. But humans should not have to write a large object graph by hand to describe software. If the universal layer is meant to become a real substrate, it needs a source form.
+
+It needs to be writable.
+
+That changes the idea.
+
+The system is no longer just:
+
+```txt
+JavaScript -> semantic record -> TypeScript
+```
+
+It is also:
+
+```txt
+Frontier source -> semantic record -> TypeScript
+Frontier source -> semantic record -> Rust
+Frontier source -> semantic record -> SwiftUI
+Frontier source -> semantic record -> HTML + CSS + JavaScript
+```
+
+The source language is not a replacement for every target language. It is a way to author the parts of software that are more stable than any one target: state, actions, effects, capabilities, views, invariants, migrations, ownership boundaries, proofs, and projection constraints.
+
+<SemanticRecord
+  eyebrow="Source Language"
+  title="One Authored Contract"
+  status="Lowerable"
+  fields={[
+    {
+      label: 'Durable source',
+      value: '.frontier file',
+      detail: 'A human-writable program, not only a generated JSON graph.',
+    },
+    {
+      label: 'Semantic graph',
+      value: 'state, actions, effects, views, capabilities',
+      detail: 'The stable meaning that target languages project from.',
+      tone: 'route',
+    },
+    {
+      label: 'Target output',
+      value: 'TypeScript, Rust, SwiftUI, HTML, CSS, JavaScript',
+      detail: 'Each target chooses its own idioms while preserving declared meaning.',
+    },
+    {
+      label: 'Projection evidence',
+      value: 'source spans, identities, losses, gates',
+      detail: 'Lowering is not trusted unless it can explain what survived.',
+      tone: 'route',
+    },
+  ]}
+  caption="The important boundary is not JSON. It is the authored contract that can become many concrete programs."
+/>
+
+## Source Before Projection
+
+Most cross-language systems start from an existing language.
+
+That is useful when the world already contains code. You lift TypeScript, Rust, CSS, HTML, Swift, or Python into a richer semantic record and then decide what can be preserved.
+
+But a source-first system should not require an original host language.
+
+You should be able to write the semantic program directly:
+
+```frontier
+module TodoApp @id("mod_todo") {
+  type TodoInput @id("type_todo_input") {
+    title: Text
+  }
+
+  state TodoDb @id("state_todo") {
+    todos @id("collection_todos"): Map<TodoId, Todo>
+  }
+
+  effect PersistTodo @id("effect_persist") {
+    capability storage.write
+    input TodoInput
+    returns Json
+    resources TodoDb.todos
+  }
+
+  action addTodo @id("action_add") {
+    input TodoInput
+    returns Patch
+    reads TodoDb.todos
+    writes TodoDb.todos
+    uses storage.write
+  }
+}
+```
+
+That is not a JSON serialization. It is a program.
+
+It names state. It names effects. It declares what an action may read and write. It binds the action to a capability. It gives the compiler and the merge system something stronger than a file path and something more durable than a line number.
+
+## Lowering Is A Decision
+
+The target language is where the program becomes executable in a particular environment.
+
+But the target language should not be where meaning is first discovered.
+
+<SemanticCodeDiff
+  title="Authored Once, Lowered Many Ways"
+  panelMaxHeight={430}
+  panes={[
+    {
+      label: 'Frontier',
+      role: 'base',
+      active: true,
+      code: [
+        'state TodoDb @id("state_todo") {',
+        '  todos: Map<TodoId, Todo>',
+        '}',
+        '',
+        'effect PersistTodo @id("effect_persist") {',
+        '  capability storage.write',
+        '  input TodoInput',
+        '  returns Json',
+        '  resources TodoDb.todos',
+        '}',
+        '',
+        'action addTodo @id("action_add") {',
+        '  input TodoInput',
+        '  reads TodoDb.todos',
+        '  writes TodoDb.todos',
+        '  uses storage.write',
+        '  returns Patch',
+        '}',
+      ].join('\n'),
+      note: {
+        kind: 'base',
+        label: 'Authored contract',
+        detail: 'The source file declares identities, permissions, effects, and state boundaries before any target syntax is chosen.',
+      },
+      highlights: [
+        { line: 1, text: 'TodoDb', kind: 'base', label: 'state identity' },
+        { line: 5, text: 'PersistTodo', kind: 'add', label: 'effect identity' },
+        { line: 6, text: 'storage.write', kind: 'admit', label: 'capability' },
+        { line: 12, text: 'addTodo', kind: 'add', label: 'action identity' },
+        { line: 14, text: 'reads TodoDb.todos', kind: 'base', label: 'read boundary' },
+        { line: 15, text: 'writes TodoDb.todos', kind: 'admit', label: 'write boundary' },
+      ],
+    },
+    {
+      label: 'TypeScript',
+      role: 'worker',
+      code: [
+        'export interface TodoDbState {',
+        '  readonly todos: ReadonlyMap<TodoId, Todo>;',
+        '}',
+        '',
+        'export const PersistTodoEffect = {',
+        '  name: "PersistTodo",',
+        '  capability: "storage.write",',
+        '  resources: ["TodoDb.todos"],',
+        '} as const;',
+        '',
+        'export const addTodoAction = {',
+        '  name: "addTodo",',
+        '  reads: ["TodoDb.todos"],',
+        '  writes: ["TodoDb.todos"],',
+        '  uses: ["storage.write"],',
+        '} as const;',
+      ].join('\n'),
+      note: {
+        kind: 'add',
+        label: 'Typed projection',
+        detail: 'The TypeScript output can expose descriptors and types while preserving the action, effect, and state identities.',
+      },
+      highlights: [
+        { line: 1, text: 'TodoDbState', kind: 'base', label: 'state projection' },
+        { line: 5, text: 'PersistTodoEffect', kind: 'add', label: 'effect projection' },
+        { line: 7, text: 'storage.write', kind: 'admit', label: 'same capability' },
+        { line: 11, text: 'addTodoAction', kind: 'add', label: 'action projection' },
+        { line: 13, text: 'TodoDb.todos', kind: 'base', label: 'read boundary' },
+        { line: 14, text: 'TodoDb.todos', kind: 'admit', label: 'write boundary' },
+      ],
+    },
+    {
+      label: 'SwiftUI',
+      role: 'output',
+      code: [
+        'struct TodoListView: View {',
+        '  let todos: [Todo]',
+        '  let addTodo: (TodoInput) -> Void',
+        '',
+        '  var body: some View {',
+        '    List(todos) { todo in',
+        '      Text(todo.title)',
+        '    }',
+        '    Button("Add") {',
+        '      addTodo(TodoInput(title: ""))',
+        '    }',
+        '  }',
+        '}',
+      ].join('\n'),
+      note: {
+        kind: 'admit',
+        label: 'Interface projection',
+        detail: 'A UI target can use the same state and action contracts while choosing a native view representation.',
+      },
+      highlights: [
+        { line: 1, text: 'TodoListView', kind: 'base', label: 'view projection' },
+        { line: 2, text: 'todos', kind: 'base', label: 'state read' },
+        { line: 3, text: 'addTodo', kind: 'add', label: 'action handle' },
+        { line: 9, text: 'Button', kind: 'admit', label: 'target idiom' },
+      ],
+    },
+    {
+      label: 'Evidence',
+      role: 'result',
+      code: [
+        'projection:',
+        '  source: mod_todo',
+        '  target: typescript',
+        '  preserved:',
+        '    - state_todo',
+        '    - effect_persist',
+        '    - action_add',
+        '  requires:',
+        '    - type gate',
+        '    - capability binding check',
+        '    - runtime adapter proof',
+        '  losses: []',
+      ].join('\n'),
+      note: {
+        kind: 'admit',
+        label: 'Projection proof',
+        detail: 'Lowering should produce evidence about preserved identities, required gates, and declared loss.',
+      },
+      highlights: [
+        { line: 4, text: 'preserved', kind: 'admit', label: 'kept identities' },
+        { line: 9, text: 'type gate', kind: 'base', label: 'required proof' },
+        { line: 11, text: 'runtime adapter proof', kind: 'add', label: 'runtime proof' },
+        { line: 12, text: 'losses: []', kind: 'admit', label: 'loss accounting' },
+      ],
+    },
+  ]}
+  caption="A source-first semantic language can produce target code, but it also produces the evidence that says what the target code still means."
+/>
+
+## The Source Is Not The Runtime
+
+Frontier source should not become a new universal runtime.
+
+That would make the wrong thing central.
+
+The point is not that every program should execute inside Frontier. The point is that some parts of software are better authored as target-neutral contracts, then lowered into the runtime that makes sense.
+
+For example:
+
+```txt
+state and cache shape
+public actions
+effect permissions
+workflow steps
+view contracts
+capability requirements
+adapter boundaries
+migration rules
+test and runtime proof obligations
+```
+
+Those are the pieces that benefit from being authored once and projected many times.
+
+Target-native code still matters. A graphics loop, a performance-sensitive parser, a Rust unsafe boundary, a Swift animation, a CSS layout trick, or a platform SDK call may stay native. The semantic layer should be able to reference those pieces, preserve them, wrap them, and account for what it cannot model.
+
+That is different from pretending all code is the same.
+
+## What A Writable Semantic Language Buys
+
+When the universal layer is writable, several capabilities become easier to imagine.
+
+<ClaimProofMatrix
+  eyebrow="Writable Semantics"
+  title="What Source-First Projection Can Prove"
+  rows={[
+    {
+      surface: 'Identity',
+      claim: 'The same action/state/effect survived',
+      proof: 'Stable ids and source map links',
+      evidence: '.frontier ids, generated target spans',
+      route: 'Admit projection',
+      status: 'proved',
+    },
+    {
+      surface: 'Authority',
+      claim: 'The output cannot write more than declared',
+      proof: 'Read/write/effect descriptor check',
+      evidence: 'Action descriptors and capability bindings',
+      route: 'Gate target',
+      status: 'required',
+    },
+    {
+      surface: 'Runtime',
+      claim: 'The target behaves under declared conditions',
+      proof: 'Runtime probe or adapter proof',
+      evidence: 'Browser probe, native adapter test, trace',
+      route: 'Run proof',
+      status: 'required',
+    },
+    {
+      surface: 'Loss',
+      claim: 'Missing target meaning is explicit',
+      proof: 'Projection loss record',
+      evidence: 'Unsupported feature or native escape hatch',
+      route: 'Review or block',
+      status: 'missing',
+    },
+  ]}
+  caption="The value is not only code generation. It is that generated code remains tied to the contract it came from."
+/>
+
+A UI can be projected into React, SwiftUI, or HTML.
+
+A workflow can be projected into a server process, a queue worker, or a local-first client.
+
+An action can be projected into TypeScript bindings, Rust traits, test fixtures, dashboard controls, or agent tools.
+
+A capability can be projected into an app permission, a runtime adapter, a mock, a policy gate, or an audit record.
+
+The source contract becomes the thing that many environments agree on.
+
+## The Compiler Should Fail With Shape
+
+A writable semantic language also changes what failure means.
+
+If a target cannot express something, that should not be hidden inside weak generated code. The compiler should say what failed:
+
+<RouteDecisionTable
+  eyebrow="Projection Routes"
+  title="Lowering Is A Routing Decision"
+  rows={[
+    {
+      route: 'Emit',
+      signal: 'Target can represent the contract',
+      requires: 'Source ids, descriptors, target spans',
+      produces: 'Target code plus proof',
+      tone: 'apply',
+    },
+    {
+      route: 'Emit With Loss',
+      signal: 'Target can run but cannot preserve all meaning',
+      requires: 'Explicit loss record and reviewable caveat',
+      produces: 'Code plus loss evidence',
+      tone: 'review',
+    },
+    {
+      route: 'Require Adapter',
+      signal: 'Meaning depends on host runtime',
+      requires: 'Declared capability binding',
+      produces: 'Adapter task or runtime proof',
+      tone: 'rerun',
+    },
+    {
+      route: 'Keep Native',
+      signal: 'Target-specific code is the right source',
+      requires: 'Native source boundary and source map',
+      produces: 'Opaque but tracked region',
+      tone: 'split',
+    },
+    {
+      route: 'Block',
+      signal: 'The projection would lie',
+      requires: 'No compatible target representation',
+      produces: 'Failed lowering with a durable reason',
+      tone: 'block',
+    },
+  ]}
+  caption="Projection should not be magic. It should route each contract through the safest available target decision."
+/>
+
+This is the same philosophy as semantic merge.
+
+Automate where the proof is strong. Refuse where the proof is missing. Turn the refusal into a sharper adapter, fixture, target feature, or source constraint.
+
+## The Bigger Picture
+
+If Frontier is only a JSON graph, it is a tool format.
+
+If Frontier is only an importer, it is a compiler backend for existing languages.
+
+If Frontier is writable, it becomes something larger: a semantic source layer for software that wants to move across runtimes.
+
+That does not mean everything should be written in Frontier.
+
+It means the system should let you choose the right source of truth for each part:
+
+```txt
+write stable contracts in Frontier
+write target-native performance code in the target
+write layout where the browser is the real runtime
+write platform-specific affordances in the platform
+bind them together with identities, capabilities, source maps, and proof
+```
+
+That is the practical shape.
+
+The semantic language is not above the target languages because it is more expressive in every local detail. It is above them because it can hold the cross-language contract that each target needs to honor.
+
+And once that contract is writable, the system stops being only a way to understand existing code.
+
+It becomes a way to author software that is already prepared to be projected, merged, adapted, audited, and moved.

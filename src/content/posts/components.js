@@ -43,8 +43,12 @@ import TraitsProtocolsInterfaces from './traits-protocols-interfaces.mdx';
 import PatternMatchingIsControlFlow from './pattern-matching-is-control-flow.mdx';
 import ShapeOfSoftwareAfterFiles from './shape-of-software-after-files.mdx';
 import EndOfApplicationBoundary from './end-of-application-boundary.mdx';
+import TheLanguageShouldBeWritable from './the-language-should-be-writable.mdx';
+import PluginsAreSemanticContracts from './plugins-are-semantic-contracts.mdx';
 
 export const postComponents = {
+  'plugins-are-semantic-contracts': PluginsAreSemanticContracts,
+  'the-language-should-be-writable': TheLanguageShouldBeWritable,
   'end-of-application-boundary': EndOfApplicationBoundary,
   'shape-of-software-after-files': ShapeOfSoftwareAfterFiles,
   'pattern-matching-is-control-flow': PatternMatchingIsControlFlow,

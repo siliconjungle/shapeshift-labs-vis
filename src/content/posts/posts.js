@@ -1,5 +1,21 @@
 const postEntries = [
   {
+    slug: 'plugins-are-semantic-contracts',
+    title: 'Plugins Are Semantic Contracts',
+    publishedAt: '2026-07-02T14:55:00+10:00',
+    graphType: null,
+    excerpt:
+      'A plugin should be admitted as a semantic contract: mounts, capabilities, state, effects, runtime proof, projection evidence, and rollback.',
+  },
+  {
+    slug: 'the-language-should-be-writable',
+    title: 'The Language Should Be Writable',
+    publishedAt: '2026-07-02T10:35:00+10:00',
+    graphType: null,
+    excerpt:
+      'A semantic interlingua is only serious if it has a source form: software should be writable in Frontier and lowered into target languages with evidence and loss accounting.',
+  },
+  {
     slug: 'end-of-application-boundary',
     title: 'The End Of The Application Boundary',
     publishedAt: '2026-07-01T15:40:00+10:00',

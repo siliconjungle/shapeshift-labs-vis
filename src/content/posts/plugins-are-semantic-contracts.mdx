@@ -1,0 +1,421 @@
+Most plugin systems start with loading code.
+
+That is useful, but it is not the interesting part.
+
+The interesting part is the boundary.
+
+A plugin wants to enter a host. The host has state, UI surfaces, permissions, policies, data shapes, effects, users, runtime quirks, and failure modes. If the plugin boundary is just a package import or a JavaScript bundle, the host has to trust too much too early.
+
+The better shape is a semantic contract.
+
+A plugin should say what it provides, what it requires, where it mounts, what it can read, what it can write, which effects it may run, which runtime it needs, and what evidence would prove that it fits.
+
+<SemanticRecord
+  eyebrow="Plugin Boundary"
+  title="One Extension Contract"
+  status="Admissible"
+  fields={[
+    {
+      label: 'Host exposes',
+      value: 'mounts, state views, actions, effects, gates',
+      detail: 'The host publishes the surfaces a plugin can safely depend on.',
+    },
+    {
+      label: 'Plugin provides',
+      value: 'views, commands, workers, rules, projections',
+      detail: 'The plugin contributes capabilities, not just files.',
+      tone: 'route',
+    },
+    {
+      label: 'Plugin requires',
+      value: 'capabilities, data shape, policy, runtime',
+      detail: 'Requirements are visible before the host admits the plugin.',
+    },
+    {
+      label: 'Admission proof',
+      value: 'type, policy, preview, runtime, rollback',
+      detail: 'Installation becomes a decision with evidence, not a blind load.',
+      tone: 'route',
+    },
+  ]}
+  caption="A semantic plugin boundary names the contract before code crosses into the host."
+/>
+
+## Loading Code Is Not Enough
+
+A traditional plugin system often has a shape like this:
+
+```txt
+host app -> plugin API -> plugin bundle
+```
+
+That shape answers one question:
+
+```txt
+can the host call the plugin?
+```
+
+But the harder questions are different:
+
+```txt
+what does the plugin believe the host contains?
+which state can it read?
+which state can it mutate?
+which effects can it run?
+which UI surface can it occupy?
+which runtime does it assume?
+which version of the contract was it built against?
+what proof says it still works?
+what happens when the host changes?
+```
+
+Those are semantic questions.
+
+If they are hidden inside code, every plugin install becomes a trust exercise. If they are represented as a contract, the host can route the plugin: admit it, sandbox it, adapt it, ask a human, or block it.
+
+## The Host Exposes A World
+
+A host application should not expose itself as a bag of callbacks.
+
+It should expose a world.
+
+That world contains typed mount points, readable state views, callable actions, effect capabilities, event streams, policy rules, and gates.
+
+For example:
+
+```frontier
+host Dashboard @id("host_dashboard") {
+  mount sidebar @surface("navigation.sidebar")
+  mount panel @surface("dashboard.panel")
+
+  state CurrentUser @readonly
+  state WorkspaceSummary @readonly
+
+  capability host.fetch {
+    effect network.fetch
+    policy same_origin
+  }
+
+  action openPanel {
+    input PanelRoute
+    writes ui.route
+  }
+
+  gate previewProbe {
+    checks layout, focus, accessibility
+  }
+}
+```
+
+This is not a widget API.
+
+It is the host saying: these are the places an extension can appear, these are the resources it can ask for, and these are the proofs required before it becomes real.
+
+## The Plugin Declares Its Shape
+
+The plugin should be equally explicit.
+
+```frontier
+plugin WeatherWidget @id("plugin_weather") {
+  mounts host.dashboard.panel
+
+  provides view WeatherPanel {
+    reads WorkspaceSummary.location
+    uses host.fetch
+    emits openPanel
+  }
+
+  requires capability host.fetch
+  requires gate previewProbe
+
+  fallback view WeatherUnavailable
+}
+```
+
+The important thing is not the exact syntax.
+
+The important thing is that the plugin can be reasoned about before the host executes it.
+
+It has a mount. It has a provided view. It has declared reads. It has a capability requirement. It has a gate. It has a fallback.
+
+That gives the host a review object.
+
+## Projection Is The ABI
+
+An ABI is usually thought of as a low-level calling convention.
+
+For this kind of system, the useful ABI is semantic.
+
+The host and plugin do not need to share one implementation language. They need to share stable meaning: mounts, capabilities, state shapes, actions, effects, identities, and proof obligations.
+
+<SemanticCodeDiff
+  title="One Plugin Contract, Several Projections"
+  panelMaxHeight={430}
+  panes={[
+    {
+      label: 'Frontier',
+      role: 'base',
+      active: true,
+      code: [
+        'plugin WeatherWidget @id("plugin_weather") {',
+        '  mounts host.dashboard.panel',
+        '',
+        '  provides view WeatherPanel {',
+        '    reads WorkspaceSummary.location',
+        '    uses host.fetch',
+        '    emits openPanel',
+        '  }',
+        '',
+        '  requires gate previewProbe',
+        '  fallback view WeatherUnavailable',
+        '}',
+      ].join('\n'),
+      note: {
+        kind: 'base',
+        label: 'Semantic contract',
+        detail: 'The authored boundary names the mount, provided view, reads, capability use, emitted action, gate, and fallback.',
+      },
+      highlights: [
+        { line: 1, text: 'WeatherWidget', kind: 'base', label: 'plugin identity' },
+        { line: 2, text: 'host.dashboard.panel', kind: 'base', label: 'mount' },
+        { line: 4, text: 'WeatherPanel', kind: 'add', label: 'provided view' },
+        { line: 5, text: 'WorkspaceSummary.location', kind: 'base', label: 'read boundary' },
+        { line: 6, text: 'host.fetch', kind: 'admit', label: 'capability' },
+        { line: 10, text: 'previewProbe', kind: 'admit', label: 'gate' },
+      ],
+    },
+    {
+      label: 'React',
+      role: 'worker',
+      code: [
+        'export const weatherPlugin = {',
+        '  id: "plugin_weather",',
+        '  mount: "dashboard.panel",',
+        '  provides: WeatherPanel,',
+        '  reads: ["WorkspaceSummary.location"],',
+        '  uses: ["host.fetch"],',
+        '  gates: ["previewProbe"],',
+        '};',
+      ].join('\n'),
+      note: {
+        kind: 'add',
+        label: 'Web projection',
+        detail: 'A React target can render the view while preserving the same declared authority and proof requirements.',
+      },
+      highlights: [
+        { line: 2, text: 'plugin_weather', kind: 'base', label: 'same identity' },
+        { line: 3, text: 'dashboard.panel', kind: 'base', label: 'same mount' },
+        { line: 4, text: 'WeatherPanel', kind: 'add', label: 'view implementation' },
+        { line: 6, text: 'host.fetch', kind: 'admit', label: 'same capability' },
+      ],
+    },
+    {
+      label: 'SwiftUI',
+      role: 'output',
+      code: [
+        'struct WeatherPanel: View {',
+        '  let location: Location',
+        '  let fetch: HostFetch',
+        '',
+        '  var body: some View {',
+        '    WeatherCard(location: location)',
+        '  }',
+        '}',
+      ].join('\n'),
+      note: {
+        kind: 'admit',
+        label: 'Native projection',
+        detail: 'A native target can use the same state and capability contract without sharing React syntax.',
+      },
+      highlights: [
+        { line: 1, text: 'WeatherPanel', kind: 'add', label: 'same view' },
+        { line: 2, text: 'location', kind: 'base', label: 'state read' },
+        { line: 3, text: 'HostFetch', kind: 'admit', label: 'capability adapter' },
+      ],
+    },
+    {
+      label: 'Evidence',
+      role: 'result',
+      code: [
+        'admission:',
+        '  plugin: plugin_weather',
+        '  host: host_dashboard',
+        '  preserved:',
+        '    - mount host.dashboard.panel',
+        '    - view WeatherPanel',
+        '    - capability host.fetch',
+        '  required:',
+        '    - policy check',
+        '    - previewProbe',
+        '    - rollback handle',
+        '  losses: []',
+      ].join('\n'),
+      note: {
+        kind: 'admit',
+        label: 'Admission evidence',
+        detail: 'The host can decide from preserved identities, required gates, and known loss before installing the plugin.',
+      },
+      highlights: [
+        { line: 2, text: 'plugin_weather', kind: 'base', label: 'plugin id' },
+        { line: 5, text: 'host.dashboard.panel', kind: 'base', label: 'mount proof' },
+        { line: 7, text: 'host.fetch', kind: 'admit', label: 'capability proof' },
+        { line: 10, text: 'previewProbe', kind: 'admit', label: 'runtime proof' },
+        { line: 12, text: 'losses: []', kind: 'admit', label: 'loss accounting' },
+      ],
+    },
+  ]}
+  caption="A semantic plugin contract can lower into different runtimes because the shared boundary is not the target syntax. It is the declared meaning."
+/>
+
+This is where Frontier-style representation matters.
+
+The plugin can be written once as a contract, projected into a host-specific implementation, and still carry the proof that says what survived.
+
+## Admission Is The Install Step
+
+Installing a plugin should not mean copying code into the host.
+
+It should mean admitting a capability through a boundary.
+
+<ClaimProofMatrix
+  eyebrow="Plugin Admission"
+  title="What A Plugin Has To Prove"
+  rows={[
+    {
+      surface: 'Mount',
+      claim: 'The plugin fits a host surface',
+      proof: 'Mount identity and slot contract',
+      evidence: 'host.dashboard.panel exists with matching view shape',
+      route: 'Admit mount',
+      status: 'proved',
+    },
+    {
+      surface: 'Authority',
+      claim: 'The plugin can use requested capabilities',
+      proof: 'Policy, role, effect, and scope check',
+      evidence: 'host.fetch allowed under same-origin policy',
+      route: 'Admit or sandbox',
+      status: 'required',
+    },
+    {
+      surface: 'State',
+      claim: 'Reads and writes stay inside the contract',
+      proof: 'State-view and action-boundary check',
+      evidence: 'Reads WorkspaceSummary.location, emits openPanel',
+      route: 'Admit or adapt',
+      status: 'required',
+    },
+    {
+      surface: 'Runtime',
+      claim: 'The projected UI behaves in the host',
+      proof: 'Preview, layout, focus, accessibility, rollback',
+      evidence: 'Preview probe required before durable install',
+      route: 'Run gate',
+      status: 'missing',
+    },
+    {
+      surface: 'Translation',
+      claim: 'The target implementation preserves the contract',
+      proof: 'Source-span, identity, and loss accounting',
+      evidence: 'Projection evidence records no known loss',
+      route: 'Admit or review',
+      status: 'required',
+    },
+  ]}
+  caption="The host can admit a plugin only to the degree that its claims are proved."
+/>
+
+The useful result is not just safer extension.
+
+It is more malleable software.
+
+Plugins stop being vendor-specific bundles. They become bounded capabilities that can move between hosts when the semantic boundary matches.
+
+## The Host Can Route The Plugin
+
+A semantic contract gives the host choices.
+
+The host does not need to say only yes or no.
+
+<RouteDecisionTable
+  eyebrow="Plugin Router"
+  title="Boundary Decisions"
+  rows={[
+    {
+      route: 'Apply',
+      signal: 'Mount, policy, state, runtime, and projection proof all pass',
+      requires: 'Current host contract and rollback handle',
+      produces: 'Durable plugin install',
+      tone: 'apply',
+    },
+    {
+      route: 'Review',
+      signal: 'Plugin is useful but crosses a sensitive boundary',
+      requires: 'Human or coordinator approval over the remaining claim',
+      produces: 'Decision record',
+      tone: 'review',
+    },
+    {
+      route: 'Rebase',
+      signal: 'Host changed but the plugin intent still fits',
+      requires: 'Fresh projection against the current host contract',
+      produces: 'Updated plugin candidate',
+      tone: 'rebase',
+    },
+    {
+      route: 'Rerun',
+      signal: 'Runtime proof is stale or missing',
+      requires: 'Preview probe, accessibility check, or effect replay',
+      produces: 'New evidence bundle',
+      tone: 'rerun',
+    },
+    {
+      route: 'Ask',
+      signal: 'The plugin needs authority the host has not declared',
+      requires: 'Typed policy question with scope and alternatives',
+      produces: 'Answer node or rejected requirement',
+      tone: 'ask',
+    },
+    {
+      route: 'Block',
+      signal: 'The plugin asks for an unsafe effect or incompatible mount',
+      requires: 'Recorded non-admission',
+      produces: 'No install, plus a sharper contract row',
+      tone: 'block',
+    },
+  ]}
+  caption="A semantic plugin system routes extension work by evidence instead of reducing everything to install or fail."
+/>
+
+That routing is the difference between a plugin ecosystem and a controlled extension surface.
+
+## Plugins Become Composable Capabilities
+
+Once plugins are semantic contracts, composition gets more interesting.
+
+A plugin can provide a view to one host, a command to another host, and a worker to a third host. A host can expose only the mounts and capabilities it is willing to admit. A translator can lower the same plugin contract into React, SwiftUI, HTML, a CLI command, or an agent tool manifest.
+
+The plugin boundary becomes less like:
+
+```txt
+download this package and hope it behaves
+```
+
+And more like:
+
+```txt
+this capability can mount here
+this state view is readable
+this effect is allowed
+this target projection is proved
+this fallback exists
+this install can be rolled back
+```
+
+That is a much stronger foundation for user extension, internal tools, agent-built software, and cross-language projection.
+
+The larger idea is that a plugin is not an escape hatch from the system.
+
+It is a request to join the system.
+
+And if software is represented semantically, that request can be inspected, translated, tested, routed, and admitted without pretending that loading code is the same thing as trusting it.

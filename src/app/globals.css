@@ -3030,6 +3030,108 @@ body {
   background: rgba(242, 230, 212, 0.94);
 }
 
+:root[data-theme='light'] .semantic-record__panel,
+:root[data-theme='light'] .claim-proof-matrix__panel,
+:root[data-theme='light'] .route-decision-table__panel,
+:root[data-theme='light'] .runtime-probe-matrix__table-scroll,
+:root[data-theme='light'] .css-cascade-inspector__table-scroll,
+:root[data-theme='light'] .css-cascade-inspector__summary-scroll,
+:root[data-theme='light'] .source-span-map__records-scroll,
+:root[data-theme='light'] .region-overlap-map__table-scroll {
+  border-color: rgba(43, 40, 38, 0.22);
+  background:
+    linear-gradient(180deg, rgba(255, 252, 245, 0.5), rgba(242, 230, 212, 0.12)),
+    rgba(242, 230, 212, 0.86);
+}
+
+:root[data-theme='light'] .semantic-record__header,
+:root[data-theme='light'] .semantic-record__title,
+:root[data-theme='light'] .claim-proof-matrix__header,
+:root[data-theme='light'] .route-decision-table__header,
+:root[data-theme='light'] .claim-proof-matrix__row--head > span,
+:root[data-theme='light'] .route-decision-table__row--head > span,
+:root[data-theme='light'] .runtime-probe-matrix__table th,
+:root[data-theme='light'] .css-cascade-inspector__table th,
+:root[data-theme='light'] .css-cascade-inspector__summary th,
+:root[data-theme='light'] .source-span-map__records th,
+:root[data-theme='light'] .region-overlap-map__table th {
+  border-color: rgba(43, 40, 38, 0.14);
+  background: rgba(43, 40, 38, 0.055);
+  color: rgba(43, 40, 38, 0.74);
+}
+
+:root[data-theme='light'] .semantic-record__field,
+:root[data-theme='light'] .semantic-record__label,
+:root[data-theme='light'] .claim-proof-matrix__row,
+:root[data-theme='light'] .claim-proof-matrix__row > span,
+:root[data-theme='light'] .route-decision-table__row,
+:root[data-theme='light'] .route-decision-table__row > span,
+:root[data-theme='light'] .runtime-probe-matrix__table th,
+:root[data-theme='light'] .runtime-probe-matrix__table td,
+:root[data-theme='light'] .css-cascade-inspector__table th,
+:root[data-theme='light'] .css-cascade-inspector__table td,
+:root[data-theme='light'] .css-cascade-inspector__summary th,
+:root[data-theme='light'] .css-cascade-inspector__summary td,
+:root[data-theme='light'] .source-span-map__records th,
+:root[data-theme='light'] .source-span-map__records td,
+:root[data-theme='light'] .region-overlap-map__table th,
+:root[data-theme='light'] .region-overlap-map__table td {
+  border-color: rgba(43, 40, 38, 0.1);
+}
+
+:root[data-theme='light'] .semantic-record__label {
+  background: rgba(43, 40, 38, 0.035);
+  color: rgba(43, 40, 38, 0.72);
+}
+
+:root[data-theme='light'] .semantic-record__value small,
+:root[data-theme='light'] .claim-proof-matrix__surface small,
+:root[data-theme='light'] .runtime-probe-matrix__surface small,
+:root[data-theme='light'] .runtime-probe-matrix__probe small,
+:root[data-theme='light'] .runtime-probe-matrix__claim,
+:root[data-theme='light'] .css-cascade-inspector__rule small,
+:root[data-theme='light'] .source-span-map__record-id,
+:root[data-theme='light'] .source-span-map__record-offset,
+:root[data-theme='light'] .source-span-map__record-main small,
+:root[data-theme='light'] .source-span-map__record-claim,
+:root[data-theme='light'] .region-overlap-map__region small {
+  color: rgba(43, 40, 38, 0.72);
+}
+
+:root[data-theme='light'] .semantic-record__field--route .semantic-record__label,
+:root[data-theme='light'] .claim-proof-matrix__row--proved .claim-proof-matrix__surface small,
+:root[data-theme='light'] .runtime-probe-matrix__row--apply .runtime-probe-matrix__route,
+:root[data-theme='light'] .css-cascade-inspector__row--winner .css-cascade-inspector__result,
+:root[data-theme='light'] .source-span-map__record--add .source-span-map__record-id,
+:root[data-theme='light'] .region-overlap-map__row--apply .region-overlap-map__route,
+:root[data-theme='light'] .route-decision-table__row--apply .route-decision-table__route {
+  color: rgba(34, 95, 55, 0.98);
+}
+
+:root[data-theme='light'] .route-decision-table__row--review .route-decision-table__route,
+:root[data-theme='light'] .route-decision-table__row--ask .route-decision-table__route,
+:root[data-theme='light'] .runtime-probe-matrix__row--gate .runtime-probe-matrix__route,
+:root[data-theme='light'] .runtime-probe-matrix__row--review .runtime-probe-matrix__route,
+:root[data-theme='light'] .css-cascade-inspector__row--inactive .css-cascade-inspector__result,
+:root[data-theme='light'] .region-overlap-map__row--rebase .region-overlap-map__route,
+:root[data-theme='light'] .region-overlap-map__row--gate .region-overlap-map__route {
+  color: rgba(31, 75, 132, 0.98);
+}
+
+:root[data-theme='light'] .semantic-record__field--warning .semantic-record__label,
+:root[data-theme='light'] .claim-proof-matrix__row--missing .claim-proof-matrix__surface small,
+:root[data-theme='light'] .route-decision-table__row--rebase .route-decision-table__route,
+:root[data-theme='light'] .route-decision-table__row--split .route-decision-table__route,
+:root[data-theme='light'] .route-decision-table__row--rerun .route-decision-table__route,
+:root[data-theme='light'] .route-decision-table__row--block .route-decision-table__route,
+:root[data-theme='light'] .runtime-probe-matrix__row--missing .runtime-probe-matrix__route,
+:root[data-theme='light'] .runtime-probe-matrix__row--block .runtime-probe-matrix__route,
+:root[data-theme='light'] .css-cascade-inspector__row--overridden .css-cascade-inspector__result,
+:root[data-theme='light'] .source-span-map__record--rename .source-span-map__record-id,
+:root[data-theme='light'] .region-overlap-map__row--review .region-overlap-map__route {
+  color: rgba(112, 73, 22, 0.98);
+}
+
 @media (max-width: 640px) {
   .post-teaser {
     min-height: 236px;
