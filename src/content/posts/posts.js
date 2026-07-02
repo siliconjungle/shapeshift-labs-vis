@@ -1,5 +1,13 @@
 const postEntries = [
   {
+    slug: 'languages-become-interfaces',
+    title: 'Languages Become Interfaces',
+    publishedAt: '2026-07-02T15:19:00+10:00',
+    graphType: null,
+    excerpt:
+      'Programming languages become interoperable when they attach to shared semantic contracts: identity, data shape, effects, ownership, runtime proof, and recorded loss.',
+  },
+  {
     slug: 'plugins-are-semantic-contracts',
     title: 'Plugins Are Semantic Contracts',
     publishedAt: '2026-07-02T14:55:00+10:00',

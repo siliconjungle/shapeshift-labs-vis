@@ -1,0 +1,463 @@
+Most language interoperability starts at the wrong layer.
+
+It starts with calls.
+
+Can JavaScript call Rust? Can Swift call C? Can Python call a TypeScript service? Can WebAssembly sit between them?
+
+Those are useful questions, but they are not the deepest question.
+
+The deeper question is:
+
+```txt
+what does each side believe the program means?
+```
+
+If two languages only share a call boundary, they can exchange bytes, handles, objects, or messages. That is not the same as sharing state identity, type shape, permissions, effects, ownership, runtime assumptions, or proof.
+
+The stronger form of interoperability is semantic.
+
+<SemanticRecord
+  eyebrow="Interoperability"
+  title="One Meaning, Many Languages"
+  status="Projected"
+  fields={[
+    {
+      label: 'Shared contract',
+      value: 'identity, state, actions, effects, types',
+      detail: 'Languages meet through stable meaning, not through one target syntax.',
+    },
+    {
+      label: 'Native implementations',
+      value: 'Rust, TypeScript, Swift, Python, HTML, CSS',
+      detail: 'Each language keeps its idioms while binding to the same contract.',
+      tone: 'route',
+    },
+    {
+      label: 'Interop evidence',
+      value: 'source spans, adapters, gates, runtime proof',
+      detail: 'A boundary is trusted only to the degree that it can explain what survived.',
+    },
+    {
+      label: 'Known loss',
+      value: 'weaker types, missing ownership, runtime-only checks',
+      detail: 'Interoperability should record loss instead of hiding it behind a successful build.',
+      tone: 'route',
+    },
+  ]}
+  caption="Languages become interoperable when they can attach to the same semantic contract and expose what each projection preserved."
+/>
+
+## Not One Language
+
+The goal is not to replace every language with one universal syntax.
+
+That would miss why languages exist.
+
+Rust is good at making ownership and lifetimes explicit. TypeScript is good at expressing structural API shape in a JavaScript ecosystem. SwiftUI is good at native UI declaration. CSS is its own runtime for cascade and layout. SQL expresses relational constraints. Python is often the fastest way to bind data tools and operational scripts.
+
+The point is not to flatten those differences.
+
+The point is to let those differences attach to one semantic boundary.
+
+```txt
+Rust keeps ownership.
+TypeScript keeps structural API shape.
+SwiftUI keeps native view idioms.
+CSS keeps cascade semantics.
+Python keeps orchestration ergonomics.
+
+The shared layer keeps identity, contracts, effects, proof, and loss.
+```
+
+That is a different promise than source-to-source translation.
+
+Translation says:
+
+```txt
+turn this language into that language
+```
+
+Interoperability says:
+
+```txt
+let these languages cooperate without lying about what each one can express
+```
+
+<SupersetInterlinguaBridgeChart caption="The interlingua is not a replacement language. It is the place where source languages and target languages agree on stable meaning." />
+
+## The Contract Is The Meeting Point
+
+Imagine a search capability.
+
+One part is implemented in Rust because the index needs speed and ownership discipline. Another part is exposed in TypeScript because the product shell is web-based. A native client wants SwiftUI. An automation system wants a command interface. A dashboard wants HTML, CSS, and runtime probes.
+
+The old shape is a pile of adapters:
+
+```txt
+Rust library -> Node binding -> TypeScript wrapper -> API route -> Swift client -> dashboard widget
+```
+
+Every edge has a private agreement.
+
+The semantic shape is different:
+
+```frontier
+capability SearchIndex @id("cap_search_index") {
+  capability search.query
+  input SearchQuery
+  returns SearchResults
+  effects cpu.read, storage.read
+  resources SearchCorpus.documents
+}
+
+action runSearch @id("action_run_search") {
+  input SearchQuery
+  returns SearchResults
+  reads SearchCorpus.documents
+  uses search.query
+}
+```
+
+Now each language is not integrating with every other language directly.
+
+Each language is integrating with the contract.
+
+<SemanticCodeDiff
+  title="One Contract, Several Language Edges"
+  panelMaxHeight={430}
+  panes={[
+    {
+      label: 'Frontier',
+      role: 'base',
+      active: true,
+      code: [
+        'capability SearchIndex @id("cap_search_index") {',
+        '  capability search.query',
+        '  input SearchQuery',
+        '  returns SearchResults',
+        '  effects cpu.read, storage.read',
+        '  resources SearchCorpus.documents',
+        '}',
+        '',
+        'action runSearch @id("action_run_search") {',
+        '  input SearchQuery',
+        '  returns SearchResults',
+        '  reads SearchCorpus.documents',
+        '  uses search.query',
+        '}',
+      ].join('\n'),
+      note: {
+        kind: 'base',
+        label: 'Shared meaning',
+        detail: 'The contract names the capability, action, data boundary, effects, and identities before choosing an implementation language.',
+      },
+      highlights: [
+        { line: 1, text: 'SearchIndex', kind: 'base', label: 'capability identity' },
+        { line: 2, text: 'search.query', kind: 'admit', label: 'semantic capability' },
+        { line: 4, text: 'SearchResults', kind: 'base', label: 'return contract' },
+        { line: 10, text: 'runSearch', kind: 'add', label: 'action identity' },
+        { line: 13, text: 'SearchCorpus.documents', kind: 'base', label: 'read boundary' },
+      ],
+    },
+    {
+      label: 'Rust',
+      role: 'worker',
+      code: [
+        'pub struct SearchIndex {',
+        '  corpus: Arc<Corpus>,',
+        '}',
+        '',
+        'impl SearchIndex {',
+        '  pub fn query(&self, input: SearchQuery) -> SearchResults {',
+        '    self.corpus.search(input)',
+        '  }',
+        '}',
+      ].join('\n'),
+      note: {
+        kind: 'add',
+        label: 'Native implementation',
+        detail: 'Rust can preserve the capability while adding ownership and concurrency facts the contract should remember.',
+      },
+      highlights: [
+        { line: 1, text: 'SearchIndex', kind: 'base', label: 'same capability' },
+        { line: 2, text: 'Arc<Corpus>', kind: 'admit', label: 'ownership fact' },
+        { line: 6, text: 'SearchQuery', kind: 'base', label: 'same input' },
+        { line: 6, text: 'SearchResults', kind: 'base', label: 'same output' },
+      ],
+    },
+    {
+      label: 'TypeScript',
+      role: 'output',
+      code: [
+        'export async function runSearch(input: SearchQuery) {',
+        '  return host.call<SearchResults>({',
+        '    capability: "search.query",',
+        '    action: "action_run_search",',
+        '    input,',
+        '  });',
+        '}',
+      ].join('\n'),
+      note: {
+        kind: 'admit',
+        label: 'Typed caller',
+        detail: 'TypeScript does not need to know Rust internals. It binds to the same action and capability identity.',
+      },
+      highlights: [
+        { line: 1, text: 'runSearch', kind: 'add', label: 'same action' },
+        { line: 1, text: 'SearchQuery', kind: 'base', label: 'same input' },
+        { line: 2, text: 'SearchResults', kind: 'base', label: 'same output' },
+        { line: 3, text: 'search.query', kind: 'admit', label: 'same capability' },
+        { line: 4, text: 'action_run_search', kind: 'base', label: 'stable id' },
+      ],
+    },
+    {
+      label: 'SwiftUI',
+      role: 'output',
+      code: [
+        'struct SearchPanel: View {',
+        '  let runSearch: (SearchQuery) async -> SearchResults',
+        '',
+        '  var body: some View {',
+        '    SearchField { query in',
+        '      await runSearch(query)',
+        '    }',
+        '  }',
+        '}',
+      ].join('\n'),
+      note: {
+        kind: 'warning',
+        label: 'Native surface',
+        detail: 'The UI target keeps its idioms, but the action handle still points back to the same semantic contract.',
+      },
+      highlights: [
+        { line: 1, text: 'SearchPanel', kind: 'add', label: 'target surface' },
+        { line: 2, text: 'runSearch', kind: 'base', label: 'same action handle' },
+        { line: 2, text: 'SearchQuery', kind: 'base', label: 'same input' },
+        { line: 2, text: 'SearchResults', kind: 'base', label: 'same output' },
+      ],
+    },
+  ]}
+  caption="Interoperability is not every language copying every other language. It is each language binding to the same semantic contract with its own projection evidence."
+/>
+
+## The ABI Moves Up
+
+An ABI normally describes how compiled code talks at the machine boundary.
+
+Calling convention. Memory layout. Symbol names. Registers. Stack shape.
+
+That still matters.
+
+But for malleable software and agent-built systems, the more important ABI moves up:
+
+```txt
+this is the stable identity
+this is the data shape
+this is the ownership rule
+this is the effect boundary
+this is the runtime assumption
+this is the proof required before use
+```
+
+That higher-level ABI is what lets software be composed across languages without turning every boundary into bespoke glue.
+
+<ClaimProofMatrix
+  eyebrow="Interop Matrix"
+  title="What Has To Cross The Boundary"
+  rows={[
+    {
+      surface: 'Identity',
+      claim: 'Both sides refer to the same capability or action',
+      proof: 'Stable semantic id',
+      evidence: '@id, symbol map, generated binding',
+      route: 'Preserve',
+      status: 'proved',
+    },
+    {
+      surface: 'Data shape',
+      claim: 'Inputs and outputs still mean the same thing',
+      proof: 'Type/declaration compatibility',
+      evidence: 'Schema, generated declarations, codec fixture',
+      route: 'Gate',
+      status: 'required',
+    },
+    {
+      surface: 'Effects',
+      claim: 'A caller cannot secretly gain new authority',
+      proof: 'Capability and policy check',
+      evidence: 'Effect list, host grant, audit event',
+      route: 'Admit or block',
+      status: 'required',
+    },
+    {
+      surface: 'Ownership',
+      claim: 'Borrow, copy, move, or lifetime assumptions are not erased',
+      proof: 'Ownership constraint evidence',
+      evidence: 'Rust facts, adapter rule, runtime handle policy',
+      route: 'Adapt',
+      status: 'review',
+    },
+    {
+      surface: 'Runtime',
+      claim: 'The projection behaves under real conditions',
+      proof: 'Executable probe',
+      evidence: 'Route probe, telemetry hash, fixture result',
+      route: 'Promote',
+      status: 'proved',
+    },
+    {
+      surface: 'Loss',
+      claim: 'The target cannot express something directly',
+      proof: 'Declared loss record',
+      evidence: 'Missing type fact, weaker runtime guard, adapter note',
+      route: 'Ask or fail closed',
+      status: 'blocked',
+    },
+  ]}
+  caption="A semantic ABI is useful because it makes the boundary inspectable before languages start executing each other."
+/>
+
+## Interoperability Is Not Equivalence
+
+This is the part that has to stay honest.
+
+Two projections can be interoperable without being equivalent in every local detail.
+
+A Rust implementation may prove ownership statically. A JavaScript caller may only preserve the call contract and rely on runtime checks. A SwiftUI surface may preserve the action and data shape but add UI lifecycle behavior. A CSS projection may preserve selectors and tokens while leaving layout proof to a browser probe.
+
+The system should not pretend those are the same.
+
+It should say:
+
+```txt
+same identity
+compatible data shape
+different enforcement mechanism
+adapter required
+runtime proof required
+loss recorded
+```
+
+That honesty is what makes the system useful.
+
+<EvidenceLadder
+  levels={[
+    {
+      name: 'Name match',
+      strength: 'weak',
+      proves: 'The target has a symbol that claims to implement the contract.',
+      limit: 'Does not prove shape, authority, or behavior.',
+      route: 'Bind candidate',
+      tone: 'note',
+    },
+    {
+      name: 'Shape match',
+      strength: 'partial',
+      proves: 'Inputs, outputs, and public declarations line up.',
+      limit: 'Does not prove effects or runtime behavior.',
+      route: 'Run compatibility gate',
+      tone: 'bound',
+    },
+    {
+      name: 'Capability match',
+      strength: 'bounded',
+      proves: 'The target only reads, writes, and effects what the contract allows.',
+      limit: 'Does not prove target runtime conditions.',
+      route: 'Admit authority',
+      tone: 'static',
+    },
+    {
+      name: 'Runtime probe',
+      strength: 'observed',
+      proves: 'The projected boundary is exercised under declared conditions.',
+      limit: 'Only covers the probed states and environments.',
+      route: 'Admit behavior',
+      tone: 'runtime',
+    },
+    {
+      name: 'Loss account',
+      strength: 'strong',
+      proves: 'Anything not preserved is explicit enough to route, review, adapt, or refuse.',
+      limit: 'Does not make the lost feature safe by itself.',
+      route: 'Decide boundary',
+      tone: 'decision',
+    },
+  ]}
+  caption="The boundary becomes more trustworthy as it moves from naming to proof."
+/>
+
+## Routing Instead Of Glue
+
+Once language boundaries become semantic, the system gets a better set of choices.
+
+It does not only compile or fail.
+
+It routes.
+
+<RouteDecisionTable
+  eyebrow="Interop Routing"
+  title="What The Boundary Can Decide"
+  rows={[
+    {
+      route: 'Admit',
+      signal: 'Identity, type, effect, runtime, and loss evidence pass',
+      requires: 'Fresh proof against the current contract',
+      produces: 'Usable cross-language binding',
+    },
+    {
+      route: 'Generate adapter',
+      signal: 'Meaning is compatible but target idioms differ',
+      requires: 'Adapter template plus source/target span map',
+      produces: 'Projection with adapter evidence',
+    },
+    {
+      route: 'Sandbox',
+      signal: 'The target needs authority or runtime behavior outside the default grant',
+      requires: 'Capability boundary and audit trail',
+      produces: 'Restricted execution boundary',
+    },
+    {
+      route: 'Ask',
+      signal: 'The system cannot decide whether a loss is acceptable',
+      requires: 'A narrow human question',
+      produces: 'A durable answer or refusal',
+    },
+    {
+      route: 'Reject',
+      signal: 'The target would misrepresent ownership, effects, data, or runtime behavior',
+      requires: 'Recorded blocker',
+      produces: 'No binding; sharper future work item',
+    },
+  ]}
+  caption="Semantic interoperability turns language integration into an admission problem instead of a pile of private glue code."
+/>
+
+## What Changes
+
+This makes languages feel less like sealed worlds.
+
+Not because their syntax disappears.
+
+Because their useful meanings become addressable.
+
+A Rust module can provide a capability to a TypeScript shell. A SwiftUI view can mount over a contract authored somewhere else. A Python worker can consume the same action surface as a browser UI. A CSS layer can bind to design tokens whose identity survives a projection. A plugin can be written as a semantic contract and lowered into several hosts.
+
+The important move is that the boundary stops being:
+
+```txt
+language A calls language B
+```
+
+and becomes:
+
+```txt
+language A and language B both attach to contract C
+```
+
+That is why semantic merging and language translation are the same project.
+
+If the system can prove what changed, it can merge. If it can prove what survived, it can project. If it can prove what a boundary means, languages can interoperate without collapsing into one language.
+
+The future is not one perfect programming language.
+
+It is many languages connected by contracts that can be inspected, lowered, tested, merged, and refused.

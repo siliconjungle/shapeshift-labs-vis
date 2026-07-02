@@ -45,8 +45,10 @@ import ShapeOfSoftwareAfterFiles from './shape-of-software-after-files.mdx';
 import EndOfApplicationBoundary from './end-of-application-boundary.mdx';
 import TheLanguageShouldBeWritable from './the-language-should-be-writable.mdx';
 import PluginsAreSemanticContracts from './plugins-are-semantic-contracts.mdx';
+import LanguagesBecomeInterfaces from './languages-become-interfaces.mdx';
 
 export const postComponents = {
+  'languages-become-interfaces': LanguagesBecomeInterfaces,
   'plugins-are-semantic-contracts': PluginsAreSemanticContracts,
   'the-language-should-be-writable': TheLanguageShouldBeWritable,
   'end-of-application-boundary': EndOfApplicationBoundary,
