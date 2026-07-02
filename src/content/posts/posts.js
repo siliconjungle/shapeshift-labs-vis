@@ -1,5 +1,13 @@
 const postEntries = [
   {
+    slug: 'semantic-adapters-make-languages-interoperable',
+    title: 'Semantic Adapters Make Languages Interoperable',
+    publishedAt: '2026-07-02T15:54:00+10:00',
+    graphType: null,
+    excerpt:
+      'Languages become interoperable when adapters are checked semantic boundaries: contracts, native facts, proof, compensation, and visible loss.',
+  },
+  {
     slug: 'languages-become-interfaces',
     title: 'Languages Become Interfaces',
     publishedAt: '2026-07-02T15:19:00+10:00',

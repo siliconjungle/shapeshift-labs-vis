@@ -46,8 +46,10 @@ import EndOfApplicationBoundary from './end-of-application-boundary.mdx';
 import TheLanguageShouldBeWritable from './the-language-should-be-writable.mdx';
 import PluginsAreSemanticContracts from './plugins-are-semantic-contracts.mdx';
 import LanguagesBecomeInterfaces from './languages-become-interfaces.mdx';
+import SemanticAdaptersMakeLanguagesInteroperable from './semantic-adapters-make-languages-interoperable.mdx';
 
 export const postComponents = {
+  'semantic-adapters-make-languages-interoperable': SemanticAdaptersMakeLanguagesInteroperable,
   'languages-become-interfaces': LanguagesBecomeInterfaces,
   'plugins-are-semantic-contracts': PluginsAreSemanticContracts,
   'the-language-should-be-writable': TheLanguageShouldBeWritable,

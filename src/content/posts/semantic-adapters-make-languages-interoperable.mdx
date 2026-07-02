@@ -1,0 +1,382 @@
+Programming languages already interoperate.
+
+They call each other through ABIs, RPC, bindings, generated clients, shared databases, message queues, plug-in systems, package managers, and runtime embeddings.
+
+The problem is not that languages cannot communicate.
+
+The problem is that most communication happens through narrow technical edges while the meaning stays private.
+
+```txt
+Rust exposes bytes.
+TypeScript exposes a wrapper.
+Swift exposes a client.
+Python exposes a script.
+
+None of those edges automatically explain identity, ownership, effects, permissions, runtime assumptions, or proof.
+```
+
+A semantic interlingua changes the shape of the edge.
+
+It makes the adapter itself a first-class object.
+
+<SemanticRecord
+  eyebrow="Interop Layer"
+  title="Semantic Adapter"
+  status="Checked boundary"
+  fields={[
+    {
+      label: 'Contract',
+      value: 'capability, action, data, effect, resource',
+      detail: 'The shared meaning every language is trying to attach to.',
+    },
+    {
+      label: 'Source side',
+      value: 'native language facts',
+      detail: 'Rust may prove ownership. TypeScript may prove structural shape. CSS may prove cascade targets.',
+      tone: 'route',
+    },
+    {
+      label: 'Adapter',
+      value: 'mapping, shim, binding, transport, projection',
+      detail: 'The adapter says how the native fact crosses the boundary.',
+    },
+    {
+      label: 'Proof',
+      value: 'type gate, runtime probe, span map, loss record',
+      detail: 'The boundary is trusted only as far as the proof reaches.',
+    },
+    {
+      label: 'Loss',
+      value: 'explicit and queryable',
+      detail: 'If a target cannot preserve a constraint, that is recorded instead of hidden.',
+      tone: 'warning',
+    },
+  ]}
+  caption="A semantic adapter is not just glue code. It is a checked claim that one language surface satisfies a shared contract."
+/>
+
+## Glue Hides The Contract
+
+Normal interoperability starts with mechanics:
+
+```txt
+Can the caller invoke this function?
+Can the runtime load this module?
+Can this object serialize across the wire?
+Can this generated client compile?
+```
+
+Those are real requirements, but they are not enough.
+
+Imagine a search system.
+
+The index is written in Rust. The product shell is TypeScript. A native client is SwiftUI. A worker script is Python. The browser surface is HTML and CSS.
+
+The old shape is pairwise glue:
+
+```txt
+Rust -> Node binding
+Node binding -> TypeScript wrapper
+TypeScript wrapper -> API route
+API route -> Swift client
+API route -> Python job
+API route -> browser UI
+```
+
+Every edge invents its own private contract.
+
+The semantic shape is different:
+
+<SupersetInterlinguaBridgeChart caption="Languages do not need to translate through each other. They can lift into a shared semantic layer and lower through checked adapters." />
+
+The contract becomes the meeting point.
+
+The adapter is where each language proves how it participates.
+
+## The Adapter Has Obligations
+
+If a language adapter is only a generated file, the system can ask only shallow questions:
+
+```txt
+did generation finish?
+did the file compile?
+did the wrapper call the right endpoint?
+```
+
+A semantic adapter can answer stronger questions:
+
+```txt
+which capability is implemented?
+which source symbol provides it?
+which target symbol exposes it?
+which effects can cross the boundary?
+which resource is read or mutated?
+which constraints are preserved natively?
+which constraints are preserved by runtime proof?
+which constraints are lost?
+```
+
+<SemanticCodeDiff
+  title="One Contract, Several Adapters"
+  panelMaxHeight={430}
+  panes={[
+    {
+      label: 'Frontier',
+      role: 'base',
+      active: true,
+      code: [
+        'capability Search @id("cap_search") {',
+        '  action query',
+        '  input SearchQuery',
+        '  returns SearchResults',
+        '  reads SearchCorpus.documents',
+        '  effects cpu.read, storage.read',
+        '}',
+        '',
+        'adapter RustSearch @id("adapter_rust_search") {',
+        '  implements cap_search.query',
+        '  source symbol:rust/SearchIndex.query',
+        '  preserves ownership, input_shape, output_shape',
+        '  proves type_gate, fixture_gate',
+        '}',
+      ].join('\n'),
+      note: {
+        kind: 'base',
+        label: 'Shared contract',
+        detail: 'The capability names the action, input, output, resources, and effects before any target language is chosen.',
+      },
+      highlights: [
+        { line: 1, text: 'Search', kind: 'base', label: 'capability identity' },
+        { line: 2, text: 'query', kind: 'add', label: 'action' },
+        { line: 5, text: 'SearchCorpus.documents', kind: 'base', label: 'resource boundary' },
+        { line: 9, text: 'RustSearch', kind: 'admit', label: 'adapter identity' },
+        { line: 12, text: 'ownership', kind: 'admit', label: 'native proof' },
+      ],
+    },
+    {
+      label: 'Rust',
+      role: 'worker',
+      code: [
+        'impl SearchIndex {',
+        '  pub fn query(&self, input: SearchQuery) -> SearchResults {',
+        '    self.corpus.search(input)',
+        '  }',
+        '}',
+      ].join('\n'),
+      note: {
+        kind: 'add',
+        label: 'Native provider',
+        detail: 'Rust can preserve the contract while adding ownership and aliasing facts that other languages may not express.',
+      },
+      highlights: [
+        { line: 1, text: 'SearchIndex', kind: 'base', label: 'source symbol' },
+        { line: 2, text: 'query', kind: 'add', label: 'same action' },
+        { line: 2, text: 'SearchQuery', kind: 'base', label: 'input shape' },
+        { line: 2, text: 'SearchResults', kind: 'base', label: 'output shape' },
+      ],
+    },
+    {
+      label: 'TypeScript',
+      role: 'output',
+      code: [
+        'export async function query(input: SearchQuery) {',
+        '  return host.call<SearchResults>({',
+        '    capability: "cap_search.query",',
+        '    input,',
+        '  });',
+        '}',
+      ].join('\n'),
+      note: {
+        kind: 'admit',
+        label: 'Typed caller',
+        detail: 'TypeScript binds to the same capability identity without needing to mirror the Rust ownership model.',
+      },
+      highlights: [
+        { line: 1, text: 'query', kind: 'add', label: 'same action' },
+        { line: 1, text: 'SearchQuery', kind: 'base', label: 'input shape' },
+        { line: 2, text: 'SearchResults', kind: 'base', label: 'output shape' },
+        { line: 3, text: 'cap_search.query', kind: 'admit', label: 'capability id' },
+      ],
+    },
+    {
+      label: 'Swift',
+      role: 'output',
+      code: [
+        'struct SearchPanel: View {',
+        '  let query: (SearchQuery) async -> SearchResults',
+        '',
+        '  var body: some View {',
+        '    SearchResultsView(run: query)',
+        '  }',
+        '}',
+      ].join('\n'),
+      note: {
+        kind: 'admit',
+        label: 'Native projection',
+        detail: 'Swift receives a native UI-facing projection while the capability and data contract stay stable.',
+      },
+      highlights: [
+        { line: 1, text: 'SearchPanel', kind: 'base', label: 'view projection' },
+        { line: 2, text: 'SearchQuery', kind: 'base', label: 'input shape' },
+        { line: 2, text: 'SearchResults', kind: 'base', label: 'output shape' },
+        { line: 5, text: 'query', kind: 'add', label: 'bound action' },
+      ],
+    },
+  ]}
+  caption="The useful boundary is not Rust-to-TypeScript or TypeScript-to-Swift. It is each language binding to the same semantic capability through an adapter with evidence."
+/>
+
+## Interoperability Is Not Equivalence
+
+The strongest version of this idea is not pretending every language can express every other language perfectly.
+
+It is the opposite.
+
+Languages become interoperable when the system can say exactly where they are not equivalent.
+
+<ClaimProofMatrix
+  eyebrow="Interop Matrix"
+  title="What The Adapter Must Explain"
+  rows={[
+    {
+      surface: 'Identity',
+      claim: 'Both sides refer to the same capability',
+      proof: 'Stable ids and source spans',
+      evidence: 'cap_search.query maps to RustSearch.query and TS query',
+      route: 'Preserve',
+      status: 'proved',
+    },
+    {
+      surface: 'Data shape',
+      claim: 'Input and output contracts survive',
+      proof: 'Type or schema gate',
+      evidence: 'SearchQuery and SearchResults compare cleanly',
+      route: 'Gate',
+      status: 'proved',
+    },
+    {
+      surface: 'Ownership',
+      claim: 'Rust aliasing rules remain valid',
+      proof: 'Native compiler and adapter boundary',
+      evidence: 'Ownership preserved inside Rust provider',
+      route: 'Preserve locally',
+      status: 'required',
+    },
+    {
+      surface: 'Effects',
+      claim: 'Only declared resources cross the boundary',
+      proof: 'Effect manifest or runtime trace',
+      evidence: 'Reads SearchCorpus.documents',
+      route: 'Probe',
+      status: 'required',
+    },
+    {
+      surface: 'Runtime behavior',
+      claim: 'The projected UI still behaves correctly',
+      proof: 'Preview or component probe',
+      evidence: 'Focus, loading, error, layout, accessibility snapshots',
+      route: 'Run proof',
+      status: 'missing',
+    },
+  ]}
+  caption="A language boundary is trustworthy when each preserved or missing fact has a named proof route."
+/>
+
+That makes interoperability less magical and more useful.
+
+The system can route the boundary:
+
+<RouteDecisionTable
+  eyebrow="Adapter Routes"
+  title="Interop Is Admission"
+  rows={[
+    {
+      route: 'Accept',
+      signal: 'Contract, adapter, and proof agree',
+      requires: 'Stable ids, type proof, effect boundary, current source',
+      produces: 'Adapter becomes callable',
+      tone: 'apply',
+    },
+    {
+      route: 'Wrap',
+      signal: 'Target lacks a native feature',
+      requires: 'Explicit shim and loss record',
+      produces: 'Adapter with known compensation',
+      tone: 'rebase',
+    },
+    {
+      route: 'Probe',
+      signal: 'Meaning is runtime-dependent',
+      requires: 'Browser, preview, fixture, trace, or integration proof',
+      produces: 'Runtime-bound evidence',
+      tone: 'rerun',
+    },
+    {
+      route: 'Split',
+      signal: 'One adapter hides several contracts',
+      requires: 'Separate capabilities or resources',
+      produces: 'Smaller interoperable edges',
+      tone: 'split',
+    },
+    {
+      route: 'Block',
+      signal: 'Required meaning cannot be preserved',
+      requires: 'Recorded non-equivalence',
+      produces: 'No unsafe boundary',
+      tone: 'block',
+    },
+  ]}
+  caption="Interoperability becomes an admission problem: each boundary is accepted, wrapped, probed, split, or blocked."
+/>
+
+## Many Languages, One System
+
+Once adapters are semantic, a system can stop treating language boundaries as hard product boundaries.
+
+A workflow can be authored once and projected into different runtimes.
+
+A UI component can expose a capability contract that a web shell, native shell, and automation shell can all bind to differently.
+
+A Rust module can provide a fast implementation without forcing the rest of the product to understand Rust.
+
+A TypeScript SDK can expose a friendly developer surface while still carrying the stronger ownership and effect claims from the provider.
+
+A Python automation can consume the same contract without becoming a second source of truth.
+
+```txt
+The languages stay different.
+The contract stays shared.
+The adapters carry proof.
+The losses stay visible.
+```
+
+That is the important shift.
+
+Interoperability is not a universal compiler that erases language differences.
+
+It is a semantic coordination layer that lets languages keep their strengths while participating in one larger system.
+
+## Why This Matters
+
+Most software becomes harder to change as it grows because every boundary accumulates private assumptions.
+
+The API route assumes something about the database. The generated client assumes something about the server. The native app assumes something about the web product. The worker assumes something about the queue. The docs assume something about all of them.
+
+Semantic adapters make those assumptions inspectable.
+
+They turn interoperability into a set of durable questions:
+
+```txt
+what is the shared contract?
+which language owns which part?
+what did this adapter preserve?
+what did it compensate for?
+what proof admits it?
+what would break if the contract moved?
+```
+
+That is why the interlingua matters.
+
+It is useful for semantic merging, but it is bigger than merge.
+
+It gives different programming languages a common place to meet without pretending they are the same language.
